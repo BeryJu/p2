@@ -1,0 +1,13 @@
+<mat-toolbar>
+  <mat-toolbar-row class="nav">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>keyboard_arrow_left</mat-icon>
+    </button>
+  </mat-toolbar-row>
+</mat-toolbar>
+<pyazo-sidebar></pyazo-sidebar>
+<div class="row">
+  <div class="container">
+    <router-outlet></router-outlet>
+  </div>
+</div>

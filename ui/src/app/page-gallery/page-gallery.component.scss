@@ -1,0 +1,12 @@
+
+/* Gallery - the only code needed to build the gallery */
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin: auto;
+}
+
+h1 {
+  font-size: 5rem;
+}
