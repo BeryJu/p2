@@ -10,7 +10,7 @@ stages:
   - test
   - build
   - docs
-image: python:3.5
+image: python:3.6-slim-strtch
 
 isort:
   script:
@@ -26,7 +26,7 @@ prospector:
   stage: test
 pylint:
   script:
-    - pylint pyazo
+    - pylint p2
   stage: test
 coverage:
   script:
@@ -41,7 +41,7 @@ package-docker:
   before_script:
     - echo "{\"auths\":{\"docker.$NEXUS_URL\":{\"auth\":\"$NEXUS_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination docker.pkg.beryju.org/pyazo:stable --destination docker.pkg.beryju.org/pyazo:1.9.7
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination docker.pkg.beryju.org/p2:stable --destination docker.pkg.beryju.org/p2:1.9.7
   stage: build
   only:
     - tags
@@ -51,8 +51,8 @@ package-helm:
   script:
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
     - helm init --client-only
-    - helm dependency build helm/pyazo
-    - helm package helm/pyazo
+    - helm dependency build helm/p2
+    - helm package helm/p2
     - ./manage.py nexus_upload --method put --url $NEXUS_URL --auth $NEXUS_AUTH --repo helm *.tgz
   only:
     - tags
@@ -70,11 +70,11 @@ package:
   image: ubuntu:18.04
   script:
     - debuild -us -uc
-    - cp ../pyazo*.deb .
-    - ./manage.py nexus_upload --method post --url $NEXUS_URL --auth $NEXUS_AUTH --repo apt pyazo*deb
+    - cp ../p2*.deb .
+    - ./manage.py nexus_upload --method post --url $NEXUS_URL --auth $NEXUS_AUTH --repo apt p2*deb
   artifacts:
     paths:
-    - pyazo*deb
+    - p2*deb
     expire_in: 2 days
   stage: build
   only:
@@ -89,7 +89,7 @@ docs:
   - /^debian/.*$/
   environment:
     name: docs
-    url: "https://pyazo.beryju.org/docs/"
+    url: "https://p2.beryju.org/docs/"
   script:
     - apt update
     - apt install -y rsync
@@ -99,7 +99,7 @@ docs:
     - "eval $(ssh-agent -s)"
     - "echo \"${CI_SSH_PRIVATE}\" | ssh-add -"
     - mkdocs build
-    - 'rsync -avh --delete site/* "beryjuorg@ory1-web-prod-1.ory1.beryju.org:pyazo.beryju.org/docs/"'
+    - 'rsync -avh --delete site/* "beryjuorg@ory1-web-prod-1.ory1.beryju.org:p2.beryju.org/docs/"'
 
 web:
   stage: docs
@@ -109,7 +109,7 @@ web:
   - /^debian/.*$/
   environment:
     name: docs
-    url: "https://pyazo.beryju.org/"
+    url: "https://p2.beryju.org/"
   script:
     - apt update
     - apt install -y rsync
@@ -117,4 +117,4 @@ web:
     - "cp .gitlab/known_hosts ~/.ssh/"
     - "eval $(ssh-agent -s)"
     - "echo \"${CI_SSH_PRIVATE}\" | ssh-add -"
-    - 'rsync -avh --delete web/* "beryjuorg@ory1-web-prod-1.ory1.beryju.org:pyazo.beryju.org/"'
+    - 'rsync -avh --delete web/* "beryjuorg@ory1-web-prod-1.ory1.beryju.org:p2.beryju.org/"'

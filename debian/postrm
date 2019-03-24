@@ -7,16 +7,16 @@ if [ -f /usr/share/debconf/confmodule ]; then
 fi
 if [ -f /usr/share/dbconfig-common/dpkg/postrm.mysql ]; then
     . /usr/share/dbconfig-common/dpkg/postrm.mysql
-    dbc_go pyazo "$@"
+    dbc_go p2 "$@"
 fi
 
 
 if [ "$1" = "purge" ]; then
     if which ucf >/dev/null 2>&1; then
-        ucf --purge /etc/pyazo/config.d/database.yml
-        ucfr --purge pyazo /etc/pyazo/config.d/database.yml
+        ucf --purge /etc/p2/config.d/database.yml
+        ucfr --purge p2 /etc/p2/config.d/database.yml
     fi
-    rm -rf /etc/pyazo/
+    rm -rf /etc/p2/
 fi
 
 #DEBHELPER#

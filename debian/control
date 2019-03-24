@@ -1,4 +1,4 @@
-Source: pyazo
+Source: p2
 Section: admin
 Priority: optional
 Maintainer: BeryJu.org <support@beryju.org>
@@ -6,7 +6,7 @@ Uploaders: Jens Langhammer <jens@beryju.org>, BeryJu.org <support@beryju.org>
 Build-Depends: debhelper (>= 9), dh-systemd (>= 1.5), dh-exec, wget, dh-exec, python3 (>= 3.5) | python3.6 | python3.7
 Standards-Version: 3.9.6
 
-Package: pyazo
+Package: p2
 Architecture: amd64
 Recommends: mysql-server, redis-server
 Pre-Depends: adduser, libldap2-dev, libsasl2-dev

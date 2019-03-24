@@ -2,7 +2,7 @@ import { Component, OnInit, Input, HostBinding } from '@angular/core';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 
 @Component({
-  selector: 'pyazo-image-tile',
+  selector: 'p2-image-tile',
   templateUrl: './image-tile.component.html',
   styleUrls: ['./image-tile.component.scss']
 })

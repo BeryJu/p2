@@ -1,14 +1,14 @@
 [run]
-source = pyazo
+source = p2
 omit =
     env/
     */wsgi.py
     manage.py
     */migrations/*
     */apps.py
-    pyazo/management/commands/nexus_upload.py
-    pyazo/management/commands/web.py
-    pyazo/management/commands/worker.py
+    p2/management/commands/nexus_upload.py
+    p2/management/commands/web.py
+    p2/management/commands/worker.py
     docs/
 
 [report]

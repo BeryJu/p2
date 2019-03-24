@@ -1,6 +1,6 @@
 # LDAP Authentication
 
-pyazo supports Authentication against LDAP or Active Directory.
+p2 supports Authentication against LDAP or Active Directory.
 
 To configure LDAP, uncomment the following section in the `config.yml` file:
 

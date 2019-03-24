@@ -1,14 +1,14 @@
 [Unit]
-Description=pyazo - Open-Source Imageserver
+Description=p2 - Open-Source Imageserver
 After=network.target
 Requires=network.target
 
 [Service]
-User=pyazo
-Group=pyazo
-WorkingDirectory=/usr/share/pyazo
+User=p2
+Group=p2
+WorkingDirectory=/usr/share/p2
 Type=simple
-ExecStart=/usr/share/pyazo/pyazo.sh web
+ExecStart=/usr/share/p2/p2.sh web
 
 [Install]
 WantedBy=multi-user.target

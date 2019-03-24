@@ -1,0 +1,19 @@
+ul {
+  display: block;
+  list-style: none;
+  padding-inline-start: 0;
+  position: fixed;
+  padding-left: 10px;
+}
+
+ul li {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  max-height: 70px;
+  max-width: 70px;
+}
+
+ul li mat-icon {
+  transform: scale(2);
+}

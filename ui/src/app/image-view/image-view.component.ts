@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'pyazo-image-view',
+  selector: 'p2-image-view',
   templateUrl: './image-view.component.html',
   styleUrls: ['./image-view.component.scss']
 })

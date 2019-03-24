@@ -1,6 +1,6 @@
-etc/pyazo/
-etc/pyazo/config.d/
-var/log/pyazo/
-usr/share/pyazo/
-usr/share/pyazo/media/
-usr/share/pyazo/bin/
+etc/p2/
+etc/p2/config.d/
+var/log/p2/
+usr/share/p2/
+usr/share/p2/media/
+usr/share/p2/bin/

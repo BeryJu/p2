@@ -1,11 +1,11 @@
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: {{ include "pyazo.fullname" . }}-data
+  name: {{ include "p2.fullname" . }}-data
   labels:
     type: local
-    app.kubernetes.io/name: {{ include "pyazo.name" . }}
-    helm.sh/chart: {{ include "pyazo.chart" . }}
+    app.kubernetes.io/name: {{ include "p2.name" . }}
+    helm.sh/chart: {{ include "p2.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
@@ -15,17 +15,17 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "/mnt/pyazo"
+    path: "/mnt/p2"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   labels:
-    app.kubernetes.io/name: {{ include "pyazo.name" . }}
-    helm.sh/chart: {{ include "pyazo.chart" . }}
+    app.kubernetes.io/name: {{ include "p2.name" . }}
+    helm.sh/chart: {{ include "p2.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
-  name: {{ include "pyazo.fullname" . }}-data
+  name: {{ include "p2.fullname" . }}-data
 spec:
   storageClassName: manual
   accessModes:

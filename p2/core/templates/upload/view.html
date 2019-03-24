@@ -1,0 +1,159 @@
+{% extends "core/base.html" %}
+
+{% load i18n %}
+
+{% block title %}
+{{ upload.md5 }} - p2
+{% endblock %}
+
+{% block content_area %}
+<div class="row">
+  <div class="col-sm-12 col-lg-6">
+    <h3>{% trans 'Image' %}</h3>
+    <hr>
+    {% if upload.mime_type_category == 'image' %}
+    <img style="max-width:100%" src="{% url 'view_sha512' file_hash=upload.sha512 %}" alt="">
+    {% else %}
+    <iframe style="max-width:100%;width: 100%;height:100%;background-color: #22343C;" src="{% url 'view_sha512' file_hash=upload.sha512 %}" frameborder="0"></iframe>
+    {% endif %}
+  </div>
+  <div class="row col-sm-12 col-lg-6">
+    <div class="col-sm-12 col-lg-6">
+      <h3>{% trans 'Info' %}</h3>
+      <hr>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{% trans 'Property' %}</th>
+            <th>{% trans 'Value' %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{% trans 'User' %}</td>
+            {% if upload.user %}
+              <td>{{ upload.user }} ({{upload.user.email}})</td>
+            {% else %}
+              <td>-</td>
+            {% endif %}
+          </tr>
+          <tr>
+            <td>{% trans 'Size' %}</td>
+            <td>{{ upload.file.size|filesizeformat }}</td>
+          </tr>
+          <tr>
+            <td>{% trans 'MD5' %}</td>
+            <td><a href="{{ url_prefix }}{{ upload.md5 }}">{% trans 'Here' %}</a></td>
+          </tr>
+          <tr>
+            <td>{% trans 'SHA256' %}</td>
+            <td><a href="{{ url_prefix }}{{ upload.sha256 }}">{% trans 'Here' %}</a></td>
+          </tr>
+          <tr>
+            <td>{% trans 'SHA512' %}</td>
+            <td><a href="{{ url_prefix }}{{ upload.sha512 }}">{% trans 'Here' %}</a></td>
+          </tr>
+          <tr>
+            <td>{% trans 'SHA512 (Short)' %}</td>
+            <td><a href="{{ url_prefix }}{{ upload.sha512_short }}">{% trans 'Here' %}</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-12 col-lg-6">
+      <h3>{% trans 'Actions' %}</h3>
+      <hr>
+      {% if not upload.user or upload.user.is_superuser %}
+        <a class="btn btn-primary" href="{% url 'upload_claim' file_hash=upload.sha512 %}">{% trans 'Claim' %}</a>
+      {% endif %}
+      <hr>
+      <form action="" method="POST">
+        {% include 'blocks/block_form.html' with form=forms.collection %}
+        <input class="btn btn-primary" type="submit" value="{% trans 'Assign' %}">
+        <a href="{% url 'admin:p2_core_collection_add' %}" class="btn">{% trans 'Create new...' %}</a>
+        {% if upload.collection %}
+          <a href="{% url 'index' %}?collection={{ upload.collection.name }}" class="btn">{% trans 'Show collection' %}</a>
+        {% endif %}
+      </form>
+      <hr>
+      <a href="{% url 'upload_delete' file_hash=upload.sha512 %}?back={{ request.get_full_path }}" class="btn btn-danger">{% trans 'Delete' %}</a>
+    </div>
+    <div class="col-sm-12">
+      <h3>{% trans 'Statistics' %}</h3>
+      <hr>
+      <h1>{% trans 'Views: ' %}{{ upload.ObjectView_set.count }}</h1>
+      {% if not upload.user or upload.user == request.user or request.user.is_superuser %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{% trans 'IP' %}</th>
+            <th>{% trans 'Reverse DNS' %}</th>
+            <th>{% trans 'User-Agent' %}</th>
+            <th>{% trans 'Date' %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for view in views %}
+          <tr>
+            <td>{{ view.viewee_ip }}</td>
+            <td>{{ view.viewee_dns }}</td>
+            <td>
+              <span role="tooltip" aria-haspopup="true" class="tooltip tooltip-lg">
+                {{ view.user_agent }}
+                <span class="tooltip-content">
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td>{% trans 'Is PC' %}</td>
+                        <td>{{ view.user_agent.is_pc}}</td>
+                      </tr>
+                      <tr>
+                        <td>{% trans 'Is Mobile' %}</td>
+                        <td>{{ view.user_agent.is_mobile }}</td>
+                      </tr>
+                      <tr>
+                        <td>{% trans 'Is Bot' %}</td>
+                        <td>{{ view.user_agent.is_bot }}</td>
+                      </tr>
+                      <tr>
+                        <td>{% trans 'Browser Family' %}</td>
+                        <td>{{ view.user_agent.browser.family }}</td>
+                      </tr>
+                      <tr>
+                        <td>{% trans 'Operating System' %}</td>
+                        <td>{{ view.user_agent.os.family }}</td>
+                      </tr>
+                      <tr>
+                        <td>{% trans 'Device' %}</td>
+                        <td>{{ view.user_agent.device.family }}</td>
+                      </tr>
+                      <tr>
+                        <td>{% trans 'Full User-Agent' %}</td>
+                        <td>{{ view.viewee_user_agent }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </span>
+                <clr-icon shape="info-circle" size="24"></clr-icon>
+              </span>
+            </td>
+            <td>{{ view.viewee_date }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+$('iframe').on('load', function () {
+  $('iframe').contents().find("head")
+    .append($("<style type='text/css'>body{color: #E9ECEF;}</style>"));
+});
+</script>
+{% endblock %}

@@ -1,10 +1,10 @@
-pyazo			/usr/share/pyazo/
-static			/usr/share/pyazo/
-manage.py		/usr/share/pyazo/
-pyazo.sh		/usr/share/pyazo/
-vendor			/usr/share/pyazo/
+p2			/usr/share/p2/
+static			/usr/share/p2/
+manage.py		/usr/share/p2/
+p2.sh		/usr/share/p2/
+vendor			/usr/share/p2/
 
-debian/etc/pyazo								/etc/
-debian/templates/database.yml					/usr/share/pyazo/
-client/win/PyazoWin/bin/Release/Pyazo.exe		/usr/share/pyazo/bin/
-client/pyazo.dmg								/usr/share/pyazo/bin/
+debian/etc/p2								/etc/
+debian/templates/database.yml					/usr/share/p2/
+client/win/p2Win/bin/Release/p2.exe		/usr/share/p2/bin/
+client/p2.dmg								/usr/share/p2/bin/

@@ -13,7 +13,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -110,9 +109,9 @@ media/*
 *.env.yml
 unittest.xml
 media_test/
-helm/pyazo/charts/*.tgz
+helm/p2/charts/*.tgz
 
 vendor/**
-debian/pyazo/**
+debian/p2/**
 debian/files
 debian/*.substvars

@@ -1,4 +1,4 @@
-# Default values for pyazo.
+# Default values for p2.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -16,8 +16,8 @@ config:
   error_reporting: true
 
 db:
-  user: pyazo
-  name: pyazo
+  user: p2
+  name: p2
 
 service:
   type: ClusterIP
@@ -30,12 +30,12 @@ ingress:
     # kubernetes.io/tls-acme: "true"
   path: /
   hosts:
-    - pyazo.k8s.local
-  defaultHost: pyazo.k8s.local
+    - p2.k8s.local
+  defaultHost: p2.k8s.local
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
-  #      - pyazo.k8s.local
+  #      - p2.k8s.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

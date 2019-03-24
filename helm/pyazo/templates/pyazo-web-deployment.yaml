@@ -1,31 +1,31 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ include "pyazo.fullname" . }}-web
+  name: {{ include "p2.fullname" . }}-web
   labels:
-    app.kubernetes.io/name: {{ include "pyazo.name" . }}
-    helm.sh/chart: {{ include "pyazo.chart" . }}
+    app.kubernetes.io/name: {{ include "p2.name" . }}
+    helm.sh/chart: {{ include "p2.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "pyazo.name" . }}
+      app.kubernetes.io/name: {{ include "p2.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "pyazo.name" . }}
+        app.kubernetes.io/name: {{ include "p2.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       volumes:
         - name: config-volume
           configMap:
-            name: {{ include "pyazo.fullname" . }}-config
+            name: {{ include "p2.fullname" . }}-config
         - name: media-storage
           persistentVolumeClaim:
-            claimName: {{ include "pyazo.fullname" . }}-data
+            claimName: {{ include "p2.fullname" . }}-data
       initContainers:
         - name: fix-volume-permissions
           image: busybox
@@ -35,7 +35,7 @@ spec:
               name: media-storage
       containers:
         - name: {{ .Chart.Name }}
-          image: "docker.pkg.beryju.org/pyazo:{{ .Values.image.tag }}"
+          image: "docker.pkg.beryju.org/p2:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
           command: ["./manage.py", "web"]
           ports:
@@ -43,7 +43,7 @@ spec:
               containerPort: 8000
               protocol: TCP
           volumeMounts:
-            - mountPath: /etc/pyazo
+            - mountPath: /etc/p2
               name: config-volume
             - mountPath: /app/media
               name: media-storage

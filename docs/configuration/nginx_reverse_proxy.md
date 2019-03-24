@@ -1,6 +1,6 @@
 ## Reverse Proxy Configuration
 
-To use Pyazo behind an nginx Reverse-Proxy, you can use the following configuration:
+To use p2 behind an nginx Reverse-Proxy, you can use the following configuration:
 
 ```nginx
 server {
@@ -27,7 +27,7 @@ server {
 
         # Proxy site
         location / {
-                proxy_pass http://<pyazo hostname>:8000;
+                proxy_pass http://<p2 hostname>:8000;
                 proxy_set_header Host $host;
                 proxy_set_header X-Forwarded-Proto $scheme;
                 proxy_set_header X-Forwarded-Port 443;

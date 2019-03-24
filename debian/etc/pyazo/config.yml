@@ -2,12 +2,12 @@ debug: false
 http:
     host: 0.0.0.0
     port: 8000
-secret_key_file: /etc/pyazo/secret_key
+secret_key_file: /etc/p2/secret_key
 log:
     level:
         console: INFO
         file: DEBUG
-    file: /var/log/pyazo/pyazo.log
+    file: /var/log/p2/p2.log
 # Error reporting, disabled by default
 # error_report_enabled: true
 

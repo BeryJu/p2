@@ -1,7 +1,7 @@
-site_name: Pyazo Documentation
+site_name: p2 Documentation
 theme:
   name: 'readthedocs'
-repo_url: "https://git.beryju.org/BeryJu.org/pyazo"
+repo_url: "https://git.beryju.org/BeryJu.org/p2"
 nav:
 - Home: index.md
 - Installation:

@@ -1,3 +1,3 @@
-# Welcome to Pyazo
+# Welcome to p2
 
-This documentation will help you to install and configure Pyazo.
+This documentation will help you to install and configure p2.

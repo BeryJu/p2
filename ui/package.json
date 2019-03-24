@@ -28,6 +28,7 @@
     "core-js": "^2.5.4",
     "hammerjs": "^2.0.8",
     "material-icons": "^0.3.0",
+    "ngx-virtual-scroller": "^1.0.16",
     "rxjs": "~6.3.3",
     "tslib": "^1.9.0",
     "yarn": "^1.13.0",
