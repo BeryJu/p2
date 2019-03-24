@@ -1,11 +1,11 @@
 from xml.etree import ElementTree
 
 from django.views import View
-
-from p2.s3.http import XMLResponse
-from p2.s3.auth import S3Authentication
-from p2.core.models import Volume
 from guardian.shortcuts import get_objects_for_user
+
+from p2.core.models import Volume
+from p2.s3.auth import S3Authentication
+from p2.s3.http import XMLResponse
 
 
 class ListView(S3Authentication):

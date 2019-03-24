@@ -10,7 +10,6 @@ from django.db import DatabaseError, models, transaction
 from django.utils.timezone import now
 from model_utils.managers import InheritanceManager
 
-
 from p2.lib.models import UUIDModel
 
 LOGGER = getLogger(__name__)

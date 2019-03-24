@@ -10,7 +10,7 @@ stages:
   - test
   - build
   - docs
-image: python:3.6-slim-strtch
+image: python:3.6-slim
 
 isort:
   script:

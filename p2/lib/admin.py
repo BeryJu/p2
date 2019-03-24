@@ -4,6 +4,7 @@ from django.apps import apps
 from django.contrib import admin
 from django.contrib.admin.sites import AlreadyRegistered
 
+
 def admin_autoregister(app):
     """Automatically register all models from app"""
     app_models = apps.get_app_config(app).get_models()
@@ -12,4 +13,3 @@ def admin_autoregister(app):
             admin.site.register(model)
         except AlreadyRegistered:
             pass
-
