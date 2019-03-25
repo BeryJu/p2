@@ -11,6 +11,14 @@ stages:
   - build
   - docs
 image: python:3.6
+services:
+    - postgres:latest
+    - redis:latest
+
+variables:
+    POSTGRES_DB: passbook
+    POSTGRES_USER: passbook
+    POSTGRES_PASSWORD: "EK-5jnKfjrGRm<77"
 
 isort:
   script:

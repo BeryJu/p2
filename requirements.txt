@@ -1,3 +1,4 @@
  -r p2/root/requirements.txt
  -r p2/image/requirements.txt
  -r p2/api/requirements.txt
+psycopg2
