@@ -36,11 +36,11 @@ pylint:
   script:
     - pylint p2
   stage: test
-coverage:
-  script:
-    - coverage run manage.py test
-    - coverage report
-  stage: test
+# coverage:
+#   script:
+#     - coverage run manage.py test
+#     - coverage report
+#   stage: test
 
 package-docker:
   image:
