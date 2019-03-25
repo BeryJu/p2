@@ -9,17 +9,13 @@ https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 
 import os
 
-import pymysql
 from django.core.wsgi import get_wsgi_application
-from raven.contrib.django.raven_compat.middleware.wsgi import Sentry
-
-pymysql.install_as_MySQLdb()
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "p2.core.settings")
 
 # Import django settings after setting DJANGO_SETTINGS_MODULE
 # pylint: disable=wrong-import-position, ungrouped-imports
-from django.conf import settings # noaq isort:skip
+# from django.conf import settings # noaq isort:skip
 
 # # pylint: disable=invalid-name
 # application = None

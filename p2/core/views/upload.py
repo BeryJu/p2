@@ -16,7 +16,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
 
-from p2.core.forms.view import CollectionSelectForm
+# from p2.core.forms.view import CollectionSelectForm
 from p2.core.models import Collection, Object
 from p2.core.views.view import ObjectViewFile
 from p2.lib.config import CONFIG
@@ -36,16 +36,16 @@ class ObjectView(LoginRequiredMixin, TemplateView):
         context['upload'] = upload
         context['url_prefix'] = self.request.build_absolute_uri('/')
         context['views'] = context['upload'].objectview_set.order_by('-viewee_date')[:10]
-        context['forms'] = {
-            'collection': CollectionSelectForm(
-                prefix='collection',
-                initial={
-                    'collection': upload.collection
-                },
-                data=self.request.POST if any(
-                    'collection' in k for k in self.request.POST.keys()) else None
-            )
-        }
+        # context['forms'] = {
+        #     'collection': CollectionSelectForm(
+        #         prefix='collection',
+        #         initial={
+        #             'collection': upload.collection
+        #         },
+        #         data=self.request.POST if any(
+        #             'collection' in k for k in self.request.POST.keys()) else None
+        #     )
+        # }
         # Prepare Collections
         collections = Collection.objects.filter(owner=self.request.user)
         context['forms']['collection'].fields['collection'].queryset = collections

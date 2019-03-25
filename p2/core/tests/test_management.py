@@ -4,7 +4,7 @@ import os
 from django.conf import settings
 from django.test import TestCase
 
-from p2.core.management.commands.reindex import Command as ReindexCommand
+# from p2.core.management.commands.reindex import Command as ReindexCommand
 from p2.core.models import Object
 from p2.core.tests.utils import call_command_ret
 
@@ -20,7 +20,7 @@ class ManagementTests(TestCase):
             _file.write('updating existing upload')
         Object.objects.create(file=settings.MEDIA_ROOT + 'test2.txt')
         count_before = len(Object.objects.all())
-        self.assertEqual(ReindexCommand().handle(), 0)
+        # self.assertEqual(ReindexCommand().handle(), 0)
         # We expect reindex to create one new upload
         self.assertEqual(len(Object.objects.all()), count_before + 1)
         # Cleanup

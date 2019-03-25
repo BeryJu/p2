@@ -1,10 +1,11 @@
 """p2 URL Configuration"""
 from django.conf import settings
-from django.conf.urls import url
+# from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth import views
 from django.urls import include, path
-from django.views.generic.base import RedirectView
+
+# from django.views.generic.base import RedirectView
 
 # from p2.api.urls import urlpatterns as api_urlpatterns
 # from p2.core.views import clients, core, upload, view

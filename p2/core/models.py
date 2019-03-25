@@ -1,9 +1,9 @@
+"""p2 Core models"""
 import os
 from copy import deepcopy
 from logging import getLogger
 from typing import Union
 
-from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.core.cache import cache
 from django.db import DatabaseError, models, transaction
@@ -123,6 +123,7 @@ class BaseStorage(UUIDModel):
 
     @property
     def provider(self):
+        """Provider Name for UI"""
         return None
 
     def retrieve_payload(self, blob: Blob) -> Union[None, bytes]:

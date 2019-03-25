@@ -6,7 +6,7 @@ import cherrypy
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from p2.core.wsgi import application
+from p2.root.wsgi import application
 
 LOGGER = getLogger(__name__)
 

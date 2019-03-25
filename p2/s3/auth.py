@@ -1,10 +1,6 @@
 """p2 s3 authentication mixin"""
-import base64
-import datetime
 import hashlib
 import hmac
-import os
-import sys
 from collections import OrderedDict
 from logging import getLogger
 from xml.etree import ElementTree
@@ -72,10 +68,13 @@ class S3Authentication(View):
             return keys.first()
         return None
 
+    # pylint: disable=too-many-locals
     def authenticate(self):
         """Check Authorization Header in AWS Compatible format"""
         raw = self.request.META.get('HTTP_AUTHORIZATION')
         LOGGER.debug("Raw Header: %r", raw)
+        if not raw:
+            return False
         algorithm, credential_container = raw.split(' ', 1)
         credential, signed_headers, signature = credential_container.split(',')
         # Remove "Credentail=" from string
@@ -100,7 +99,7 @@ class S3Authentication(View):
             canonical_request_hash
         ])
         LOGGER.debug("Signing %s", string_to_sign)
-        our_signature = hmac.new(signing_key, (string_to_sign).encode('utf-8'), hashlib.sha256).hexdigest()
+        our_signature = self._sign(signing_key, string_to_sign)
         LOGGER.debug("We got %s", our_signature)
         if signature == our_signature:
             self.request.user = secret_key.user

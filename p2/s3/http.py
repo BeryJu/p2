@@ -1,4 +1,4 @@
-
+"""p2 S3 HTTP Wrappers"""
 from xml.etree import ElementTree
 
 from django.http import HttpResponse

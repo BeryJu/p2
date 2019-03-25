@@ -1,7 +1,7 @@
 """p2 celery"""
-import logging
 import os
 from logging import getLogger
+from logging.config import dictConfig
 
 import celery
 from django.conf import settings
@@ -28,7 +28,7 @@ class Celery(celery.Celery):
 @celery.signals.setup_logging.connect
 def config_loggers(*args, **kwags):
     """Apply logging settings from settings.py to celery"""
-    logging.config.dictConfig(settings.LOGGING)
+    dictConfig(settings.LOGGING)
 
 
 # pylint: disable=unused-argument

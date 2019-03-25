@@ -1,0 +1,13 @@
+django
+django-guardian
+requests
+celery
+cherrypy
+django-auth-ldap
+django-model-utils
+django-redis
+python-magic
+pytz
+pyyaml
+user-agents
+colorlog

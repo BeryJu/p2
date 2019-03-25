@@ -7,3 +7,5 @@ class ErrorCodes(Enum):
 
     ACCESS_DENIED = "AccessDenied", 401
     NOT_IMPLEMENTED = "NotImplemented", 501
+
+XML_NAMESPACE = "http://s3.amazonaws.com/doc/2006-03-01/"

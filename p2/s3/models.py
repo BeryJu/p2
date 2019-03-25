@@ -1,3 +1,4 @@
+"""p2 S3 models"""
 from uuid import uuid4
 
 from django.contrib.auth.models import User
@@ -6,6 +7,7 @@ from django.utils.translation import gettext as _
 
 
 class S3AccessKey(models.Model):
+    """S3 Access Key"""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.TextField()

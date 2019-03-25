@@ -1,19 +1,14 @@
-class S3BucketConverter:
+"""p2 s3 URL converters"""
+
+from django.urls.converters import StringConverter
+
+
+class S3BucketConverter(StringConverter):
+    """Match S3 bucket regex"""
 
     regex = '([a-z]|(d(?!d{0,2}.d{1,3}.d{1,3}.d{1,3})))([a-zd]|(.(?!(.|-)))|(-(?!.))){1,61}[a-zd.]'
 
-    def to_python(self, value):
-        return value
-
-    def to_url(self, value):
-        return value
-
-class PathConverter:
+class EverythingConverter(StringConverter):
+    """Match Everything. Just used for debugging"""
 
     regex = '.*'
-
-    def to_python(self, value):
-        return value
-
-    def to_url(self, value):
-        return value

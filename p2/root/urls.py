@@ -1,3 +1,4 @@
+"""p2 Root URLs"""
 from django.urls import include, path
 
 # from p2.core.urls import ur

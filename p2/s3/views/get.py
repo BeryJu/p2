@@ -1,16 +1,17 @@
+"""p2 S3 views"""
 from xml.etree import ElementTree
 
-from django.views import View
 from guardian.shortcuts import get_objects_for_user
 
-from p2.core.models import Volume
 from p2.s3.auth import S3Authentication
 from p2.s3.http import XMLResponse
 
 
 class ListView(S3Authentication):
+    """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTServiceGET.html"""
 
     def get(self, request):
+        """Return list of Buckets"""
         root = ElementTree.Element("{http://s3.amazonaws.com/doc/2006-03-01}ListAllMyBucketsResult")
         owner = ElementTree.Element("Owner")
 

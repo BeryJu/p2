@@ -4,7 +4,6 @@ import logging
 import os
 from glob import glob
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from p2.core.models import Blob, Volume
@@ -29,6 +28,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def get_sha512(file_handle):
+        """Simple boilerplate to get SHA512 of file"""
         sha512 = hashlib.sha512()
         sha512.update(file_handle.read())
         return sha512.hexdigest()
@@ -48,7 +48,7 @@ class Command(BaseCommand):
                     matching = matching_files.first()
                     LOGGER.warning("File '%s' exists already as %s, skipping.", path, matching.uuid)
                     return
-            blob = Blob.objects.create(
+            Blob.objects.create(
                 path='/%s' % virtual_path,
                 volume=volume,
                 payload=_file.read())

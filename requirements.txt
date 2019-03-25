@@ -1,13 +1,3 @@
-django
-django-cors-middleware
-django-redis
-django-auth-ldap
-pytz
-cherrypy
-user-agents
-python-magic
-pyyaml
-celery
-redis
-pillow==4.1.1
-django-model-utils
+ -r p2/root/requirements.txt
+ -r p2/image/requirements.txt
+ -r p2/api/requirements.txt

@@ -1,7 +1,9 @@
 """p2 API Urls"""
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
-from rest_framework_swagger.views import get_swagger_view
+# from django.urls import include, path
+# from rest_framework.routers import DefaultRouter
+
+# from drf_yasg.
+# from rest_framework_swagger.views import get_swagger_view
 
 # from p2.api.viewsets import (CollectionViewSet, ObjectViewsSet,
 #                              ObjectViewViewSet, UserViewSet)
@@ -14,5 +16,5 @@ from rest_framework_swagger.views import get_swagger_view
 
 urlpatterns = [
     # path('v1/', include(ROUTER.urls)),
-    path('swagger/', get_swagger_view(title='p2 API'))
+    # path('swagger/', get_swagger_view(title='p2 API'))
 ]
