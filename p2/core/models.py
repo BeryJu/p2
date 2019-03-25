@@ -6,15 +6,16 @@ from typing import Union
 
 from django.contrib.postgres.fields import JSONField
 from django.core.cache import cache
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import DatabaseError, models, transaction
 from django.utils.timezone import now
 from model_utils.managers import InheritanceManager
 
-from p2.lib.models import UUIDModel
+from p2.lib.models import TagModel, UUIDModel
 
 LOGGER = getLogger(__name__)
 
-class Volume(UUIDModel):
+class Volume(UUIDModel, TagModel):
     """Folder-like object, holding a collection of blobs"""
 
     name = models.SlugField()
@@ -26,15 +27,15 @@ class Volume(UUIDModel):
             ('use_volume', 'Use Volume')
         )
 
-class Blob(UUIDModel):
+
+class Blob(UUIDModel, TagModel):
     """Binary-large object, member of a Volume and store in the volume's storage"""
 
     # TODO: automatically add windows-like (1), (2), etc to paths when duplicated
     path = models.TextField()
 
     volume = models.ForeignKey('Volume', on_delete=models.CASCADE)
-    attributes = JSONField(default=dict, blank=True)
-    tags = JSONField(default=dict, blank=True)
+    attributes = JSONField(default=dict, blank=True, encoder=DjangoJSONEncoder)
 
     _payload = None
     _payload_dirty = False
@@ -44,6 +45,9 @@ class Blob(UUIDModel):
     class Meta:
 
         unique_together = (('path', 'volume',),)
+        # permissions = (
+        #     ('view_blob', '')
+        # )
 
     @property
     def storage_instance(self):
@@ -113,11 +117,11 @@ class Blob(UUIDModel):
     def __str__(self):
         return 'Blob uuid=%s %s:/%s' % (self.uuid, self.volume.name, self.path)
 
-class BaseStorage(UUIDModel):
+
+class BaseStorage(UUIDModel, TagModel):
     """Storage instance which stores blob instances."""
 
     name = models.TextField()
-    values = JSONField(default=dict)
 
     objects = InheritanceManager()
 
@@ -142,6 +146,8 @@ class BaseStorage(UUIDModel):
 class LocalFileStorage(BaseStorage):
     """Storage which stores files on local storage"""
 
+    PREDEFINED_KEYS = ['root.fs.p2.io']
+
     @property
     def provider(self):
         return 'Local Filestorage'
@@ -149,13 +155,13 @@ class LocalFileStorage(BaseStorage):
     def _build_subdir(self, blob: Blob) -> str:
         """get 1e/2f/ from blob where UUID starts with 1e2f"""
         return os.path.sep.join([
-            blob.uuid[0:2],
-            blob.uuid[2:4]
+            blob.uuid.hex[0:2],
+            blob.uuid.hex[2:4]
         ])
 
     def retrieve_payload(self, blob: Blob) -> Union[None, bytes]:
-        root = self.values.get('root.fs.p2.io')
-        fs_path = os.path.join(root, blob.uuid.hex, self._build_subdir(blob))
+        root = self.tags.get('root.fs.p2.io')
+        fs_path = os.path.join(root, self._build_subdir(blob), blob.uuid.hex)
         LOGGER.debug('RETR "%s"', blob.uuid)
         if os.path.exists(fs_path) and os.path.isfile(fs_path):
             LOGGER.debug("  -> Opening '%s' for retrival.", fs_path)
@@ -166,9 +172,9 @@ class LocalFileStorage(BaseStorage):
         return None
 
     def update_payload(self, blob: Blob, payload: Union[None, bytes]):
-        root = self.values.get('root.fs.p2.io')
-        fs_path = os.path.join(root, blob.uuid.hex, self._build_subdir(blob))
-        os.makedirs(fs_path, exist_ok=True)
+        root = self.tags.get('root.fs.p2.io')
+        fs_path = os.path.join(root, self._build_subdir(blob), blob.uuid.hex)
+        os.makedirs(os.path.dirname(fs_path), exist_ok=True)
         LOGGER.debug('UPDT "%s" "%.5s"', blob.uuid, payload)
         if not payload:
             # Not payload, delete file if it exists
