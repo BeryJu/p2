@@ -132,6 +132,7 @@ INSTALLED_APPS = [
     'p2.core.apps.P2CoreConfig',
     'p2.api.apps.P2APIConfig',
     'p2.s3.apps.P2S3Config',
+    'p2.access.apps.P2AccessConfig',
     'rest_framework',
     # 'rest_framework_swagger',
 ]

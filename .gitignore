@@ -115,3 +115,4 @@ vendor/**
 debian/p2/**
 debian/files
 debian/*.substvars
+storage/*

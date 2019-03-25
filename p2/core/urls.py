@@ -1,7 +1,6 @@
 """p2 URL Configuration"""
 from django.conf import settings
 # from django.conf.urls import url
-from django.contrib import admin
 from django.contrib.auth import views
 from django.urls import include, path
 
@@ -11,14 +10,11 @@ from django.urls import include, path
 # from p2.core.views import clients, core, upload, view
 # from p2.core.views import upload
 
-admin.site.index_title = 'p2 Admin'
-admin.site.site_title = 'p2'
 
 urlpatterns = [
     # path('', RedirectView.as_view(url='overview/')),
     # path('api/', include(api_urlpatterns)),
     # path('overview/', core.IndexView.as_view(), name='index'),
-    path('admin/', admin.site.urls),
     # path('accounts/allauth/', include('allauth.urls')),
     path('accounts/login/', views.LoginView.as_view(), name='accounts-login'),
     path('accounts/logout/', views.LogoutView.as_view(), name='accounts-logout'),
