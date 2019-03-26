@@ -1,3 +1,4 @@
+"""p2 core api permissions"""
 from rest_framework import permissions
 
 

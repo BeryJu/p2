@@ -26,10 +26,9 @@ class ListView(S3Authentication):
             bucket = ElementTree.Element("Bucket")
             bucket_name = ElementTree.SubElement(bucket, "Name")
             bucket_name.text = volume.name
-            # bucket_creation_date = ElementTree.SubElement(bucket, "CreationDate")
-            # bucket_creation_date.text = "2006-02-03T16:45:09.000Z"
-
-        buckets.append(bucket)
+            bucket_creation_date = ElementTree.SubElement(bucket, "CreationDate")
+            bucket_creation_date.text = "2006-02-03T16:45:09.000Z"
+            buckets.append(bucket)
 
         root.append(owner)
         root.append(buckets)

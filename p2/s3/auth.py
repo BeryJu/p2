@@ -39,22 +39,40 @@ class S3Authentication(View):
         k_signing = self._sign(k_service, 'aws4_request')
         return k_signing
 
+    def _make_query_string(self):
+        """Parse existing Querystring, URI-encode them and sort them and put them back together"""
+        paris = []
+        if self.request.META['QUERY_STRING'] == '':
+            return self.request.META['QUERY_STRING']
+        for kv_pair in self.request.META['QUERY_STRING'].split('&'):
+            if '=' not in kv_pair:
+                kv_pair = kv_pair + '='
+            paris.append(kv_pair)
+        paris.sort()
+        return '&'.join(paris)
+
+    def _fix_header_keys(self):
+        """Fix header keys from HTTP_X to x"""
+        headers = {}
+        for header_key, header_value in self.request.META.items():
+            fixed_key = header_key.replace('HTTP_', '', 1).replace('_', '-').lower()
+            headers[fixed_key] = header_value
+        return OrderedDict(sorted(headers.items()))
+
     def _get_canonical_request(self, signed_headers):
         """Create canonical request in AWS format (
         https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html)"""
         canonical_headers = ''
         signed_headers_keys = signed_headers.split(';')
         LOGGER.debug("Headers to sign: %r", signed_headers_keys)
-        sorted_headers = OrderedDict(sorted(self.request.META.items()))
-        for header_key, header_value in sorted_headers.items():
-            if header_key.startswith('HTTP_'):
-                header_key = header_key.replace('HTTP_', '', 1).replace('_', '-').lower()
-                if header_key in signed_headers_keys:
-                    canonical_headers += '%s:%s\n' % (header_key, header_value)
+        # sorted_headers = OrderedDict(sorted())
+        for header_key, header_value in self._fix_header_keys().items():
+            if header_key in signed_headers_keys:
+                canonical_headers += '%s:%s\n' % (header_key, header_value)
         canonical_request = [
             self.request.META['REQUEST_METHOD'],
             self.request.META['PATH_INFO'],
-            self.request.META['QUERY_STRING'],
+            self._make_query_string(), # self.request.META['QUERY_STRING'],
             canonical_headers,
             signed_headers,
             self.request.META['HTTP_X_AMZ_CONTENT_SHA256']
@@ -72,7 +90,7 @@ class S3Authentication(View):
     def authenticate(self):
         """Check Authorization Header in AWS Compatible format"""
         raw = self.request.META.get('HTTP_AUTHORIZATION')
-        LOGGER.debug("Raw Header: %r", raw)
+        # LOGGER.debug("Raw Header: %r", raw)
         if not raw:
             return False
         algorithm, credential_container = raw.split(' ', 1)
@@ -90,7 +108,7 @@ class S3Authentication(View):
             return False
         signing_key = self._get_signautre_key(secret_key.secret_key.hex, date, region, service)
         canonical_request = self._get_canonical_request(signed_headers)
-        LOGGER.debug("Canonical Request: '%s'", canonical_request)
+        # LOGGER.debug("Canonical Request: '%s'", canonical_request)
         canonical_request_hash = hashlib.sha256(canonical_request.encode('utf-8')).hexdigest()
         string_to_sign = '\n'.join([
             algorithm,
@@ -98,8 +116,9 @@ class S3Authentication(View):
             "%s/%s/s3/aws4_request" % (date, region),
             canonical_request_hash
         ])
-        LOGGER.debug("Signing %s", string_to_sign)
-        our_signature = self._sign(signing_key, string_to_sign)
+        # LOGGER.debug("Signing %s", string_to_sign)
+        our_signature = hmac.new(signing_key, string_to_sign.encode('utf-8'),
+                                 hashlib.sha256).hexdigest()
         LOGGER.debug("We got %s", our_signature)
         if signature == our_signature:
             self.request.user = secret_key.user

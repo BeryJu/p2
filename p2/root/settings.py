@@ -43,7 +43,7 @@ ALLOWED_HOSTS = set([
     urlparse(CONFIG.get('external_url')).netloc,
     socket.getfqdn(),
     socket.gethostname()
-])
+] + CONFIG.get('domains'))
 
 LOGIN_REDIRECT_URL = 'index'
 # Application definition
@@ -133,8 +133,10 @@ INSTALLED_APPS = [
     'p2.api.apps.P2APIConfig',
     'p2.s3.apps.P2S3Config',
     'p2.access.apps.P2AccessConfig',
+    'p2.image.apps.P2ImageConfig',
     'rest_framework',
     'drf_yasg',
+    'sslserver',
 ]
 
 MIDDLEWARE = [
@@ -145,7 +147,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = (

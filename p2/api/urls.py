@@ -3,13 +3,13 @@ from django.conf.urls import url
 from django.urls import include, path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
-from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 
+from p2.core.api.permissions import CustomObjectPermissions
 from p2.core.api.viewsets import (BaseStorageViewSet, BlobViewSet,
                                   LocalFileStorageViewSet, VolumeViewSet)
 
-schema_view = get_schema_view(
+SchemaView = get_schema_view(
     openapi.Info(
         title="Snippets API",
         default_version='v1',
@@ -19,7 +19,7 @@ schema_view = get_schema_view(
         license=openapi.License(name="BSD License"),
     ),
     public=True,
-    permission_classes=(permissions.AllowAny,),
+    permission_classes=(CustomObjectPermissions,),
 )
 
 ROUTER = DefaultRouter()
@@ -33,10 +33,10 @@ ROUTER.register('storage/localfile', LocalFileStorageViewSet)
 urlpatterns = [
     path('v1/', include(ROUTER.urls)),
     url(r'^swagger(?P<format>\.json|\.yaml)$',
-        schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('swagger/', schema_view.with_ui('swagger',
-                                         cache_timeout=0), name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc',
-                                       cache_timeout=0), name='schema-redoc'),
+        SchemaView.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger/', SchemaView.with_ui('swagger',
+                                        cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', SchemaView.with_ui('redoc',
+                                      cache_timeout=0), name='schema-redoc'),
 
 ]

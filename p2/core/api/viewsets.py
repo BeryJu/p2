@@ -1,3 +1,4 @@
+"""Core API Viewsets"""
 from rest_framework import viewsets
 from rest_framework_guardian import filters
 

@@ -1,4 +1,5 @@
 """p2 app config"""
+from importlib import import_module
 
 from django.apps import AppConfig
 
@@ -12,4 +13,4 @@ class P2CoreConfig(AppConfig):
 
     def ready(self):
         super().ready()
-        from p2.core import signals
+        import_module('p2.core.signals')

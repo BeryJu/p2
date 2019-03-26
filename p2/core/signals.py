@@ -1,6 +1,5 @@
 """p2 signals"""
 import hashlib
-from io import BytesIO
 from logging import getLogger
 
 import magic
@@ -12,24 +11,30 @@ from django.dispatch import receiver
 from p2.core.models import Blob
 from p2.lib.utils import url_b64encode
 
-BUF_SIZE = 65536
 LOGGER = getLogger(__name__)
 
-blob_payload_updated = Signal(providing_args=['blob'])
-blob_access = Signal(providing_args=['status_code', ''])
+BLOB_PAYLOAD_UPDATED = Signal(providing_args=['blob'])
+BLOB_ACCESS = Signal(providing_args=['status_code', ''])
 
 
 @receiver(pre_save, sender=Blob)
+# pylint: disable=unused-argument
 def blob_pre_save(sender, instance, **kwargs):
+    """Update attributes when payload changes"""
+    # pylint: disable=protected-access
     if instance._payload_dirty:
-        blob_payload_updated.send(sender=sender, blob=instance)
+        BLOB_PAYLOAD_UPDATED.send(sender=sender, blob=instance)
 
 @receiver(pre_delete, sender=Blob)
+# pylint: disable=unused-argument
 def blob_pre_delete(sender, instance, **kwargs):
+    """Tell storage to delete blob"""
     instance.storage_instance.update_payload(instance, None)
 
-@receiver(blob_payload_updated)
+@receiver(BLOB_PAYLOAD_UPDATED)
+# pylint: disable=unused-argument
 def blob_payload_hash(sender, blob, **kwargs):
+    """Add common hashes as attributes"""
     hashes = [
         'md5',
         'sha1',
@@ -50,15 +55,19 @@ def blob_payload_hash(sender, blob, **kwargs):
                          hash_name, blob.uuid.hex, _hash)
 
 
-@receiver(blob_payload_updated)
+@receiver(BLOB_PAYLOAD_UPDATED)
+# pylint: disable=unused-argument
 def blob_payload_size(sender, blob, **kwargs):
+    """Add size in bytes as attribute"""
     size = len(blob.payload)
     blob.attributes['size:bytes'] = str(size)
     LOGGER.debug('Updated size to %d for %s', size, blob.uuid.hex)
 
 
-@receiver(blob_payload_updated)
+@receiver(BLOB_PAYLOAD_UPDATED)
+# pylint: disable=unused-argument
 def blob_payload_mime(sender, blob, **kwargs):
+    """Add mime type as attribute"""
     mime_type = magic.from_buffer(blob.payload, mime=True)
     blob.attributes['mime'] = mime_type
     LOGGER.debug('Updated MIME to %s for %s', mime_type, blob.uuid.hex)
