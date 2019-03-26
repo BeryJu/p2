@@ -180,6 +180,7 @@ class LocalFileStorage(BaseStorage):
             # Not payload, delete file if it exists
             if os.path.exists(fs_path) and os.path.isfile(fs_path):
                 os.unlink(fs_path)
+                LOGGER.debug("  -> Deleted '%s'.", fs_path)
             else:
                 LOGGER.warning("File '%s' does not exist during deletion attempt.", fs_path)
         else:

@@ -11,5 +11,6 @@ urlpatterns = [
     path('', include('p2.access.urls')),
     path('core/', include('p2.core.urls')),
     path('s3/', include('p2.s3.urls')),
+    path('api/', include('p2.api.urls')),
     path('admin/', admin.site.urls),
 ]

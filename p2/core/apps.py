@@ -9,3 +9,7 @@ class P2CoreConfig(AppConfig):
     name = 'p2.core'
     label = 'p2_core'
     verbose_name = 'p2 Core'
+
+    def ready(self):
+        super().ready()
+        from p2.core import signals

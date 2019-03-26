@@ -134,7 +134,7 @@ INSTALLED_APPS = [
     'p2.s3.apps.P2S3Config',
     'p2.access.apps.P2AccessConfig',
     'rest_framework',
-    # 'rest_framework_swagger',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
