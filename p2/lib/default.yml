@@ -21,6 +21,7 @@ web:
   port: 8000
   threads: 30
 debug: false
+domains: []
 redis: localhost
 # Error reporting, disabled by default
 error_report_enabled: false
