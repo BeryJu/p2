@@ -1,4 +1,4 @@
-
+"""p2 Access URLs"""
 from django.urls import path, register_converter
 
 from p2.access.converters import EverythingButSlashConverter
