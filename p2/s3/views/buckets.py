@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from guardian.shortcuts import get_objects_for_user
 
-from p2.core.models import Blob, Volume
+from p2.core.models import BaseStorage, Blob, Volume
 from p2.s3.auth import S3Authentication
 from p2.s3.constants import XML_NAMESPACE
 from p2.s3.http import XMLResponse
@@ -14,7 +14,17 @@ from p2.s3.http import XMLResponse
 class BucketView(S3Authentication):
     """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketOps.html"""
 
-    def versioning(self, request, bucket):
+    def get(self, request, *args, **kwargs):
+        """Boilerplate to pass request to correct handler"""
+        if "versioning" in request.GET:
+            return self.handler_versioning(request, *args, **kwargs)
+        return self.handler_list(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        """Boilerplate to pass request to correct handler"""
+        return self.handler_create(request, *args, **kwargs)
+
+    def handler_versioning(self, request, bucket):
         """Versioning API Method"""
         # https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketGETversioningStatus.html
         root = ElementTree.Element("{%s}VersioningConfiguration" % XML_NAMESPACE)
@@ -23,29 +33,27 @@ class BucketView(S3Authentication):
 
         return XMLResponse(root)
 
-    def get(self, request, bucket):
+    def handler_list(self, request, bucket):
         """Bucket List API Method"""
-        if "versioning" in request.GET:
-            return self.versioning(request, bucket)
         # https://docs.aws.amazon.com/AmazonS3/latest/API/v2-RESTBucketGET.html
         root = ElementTree.Element("{%s}ListBucketResult" % XML_NAMESPACE)
         volume = get_object_or_404(Volume, name=bucket)
-        # blobs = Blob.objects.filter(volume=volume)
+        blobs = get_objects_for_user(self.request.user, 'view_blob', Blob)
 
         ElementTree.SubElement(root, "Name").text = volume.name
         ElementTree.SubElement(root, "Prefix").text = ''
-        ElementTree.SubElement(root, "KeyCount").text = "2"
+        ElementTree.SubElement(root, "KeyCount").text = str(len(blobs))
         ElementTree.SubElement(root, "MaxKeys").text = "1000"
         ElementTree.SubElement(root, "Delimiter").text = '/'
         ElementTree.SubElement(root, "IsTruncated").text = 'false'
 
-        for blob in get_objects_for_user(self.request.user, 'view_blob', Blob):
+        for blob in blobs:
             content = ElementTree.Element("Contents")
             ElementTree.SubElement(content, "Key").text = blob.path[1:]
             ElementTree.SubElement(
                 content, "LastModified").text = blob.attributes.get('date_updated')
-            # ElementTree.SubElement(
-            #     content, "ETag").text = "&quot;fba9ede5f27731c9771645a39863328&quot;"
+            ElementTree.SubElement(
+                content, "ETag").text = blob.attributes.get('sha512')
             ElementTree.SubElement(content, "Size").text = str(
                 blob.attributes.get('size:bytes', 0))
             ElementTree.SubElement(content, "StorageClass").text = blob.storage_instance.provider
@@ -53,8 +61,16 @@ class BucketView(S3Authentication):
 
         return XMLResponse(root)
 
-    def put(self, request, bucket):
-        """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUTlifecycle.html"""
-        # TODO: Implement bucket creation via API
-        # if 'lifecycle' in request.GET:
+    def handler_create(self, request, bucket):
+        """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUT.html"""
+        # default_storage = get_object_or_404(BaseStorage)
+        default_storage = get_objects_for_user(request.user, 'use_storage', BaseStorage) \
+                                .filter(**{
+                                    'tags_default.s3.p2.io': True
+                                }) \
+                                .select_subclasses() \
+                                .first()
+        bucket, _ = Volume.objects.get_or_create(name=bucket, defaults={
+            'storage': default_storage
+        })
         return HttpResponse(status=200)
