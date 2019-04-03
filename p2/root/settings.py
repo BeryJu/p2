@@ -134,9 +134,8 @@ INSTALLED_APPS = [
     'p2.s3.apps.P2S3Config',
     'p2.access.apps.P2AccessConfig',
     'p2.image.apps.P2ImageConfig',
-'rest_framework',
+    'rest_framework',
     'drf_yasg',
-    'sslserver',
 ]
 
 MIDDLEWARE = [
@@ -175,6 +174,12 @@ TEMPLATES = [
 VERSION = __version__
 
 WSGI_APPLICATION = 'p2.root.wsgi.application'
+
+SWAGGER_SETTINGS = {
+    'DEFAULT_INFO': 'p2.api.urls.INFO'
+}
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 536870912
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases

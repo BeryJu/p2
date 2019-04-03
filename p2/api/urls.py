@@ -9,22 +9,24 @@ from p2.core.api.permissions import CustomObjectPermissions
 from p2.core.api.viewsets import (BaseStorageViewSet, BlobViewSet,
                                   LocalFileStorageViewSet, VolumeViewSet)
 
+INFO = openapi.Info(
+    title="Snippets API",
+    default_version='v1',
+    description="Test description",
+    terms_of_service="https://www.google.com/policies/terms/",
+    contact=openapi.Contact(email="contact@snippets.local"),
+    license=openapi.License(name="BSD License"),
+)
+
 SchemaView = get_schema_view(
-    openapi.Info(
-        title="Snippets API",
-        default_version='v1',
-        description="Test description",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@snippets.local"),
-        license=openapi.License(name="BSD License"),
-    ),
+    INFO,
     public=True,
     permission_classes=(CustomObjectPermissions,),
 )
 
 ROUTER = DefaultRouter()
-ROUTER.register('blobs', BlobViewSet)
-ROUTER.register('volumes', VolumeViewSet)
+ROUTER.register('blob', BlobViewSet)
+ROUTER.register('volume', VolumeViewSet)
 ROUTER.register('storage/base', BaseStorageViewSet)
 ROUTER.register('storage/localfile', LocalFileStorageViewSet)
 # ROUTER.register('collections', CollectionViewSet)
