@@ -12,13 +12,13 @@ stages:
   - docs
 image: python:3.6
 services:
-    - postgres:latest
-    - redis:latest
+  - postgres:latest
+  - redis:latest
 
 variables:
-    POSTGRES_DB: passbook
-    POSTGRES_USER: passbook
-    POSTGRES_PASSWORD: "EK-5jnKfjrGRm<77"
+  POSTGRES_DB: p2
+  POSTGRES_USER: p2
+  POSTGRES_PASSWORD: "EK-5jnKfjrGRm<77"
 
 isort:
   script:
@@ -83,19 +83,19 @@ package:
     - ./manage.py nexus_upload --method post --url $NEXUS_URL --auth $NEXUS_AUTH --repo apt p2*deb
   artifacts:
     paths:
-    - p2*deb
+      - p2*deb
     expire_in: 2 days
   stage: build
   only:
-  - tags
-  - /^debian/.*$/
+    - tags
+    - /^debian/.*$/
 
 docs:
   stage: docs
   only:
-  - master
-  - tags
-  - /^debian/.*$/
+    - master
+    - tags
+    - /^debian/.*$/
   environment:
     name: docs
     url: "https://p2.beryju.org/docs/"
@@ -106,16 +106,16 @@ docs:
     - "cp .gitlab/known_hosts ~/.ssh/"
     - "pip3 install -U -r requirements-docs.txt"
     - "eval $(ssh-agent -s)"
-    - "echo \"${CI_SSH_PRIVATE}\" | ssh-add -"
+    - 'echo "${CI_SSH_PRIVATE}" | ssh-add -'
     - mkdocs build
     - 'rsync -avh --delete site/* "beryjuorg@ory1-web-prod-1.ory1.beryju.org:p2.beryju.org/docs/"'
 
 web:
   stage: docs
   only:
-  - master
-  - tags
-  - /^debian/.*$/
+    - master
+    - tags
+    - /^debian/.*$/
   environment:
     name: docs
     url: "https://p2.beryju.org/"
@@ -125,5 +125,5 @@ web:
     - "mkdir ~/.ssh"
     - "cp .gitlab/known_hosts ~/.ssh/"
     - "eval $(ssh-agent -s)"
-    - "echo \"${CI_SSH_PRIVATE}\" | ssh-add -"
+    - 'echo "${CI_SSH_PRIVATE}" | ssh-add -'
     - 'rsync -avh --delete web/* "beryjuorg@ory1-web-prod-1.ory1.beryju.org:p2.beryju.org/"'
