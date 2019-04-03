@@ -90,40 +90,40 @@ package:
     - tags
     - /^debian/.*$/
 
-docs:
-  stage: docs
-  only:
-    - master
-    - tags
-    - /^debian/.*$/
-  environment:
-    name: docs
-    url: "https://p2.beryju.org/docs/"
-  script:
-    - apt update
-    - apt install -y rsync
-    - "mkdir ~/.ssh"
-    - "cp .gitlab/known_hosts ~/.ssh/"
-    - "pip3 install -U -r requirements-docs.txt"
-    - "eval $(ssh-agent -s)"
-    - 'echo "${CI_SSH_PRIVATE}" | ssh-add -'
-    - mkdocs build
-    - 'rsync -avh --delete site/* "beryjuorg@ory1-web-prod-1.ory1.beryju.org:p2.beryju.org/docs/"'
+# docs:
+#   stage: docs
+#   only:
+#     - master
+#     - tags
+#     - /^debian/.*$/
+#   environment:
+#     name: docs
+#     url: "https://p2.beryju.org/docs/"
+#   script:
+#     - apt update
+#     - apt install -y rsync
+#     - "mkdir ~/.ssh"
+#     - "cp .gitlab/known_hosts ~/.ssh/"
+#     - "pip3 install -U -r requirements-docs.txt"
+#     - "eval $(ssh-agent -s)"
+#     - 'echo "${CI_SSH_PRIVATE}" | ssh-add -'
+#     - mkdocs build
+#     - 'rsync -avh --delete site/* "beryjuorg@ory1-web-prod-1.ory1.beryju.org:p2.beryju.org/docs/"'
 
-web:
-  stage: docs
-  only:
-    - master
-    - tags
-    - /^debian/.*$/
-  environment:
-    name: docs
-    url: "https://p2.beryju.org/"
-  script:
-    - apt update
-    - apt install -y rsync
-    - "mkdir ~/.ssh"
-    - "cp .gitlab/known_hosts ~/.ssh/"
-    - "eval $(ssh-agent -s)"
-    - 'echo "${CI_SSH_PRIVATE}" | ssh-add -'
-    - 'rsync -avh --delete web/* "beryjuorg@ory1-web-prod-1.ory1.beryju.org:p2.beryju.org/"'
+# web:
+#   stage: docs
+#   only:
+#     - master
+#     - tags
+#     - /^debian/.*$/
+#   environment:
+#     name: docs
+#     url: "https://p2.beryju.org/"
+#   script:
+#     - apt update
+#     - apt install -y rsync
+#     - "mkdir ~/.ssh"
+#     - "cp .gitlab/known_hosts ~/.ssh/"
+#     - "eval $(ssh-agent -s)"
+#     - 'echo "${CI_SSH_PRIVATE}" | ssh-add -'
+#     - 'rsync -avh --delete web/* "beryjuorg@ory1-web-prod-1.ory1.beryju.org:p2.beryju.org/"'
