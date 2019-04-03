@@ -1,19 +1,19 @@
-"""API Viewsets"""
-from django.contrib.auth.models import User
+"""s3 API Viewsets"""
 from rest_framework import viewsets
 from rest_framework_guardian import filters
 
 from p2.api.permissions import CustomObjectPermissions
-from p2.api.serializers import UserSerializer
+from p2.s3.api.serializers import S3AccessKeySerializer
+from p2.s3.models import S3AccessKey
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class S3AccessKeyViewSet(viewsets.ModelViewSet):
     """
     Viewset that only lists events if user has 'view' permissions, and only
     allows operations on individual events if user has appropriate 'view', 'add',
     'change' or 'delete' permissions.
     """
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    queryset = S3AccessKey.objects.all()
+    serializer_class = S3AccessKeySerializer
     permission_classes = (CustomObjectPermissions,)
     filter_backends = (filters.DjangoObjectPermissionsFilter,)

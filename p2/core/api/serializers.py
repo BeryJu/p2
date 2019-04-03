@@ -1,40 +1,31 @@
 """p2 core serializers"""
 
-from rest_framework.serializers import HyperlinkedModelSerializer
+from p2.api.serializers import TagModelSerializer
+from p2.core.models import BaseStorage, Blob, Volume
 
-from p2.core.models import BaseStorage, Blob, LocalFileStorage, Volume
 
-
-class BlobSerializer(HyperlinkedModelSerializer):
+class BlobSerializer(TagModelSerializer):
     """Blob Serializer"""
 
     class Meta:
 
         model = Blob
-        fields = ['path', 'volume', 'tags', 'attributes']
+        fields = ['path', 'volume', 'tags', 'attributes', 'predefined_keys']
 
-class VolumeSerializer(HyperlinkedModelSerializer):
+
+class VolumeSerializer(TagModelSerializer):
     """Volume Serializer"""
 
     class Meta:
 
         model = Volume
-        fields = ['name', 'storage']
+        fields = ['name', 'storage', 'tags', 'predefined_keys']
 
 
-class BaseStorageSerializer(HyperlinkedModelSerializer):
+class BaseStorageSerializer(TagModelSerializer):
     """BaseStorage Serializer"""
 
     class Meta:
 
         model = BaseStorage
-        fields = '__all__'
-
-
-class LocalFileStorageSerializer(HyperlinkedModelSerializer):
-    """LocalFileStorage Serializer"""
-
-    class Meta:
-
-        model = LocalFileStorage
-        fields = '__all__'
+        fields = ['name', 'tags', 'predefined_keys']
