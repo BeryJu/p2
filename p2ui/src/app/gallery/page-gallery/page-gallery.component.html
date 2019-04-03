@@ -1,0 +1,19 @@
+<mat-toolbar>
+  <mat-toolbar-row class="nav">
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>keyboard_arrow_left</mat-icon>
+    </button>
+  </mat-toolbar-row>
+</mat-toolbar>
+<p2-sidebar></p2-sidebar>
+<div class="row">
+  <div class="container">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
+<h1>{{ galleryId }}</h1>
+
+<div class="gallery" itemSize="300">
+    <p2-image-tile *ngFor='let url of urlList' [url]="url"></p2-image-tile>
+</div>

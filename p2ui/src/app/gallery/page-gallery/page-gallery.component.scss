@@ -1,0 +1,24 @@
+.container {
+  width: 80%;
+  margin: auto;
+}
+
+mat-toolbar {
+  background-color: transparent;
+}
+
+mat-toolbar-row.nav {
+  position: fixed;
+  top: 0;
+}
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin: auto;
+}
+
+h1 {
+  font-size: 5rem;
+}

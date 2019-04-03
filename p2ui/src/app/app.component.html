@@ -1,0 +1,42 @@
+<div class="main-container">
+  <header class="header header-6">
+    <div class="branding">
+      <a href="..." class="nav-link">
+        <clr-icon shape="vm-bug"></clr-icon>
+        <span class="title">p2</span>
+      </a>
+    </div>
+    <div class="header-nav">
+      <a href="javascript://" class="active nav-link nav-text">Dashboard</a>
+      <a href="javascript://" class="nav-link nav-text">Interactive Analytics</a>
+    </div>
+    <div class="header-actions">
+      <a href="javascript://" class="nav-link nav-icon">
+        <clr-icon shape="cog"></clr-icon>
+      </a>
+    </div>
+  </header>
+  <nav class="subnav">
+    <ul class="nav">
+      <li class="nav-item">
+        <a class="nav-link active" href="#">Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Management</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Cloud</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Tenants</a>
+      </li>
+    </ul>
+  </nav>
+  <div class="content-container">
+    <div class="content-area">
+      <router-outlet></router-outlet>
+      <p2-file-browser></p2-file-browser>
+    </div>
+  </div>
+</div>
+
