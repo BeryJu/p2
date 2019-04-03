@@ -1,8 +1,7 @@
 """Core API Viewsets"""
 from rest_framework import viewsets
-from rest_framework_guardian import filters
 
-from p2.api.permissions import CustomObjectPermissions
+from p2.core.api.filters import BlobFilter
 from p2.core.api.serializers import (BaseStorageSerializer, BlobSerializer,
                                      VolumeSerializer)
 from p2.core.models import BaseStorage, Blob, Volume
@@ -16,8 +15,7 @@ class BlobViewSet(viewsets.ModelViewSet):
     """
     queryset = Blob.objects.all()
     serializer_class = BlobSerializer
-    permission_classes = (CustomObjectPermissions,)
-    filter_backends = (filters.DjangoObjectPermissionsFilter,)
+    filter_class = BlobFilter
 
 
 class VolumeViewSet(viewsets.ModelViewSet):
@@ -28,8 +26,6 @@ class VolumeViewSet(viewsets.ModelViewSet):
     """
     queryset = Volume.objects.all()
     serializer_class = VolumeSerializer
-    permission_classes = (CustomObjectPermissions,)
-    filter_backends = (filters.DjangoObjectPermissionsFilter,)
 
 
 class StorageViewSet(viewsets.ModelViewSet):
@@ -40,5 +36,3 @@ class StorageViewSet(viewsets.ModelViewSet):
     """
     queryset = BaseStorage.objects.all().select_subclasses()
     serializer_class = BaseStorageSerializer
-    permission_classes = (CustomObjectPermissions,)
-    filter_backends = (filters.DjangoObjectPermissionsFilter,)

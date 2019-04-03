@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
+import datetime
 import logging
 import os
 import socket
@@ -130,8 +131,10 @@ INSTALLED_APPS = [
     'p2.s3.apps.P2S3Config',
     'p2.access.apps.P2AccessConfig',
     'p2.image.apps.P2ImageConfig',
+    # API Frameworks
     'rest_framework',
     'drf_yasg',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -170,10 +173,6 @@ TEMPLATES = [
 VERSION = __version__
 
 WSGI_APPLICATION = 'p2.root.wsgi.application'
-
-SWAGGER_SETTINGS = {
-    'DEFAULT_INFO': 'p2.api.urls.INFO'
-}
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 536870912
 
@@ -245,6 +244,43 @@ STATIC_URL = '/static/'
 # ERROR_REPORT_ENABLED = CONFIG.get('error_report_enabled', False)
 # if not ERROR_REPORT_ENABLED:
 #     RAVEN_CONFIG['dsn'] = ''
+
+# API Configurations
+
+JWT_AUTH = {
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
+}
+
+SWAGGER_SETTINGS = {
+    'DEFAULT_INFO': 'p2.api.urls.INFO',
+    'SECURITY_DEFINITIONS': {
+        'JWT': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100,
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework_guardian.filters.DjangoObjectPermissionsFilter',
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': (
+        'p2.api.permissions.CustomObjectPermissions',
+    ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    # ),
+}
+
 
 with CONFIG.cd('log'):
     LOGGING = {

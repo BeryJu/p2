@@ -1,9 +1,7 @@
 """API Viewsets"""
 from django.contrib.auth.models import User
 from rest_framework import viewsets
-from rest_framework_guardian import filters
 
-from p2.api.permissions import CustomObjectPermissions
 from p2.api.serializers import UserSerializer
 
 
@@ -15,5 +13,3 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (CustomObjectPermissions,)
-    filter_backends = (filters.DjangoObjectPermissionsFilter,)

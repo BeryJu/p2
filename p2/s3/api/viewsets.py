@@ -1,8 +1,6 @@
 """s3 API Viewsets"""
 from rest_framework import viewsets
-from rest_framework_guardian import filters
 
-from p2.api.permissions import CustomObjectPermissions
 from p2.s3.api.serializers import S3AccessKeySerializer
 from p2.s3.models import S3AccessKey
 
@@ -15,5 +13,3 @@ class S3AccessKeyViewSet(viewsets.ModelViewSet):
     """
     queryset = S3AccessKey.objects.all()
     serializer_class = S3AccessKeySerializer
-    permission_classes = (CustomObjectPermissions,)
-    filter_backends = (filters.DjangoObjectPermissionsFilter,)
