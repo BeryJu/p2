@@ -18,6 +18,10 @@ LOGGER = getLogger(__name__)
 class Volume(UUIDModel, TagModel):
     """Folder-like object, holding a collection of blobs"""
 
+    PREDEFINED_KEYS = [
+        'legacy-default.volume.p2.io'
+    ]
+
     name = models.SlugField()
     storage = models.ForeignKey('BaseStorage', on_delete=models.CASCADE)
 
@@ -45,9 +49,6 @@ class Blob(UUIDModel, TagModel):
     class Meta:
 
         unique_together = (('path', 'volume',),)
-        # permissions = (
-        #     ('view_blob', '')
-        # )
 
     @property
     def storage_instance(self):

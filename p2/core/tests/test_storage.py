@@ -46,3 +46,12 @@ class LocalFileStorageTests(TestCase):
         new_blob.payload = updated_content
         new_blob.save()
         self.assertEqual(Blob.objects.filter(path='/test1').first().payload, updated_content)
+
+    def test_delete(self):
+        """Test deletion of blob"""
+        test_content = b'test'
+        Blob.objects.create(
+            path='/test1',
+            payload=test_content,
+            volume=self.volume)
+        Blob.objects.filter(path='/test1').delete()

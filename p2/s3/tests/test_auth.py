@@ -35,7 +35,7 @@ class AuthenticationTests(LiveServerTestCase):
             service_name='s3',
             aws_access_key_id="invalid",
             aws_secret_access_key="invalid",
-            endpoint_url=self.live_server_url)
+            endpoint_url=self.live_server_url+'/s3/')
         with self.assertRaises(ClientError):
             boto3.list_buckets()
 
@@ -45,13 +45,13 @@ class AuthenticationTests(LiveServerTestCase):
             service_name='s3',
             aws_access_key_id=self.access_key.access_key,
             aws_secret_access_key=self.access_key.secret_key,
-            endpoint_url=self.live_server_url)
+            endpoint_url=self.live_server_url+'/s3/')
         versions = boto3.get_bucket_versioning(Bucket='test')
         self.assertEqual(versions['Status'], 'Disabled')
 
     def test_without_auth(self):
         """Test request without authorization header"""
-        tree = ElementTree.fromstring(requests.get(self.live_server_url).content)
+        tree = ElementTree.fromstring(requests.get(self.live_server_url+'/s3/').content)
         for child in tree:
             # pylint: disable=unsubscriptable-object
             self.assertEqual(child.text, ErrorCodes.ACCESS_DENIED.value[0])
