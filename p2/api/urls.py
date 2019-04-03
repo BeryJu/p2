@@ -5,6 +5,7 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework.routers import DefaultRouter
 
+from p2.access.api.viewsets import AccessRuleViewSet
 from p2.api.permissions import CustomObjectPermissions
 from p2.api.viewsets import UserViewSet
 from p2.core.api.viewsets import BlobViewSet, StorageViewSet, VolumeViewSet
@@ -28,8 +29,9 @@ ROUTER = DefaultRouter()
 ROUTER.register('core/blob', BlobViewSet)
 ROUTER.register('core/volume', VolumeViewSet)
 ROUTER.register('core/storage', StorageViewSet)
-ROUTER.register('s3/access_keys', S3AccessKeyViewSet)
-ROUTER.register('user', UserViewSet)
+ROUTER.register('core/user', UserViewSet)
+ROUTER.register('s3/access_key', S3AccessKeyViewSet)
+ROUTER.register('access/rule', AccessRuleViewSet)
 
 urlpatterns = [
     path('v1/', include(ROUTER.urls)),

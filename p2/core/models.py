@@ -25,6 +25,9 @@ class Volume(UUIDModel, TagModel):
     name = models.SlugField()
     storage = models.ForeignKey('BaseStorage', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return "Volume %s on %s" % (self.name, self.storage)
+
     class Meta:
         permissions = (
             ('list_contents', 'List contents'),
@@ -141,7 +144,7 @@ class BaseStorage(UUIDModel, TagModel):
 
     class Meta:
         permissions = (
-            ('use_storage', 'Use storage'),
+            ('use_storage', 'Can use storage'),
         )
 
 class LocalFileStorage(BaseStorage):
