@@ -1,7 +1,6 @@
 """p2 Root URLs"""
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
 # from p2.core.urls import ur
@@ -14,8 +13,6 @@ urlpatterns = [
     path('s3/', include('p2.s3.urls')),
     path('s3', include('p2.s3.urls')),
     path('', include('p2.access.urls')),
-    path('_/accounts/login/', auth_views.LoginView.as_view(), name='accounts-login'),
-    path('_/accounts/logout/', auth_views.LogoutView.as_view(), name='accounts-logout'),
     path('_/core/', include('p2.core.urls')),
     path('_/admin/', admin.site.urls),
     path('_/api/', include('p2.api.urls')),
