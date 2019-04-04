@@ -61,6 +61,8 @@ class CoreService extends __BaseService {
    *
    * - `search`: A search term.
    *
+   * - `path__startswith`:
+   *
    * - `path__icontains`:
    *
    * - `path`:
@@ -79,6 +81,7 @@ class CoreService extends __BaseService {
     if (params.uuidIcontains != null) __params = __params.set('uuid__icontains', params.uuidIcontains.toString());
     if (params.uuid != null) __params = __params.set('uuid', params.uuid.toString());
     if (params.search != null) __params = __params.set('search', params.search.toString());
+    if (params.pathStartswith != null) __params = __params.set('path__startswith', params.pathStartswith.toString());
     if (params.pathIcontains != null) __params = __params.set('path__icontains', params.pathIcontains.toString());
     if (params.path != null) __params = __params.set('path', params.path.toString());
     if (params.ordering != null) __params = __params.set('ordering', params.ordering.toString());
@@ -114,6 +117,8 @@ class CoreService extends __BaseService {
    * - `uuid`:
    *
    * - `search`: A search term.
+   *
+   * - `path__startswith`:
    *
    * - `path__icontains`:
    *
@@ -632,6 +637,10 @@ class CoreService extends __BaseService {
    * 'change' or 'delete' permissions.
    * @param params The `CoreService.CoreUserListParams` containing the following parameters:
    *
+   * - `search`: A search term.
+   *
+   * - `ordering`: Which field to use when ordering the results.
+   *
    * - `offset`: The initial index from which to return the results.
    *
    * - `limit`: Number of results to return per page.
@@ -640,6 +649,8 @@ class CoreService extends __BaseService {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
+    if (params.search != null) __params = __params.set('search', params.search.toString());
+    if (params.ordering != null) __params = __params.set('ordering', params.ordering.toString());
     if (params.offset != null) __params = __params.set('offset', params.offset.toString());
     if (params.limit != null) __params = __params.set('limit', params.limit.toString());
     let req = new HttpRequest<any>(
@@ -664,6 +675,10 @@ class CoreService extends __BaseService {
    * allows operations on individual events if user has appropriate 'view', 'add',
    * 'change' or 'delete' permissions.
    * @param params The `CoreService.CoreUserListParams` containing the following parameters:
+   *
+   * - `search`: A search term.
+   *
+   * - `ordering`: Which field to use when ordering the results.
    *
    * - `offset`: The initial index from which to return the results.
    *
@@ -1185,6 +1200,7 @@ module CoreService {
      * A search term.
      */
     search?: string;
+    pathStartswith?: string;
     pathIcontains?: string;
     path?: string;
 
@@ -1282,6 +1298,16 @@ module CoreService {
    * Parameters for coreUserList
    */
   export interface CoreUserListParams {
+
+    /**
+     * A search term.
+     */
+    search?: string;
+
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
 
     /**
      * The initial index from which to return the results.

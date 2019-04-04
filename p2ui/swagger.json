@@ -37,6 +37,20 @@
                 "description": "Viewset that only lists events if user has 'view' permissions, and only\nallows operations on individual events if user has appropriate 'view', 'add',\n'change' or 'delete' permissions.",
                 "parameters": [
                     {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
                         "name": "limit",
                         "in": "query",
                         "description": "Number of results to return per page.",
@@ -219,6 +233,13 @@
                     },
                     {
                         "name": "path__icontains",
+                        "in": "query",
+                        "description": "",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "path__startswith",
                         "in": "query",
                         "description": "",
                         "required": false,
@@ -624,6 +645,20 @@
                 "description": "Viewset that only lists events if user has 'view' permissions, and only\nallows operations on individual events if user has appropriate 'view', 'add',\n'change' or 'delete' permissions.",
                 "parameters": [
                     {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
                         "name": "limit",
                         "in": "query",
                         "description": "Number of results to return per page.",
@@ -986,6 +1021,20 @@
                 "operationId": "s3_access_key_list",
                 "description": "Viewset that only lists events if user has 'view' permissions, and only\nallows operations on individual events if user has appropriate 'view', 'add',\n'change' or 'delete' permissions.",
                 "parameters": [
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "description": "Which field to use when ordering the results.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "A search term.",
+                        "required": false,
+                        "type": "string"
+                    },
                     {
                         "name": "limit",
                         "in": "query",

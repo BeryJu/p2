@@ -1,10 +1,18 @@
 import { Observable } from 'rxjs';
 import { Blob } from '../api/models/blob';
 
+export interface ExtraBlob extends Blob {
+
+  pathName?: string;
+  isPrefix?: boolean;
+
+}
+
 export class PathObject {
 
-  name: string = '';
+  name = '';
   children: Array<PathObject> = [];
+  fullPrefix = '';
 
   expandable() {
     return this.children.length > 0;
@@ -15,7 +23,7 @@ export class PathObject {
   }
 
   getChild(name: string) {
-    return this.children.filter(value => value.name == name)[0];
+    return this.children.filter(value => value.name === name)[0];
   }
 
 }
@@ -27,7 +35,8 @@ export class PathHelper {
   private root: PathObject = new PathObject();
 
   constructor(private blobs: Array<Blob>) {
-    // this.root.name =
+    this.root.name = 'Root';
+    this.root.fullPrefix = '/';
   }
 
   build() {
@@ -50,18 +59,20 @@ export class PathHelper {
     this.buildBlobParts(this.root, prefixParts);
   }
 
-  private buildBlobParts(parent: PathObject, parts: Array<string>) {
+  private buildBlobParts(parent: PathObject, parts: Array<string>, path: string = '/') {
     const prefix = parts.shift();
+    path += `${prefix}/`;
     let prefixObject = null;
     if (!parent.hasChildren(prefix)) {
       prefixObject = new PathObject();
       prefixObject.name = prefix;
+      prefixObject.fullPrefix = path;
       parent.children.push(prefixObject);
     } else {
       prefixObject = parent.getChild(prefix);
     }
     if (parts.length > 0) {
-      this.buildBlobParts(prefixObject, parts);
+      this.buildBlobParts(prefixObject, parts, path);
     }
   }
 

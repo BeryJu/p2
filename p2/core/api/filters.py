@@ -12,7 +12,7 @@ class BlobFilter(FilterSet):
     class Meta:
         model = Blob
         fields = {
-            'path': ['exact', 'icontains'],
+            'path': ['exact', 'icontains', 'startswith'],
             'uuid': ['exact', 'icontains'],
             'volume': ['exact'],
         }

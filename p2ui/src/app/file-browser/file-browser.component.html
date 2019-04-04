@@ -1,23 +1,39 @@
 <div class="clr-row">
-  <div class="clr-col-4">
+  <div class="clr-col-3">
     <clr-tree [clrLazy]="true">
-      <clr-tree-node *clrRecursiveFor="let prefix of prefixes.children; getChildren: getChildren" [clrExpandable]="prefix.expandable">
-         <button
-                (click)="openFile(directory.name, file.name)"
-                class="clr-treenode-link"
-                [class.active]="prefix.active">
-            <clr-icon [attr.shape]="'folder'"></clr-icon>
-            {{ prefix.name }}
+      <clr-tree-node *clrRecursiveFor="let prefix of prefixes; getChildren: getChildren"
+        [clrExpandable]="prefix.expandable">
+        <button (click)="changePrefix(prefix)" class="clr-treenode-link" [class.active]="prefix.active">
+          <clr-icon [attr.shape]="'folder'"></clr-icon>
+          {{ prefix.name }}
         </button>
       </clr-tree-node>
     </clr-tree>
   </div>
-  <div class="clr-col-8">
+  <div class="clr-col-9">
     <clr-datagrid (clrDgRefresh)="refresh($event)" [clrDgLoading]="loading">
       <clr-dg-column [clrDgField]="'path'">Path</clr-dg-column>
+      <clr-dg-column [clrDgField]="'attributes.size'">Size</clr-dg-column>
 
       <clr-dg-row *ngFor="let blob of blobs">
-        <clr-dg-cell>{{ blob.path }}</clr-dg-cell>
+        <clr-dg-cell>
+          <clr-icon [attr.shape]="blob.isPrefix ? 'folder': 'file'"></clr-icon>
+          {{ blob.pathName }}
+        </clr-dg-cell>
+        <clr-dg-cell>{{ blob.attributes['size:bytes'] }}</clr-dg-cell>
+
+        <ng-container ngProjectAs="clr-dg-row-detail" *ngIf="!blob.isPrefix">
+          <clr-dg-row-detail *clrIfExpanded>
+            <table class="table table-vertical table-compact">
+              <tbody>
+                <tr *ngFor="let item of blob.attributes | keyvalue">
+                  <td>{{ item.key }}</td>
+                  <td>{{ item.value }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </clr-dg-row-detail>
+        </ng-container>
       </clr-dg-row>
 
       <clr-dg-footer>

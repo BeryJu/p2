@@ -32,6 +32,10 @@ class S3Service extends __BaseService {
    * 'change' or 'delete' permissions.
    * @param params The `S3Service.S3AccessKeyListParams` containing the following parameters:
    *
+   * - `search`: A search term.
+   *
+   * - `ordering`: Which field to use when ordering the results.
+   *
    * - `offset`: The initial index from which to return the results.
    *
    * - `limit`: Number of results to return per page.
@@ -40,6 +44,8 @@ class S3Service extends __BaseService {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
+    if (params.search != null) __params = __params.set('search', params.search.toString());
+    if (params.ordering != null) __params = __params.set('ordering', params.ordering.toString());
     if (params.offset != null) __params = __params.set('offset', params.offset.toString());
     if (params.limit != null) __params = __params.set('limit', params.limit.toString());
     let req = new HttpRequest<any>(
@@ -64,6 +70,10 @@ class S3Service extends __BaseService {
    * allows operations on individual events if user has appropriate 'view', 'add',
    * 'change' or 'delete' permissions.
    * @param params The `S3Service.S3AccessKeyListParams` containing the following parameters:
+   *
+   * - `search`: A search term.
+   *
+   * - `ordering`: Which field to use when ordering the results.
    *
    * - `offset`: The initial index from which to return the results.
    *
@@ -300,6 +310,16 @@ module S3Service {
    * Parameters for s3AccessKeyList
    */
   export interface S3AccessKeyListParams {
+
+    /**
+     * A search term.
+     */
+    search?: string;
+
+    /**
+     * Which field to use when ordering the results.
+     */
+    ordering?: string;
 
     /**
      * The initial index from which to return the results.
