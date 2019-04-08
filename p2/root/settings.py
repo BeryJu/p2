@@ -70,7 +70,7 @@ CELERY_CREATE_MISSING_QUEUES = True
 CELERY_TASK_DEFAULT_QUEUE = 'p2'
 CELERY_BROKER_URL = 'redis://%s' % CONFIG.get('redis')
 CELERY_RESULT_BACKEND = 'redis://%s' % CONFIG.get('redis')
-CELERY_IMPORTS = ('p2.core.tasks', )
+CELERY_IMPORTS = ('p2.log.tasks', )
 
 # Influxdb settings
 # with CONFIG.cd('influx'):
@@ -131,6 +131,7 @@ INSTALLED_APPS = [
     'p2.s3.apps.P2S3Config',
     'p2.serve.apps.P2ServeConfig',
     'p2.image.apps.P2ImageConfig',
+    'p2.log.apps.P2LogConfig',
     # API Frameworks
     'rest_framework',
     'drf_yasg',

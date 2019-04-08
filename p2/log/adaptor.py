@@ -3,6 +3,8 @@ from collections import ChainMap
 from time import time
 from uuid import uuid4
 
+from p2.log.tasks import write_log_record
+
 
 class LogAdaptor:
     """Cache logged data and add log method to request"""
@@ -24,10 +26,11 @@ class LogAdaptor:
     def end_request(self, request):
         """Flatten logged data and create Record"""
         request.log(end_time=time())
-
-        # TODO: Asynchronously create log record
         flattened = ChainMap(*self.__cache[request.uid])
         flattened['duration'] = flattened['end_time'] - flattened['start_time']
-        print(flattened)
+        flattened['user'] = request.user.pk
+        flattened['source_address'] = request.META['REMOTE_ADDR']
+        flattened['request_path'] = request.path
+        write_log_record.delay(dict(flattened))
 
 LOG_ADAPTOR = LogAdaptor()
