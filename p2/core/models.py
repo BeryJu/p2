@@ -38,7 +38,6 @@ class Volume(UUIDModel, TagModel):
 class Blob(UUIDModel, TagModel):
     """Binary-large object, member of a Volume and store in the volume's storage"""
 
-    # TODO: automatically add windows-like (1), (2), etc to paths when duplicated
     path = models.TextField()
 
     volume = models.ForeignKey('Volume', on_delete=models.CASCADE)
@@ -100,6 +99,9 @@ class Blob(UUIDModel, TagModel):
                 # Only save payload if it changed
                 if self._payload_dirty:
                     self.storage_instance.update_payload(self, self.payload)
+                # Check if path exists already
+                if Blob.objects.filter(path=self.path, volume=self.volume).exists():
+                    self.path = self.path + '.1'
                 super().save(*args, **kwargs)
                 # Only reset _payload_dirty after save so it can still be accessed in signals
                 self._payload_dirty = False
