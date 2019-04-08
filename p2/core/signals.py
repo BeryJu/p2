@@ -3,9 +3,8 @@ import hashlib
 from logging import getLogger
 
 import magic
-# from p2.lib.signals import WorkerSignal
 from django.core.signals import Signal
-from django.db.models.signals import pre_delete, pre_save
+from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
 from p2.core.models import Blob
@@ -16,14 +15,6 @@ LOGGER = getLogger(__name__)
 BLOB_PAYLOAD_UPDATED = Signal(providing_args=['blob'])
 BLOB_ACCESS = Signal(providing_args=['status_code', ''])
 
-
-@receiver(pre_save, sender=Blob)
-# pylint: disable=unused-argument
-def blob_pre_save(sender, instance, **kwargs):
-    """Update attributes when payload changes"""
-    # pylint: disable=protected-access
-    if instance._payload_dirty:
-        BLOB_PAYLOAD_UPDATED.send(sender=sender, blob=instance)
 
 @receiver(pre_delete, sender=Blob)
 # pylint: disable=unused-argument

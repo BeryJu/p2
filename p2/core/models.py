@@ -11,7 +11,9 @@ from django.db import DatabaseError, models, transaction
 from django.utils.timezone import now
 from model_utils.managers import InheritanceManager
 
+from p2.core.tasks import signal_marshall
 from p2.lib.models import TagModel, UUIDModel
+from p2.lib.reflection import class_to_path
 
 LOGGER = getLogger(__name__)
 
@@ -110,8 +112,12 @@ class Blob(UUIDModel, TagModel):
                 super().save(*args, **kwargs)
                 # Only reset _payload_dirty after save so it can still be accessed in signals
                 self._payload_dirty = False
-                # TODO: Use p2.lib.tasks.marshall_task instead of synchronous sending
-                # blob_payload_updated.send(self, named={'blob_uuid': self.uuid.hex})
+                signal_marshall.delay('p2.core.signals.BLOB_PAYLOAD_UPDATED', kwargs={
+                    'blob': {
+                        'class': class_to_path(self.__class__),
+                        'pk': self.uuid.hex,
+                    }
+                })
         except DatabaseError:
             self._payload = _old_payload
             self.tags = _old_tags
