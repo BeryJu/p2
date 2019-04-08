@@ -1,22 +1,16 @@
+"""p2 logging"""
 from collections import ChainMap
-from enum import Enum
 from time import time
 from uuid import uuid4
 
 
-class RecordType(Enum):
-
-    DEBUG = 0
-    INFO = 1
-    REQUEST = 2
-    WARNING = 4
-    ERROR = 8
-
 class LogAdaptor:
+    """Cache logged data and add log method to request"""
 
     __cache = {}
 
     def start_request(self, request):
+        """Add unique ID to request and create logging method"""
         request.uid = uuid4().hex
         def request_logger(**kwargs):
             if request.uid not in self.__cache:
@@ -28,6 +22,7 @@ class LogAdaptor:
             start_time=time())
 
     def end_request(self, request):
+        """Flatten logged data and create Record"""
         request.log(end_time=time())
 
         # TODO: Asynchronously create log record

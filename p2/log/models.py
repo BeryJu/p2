@@ -1,20 +1,20 @@
-from django.contrib.postgres.fields import JSONField
-from django.db import models
+# from django.contrib.postgres.fields import JSONField
+# from django.db import models
 
-from p2.lib.models import UUIDModel
+# from p2.lib.models import UUIDModel
 
 
-class LogAdaptor(UUIDModel):
+# class LogAdaptor(UUIDModel):
 
-    adaptor = models.TextField()
-    options = JSONField(default=dict)
+#     adaptor = models.TextField()
+#     options = JSONField(default=dict)
 
-    def log(self, **kwargs):
-        pass
+#     def log(self, **kwargs):
+#         pass
 
-class DatabaseLogAdaptor(LogAdaptor):
-    pass
+# class DatabaseLogAdaptor(LogAdaptor):
+#     pass
 
-class Record(UUIDModel):
+# class Record(UUIDModel):
 
-    adaptor = models.ForeignKey(LogAdaptor, on_delete=models.CASCADE)
+#     adaptor = models.ForeignKey(LogAdaptor, on_delete=models.CASCADE)

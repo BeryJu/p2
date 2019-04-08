@@ -1,7 +1,10 @@
+"""p2 Logging middleware"""
 from p2.log.adaptor import LOG_ADAPTOR
 
 
+# pylint: disable=too-few-public-methods
 class StartRequestMiddleware:
+    """Initialize Logging as early as possible"""
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -12,7 +15,9 @@ class StartRequestMiddleware:
         return response
 
 
+# pylint: disable=too-few-public-methods
 class EndRequestMiddleware:
+    """Finish logging of request"""
 
     def __init__(self, get_response):
         self.get_response = get_response
