@@ -100,7 +100,8 @@ class Blob(UUIDModel, TagModel):
                 if self._payload_dirty:
                     self.storage_instance.update_payload(self, self.payload)
                 # Check if path exists already
-                if Blob.objects.filter(path=self.path, volume=self.volume).exists():
+                same_path = Blob.objects.filter(path=self.path, volume=self.volume)
+                if same_path.exists() and same_path.first() != self:
                     self.path = self.path + '.1'
                 super().save(*args, **kwargs)
                 # Only reset _payload_dirty after save so it can still be accessed in signals
