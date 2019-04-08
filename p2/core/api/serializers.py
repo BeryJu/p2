@@ -1,5 +1,5 @@
 """p2 core serializers"""
-from rest_framework.serializers import ReadOnlyField
+from rest_framework.serializers import ReadOnlyField, Serializer
 
 from p2.api.serializers import TagModelSerializer
 from p2.core.models import BaseStorage, Blob, Volume
@@ -11,7 +11,19 @@ class BlobSerializer(TagModelSerializer):
     class Meta:
 
         model = Blob
-        fields = ['path', 'volume', 'tags', 'attributes', 'predefined_keys']
+        fields = ['uuid', 'path', 'volume', 'tags', 'attributes', 'predefined_keys']
+
+
+class BlobPayloadSerializer(Serializer):
+    """Blob payload serializer"""
+
+    payload = ReadOnlyField()
+
+    def create(self):
+        raise NotImplementedError()
+
+    def update(self):
+        raise NotImplementedError()
 
 
 class VolumeSerializer(TagModelSerializer):
@@ -20,7 +32,7 @@ class VolumeSerializer(TagModelSerializer):
     class Meta:
 
         model = Volume
-        fields = ['name', 'storage', 'tags', 'predefined_keys']
+        fields = ['uuid', 'name', 'storage', 'tags', 'predefined_keys']
 
 
 class BaseStorageSerializer(TagModelSerializer):
@@ -31,4 +43,4 @@ class BaseStorageSerializer(TagModelSerializer):
     class Meta:
 
         model = BaseStorage
-        fields = ['name', 'tags', 'predefined_keys', 'provider']
+        fields = ['uuid', 'name', 'tags', 'predefined_keys', 'provider']
