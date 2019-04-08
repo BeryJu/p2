@@ -450,6 +450,34 @@
                 }
             ]
         },
+        "/core/blob/{uuid}/payload/": {
+            "get": {
+                "operationId": "core_blob_payload",
+                "description": "Viewset that only lists events if user has 'view' permissions, and only\nallows operations on individual events if user has appropriate 'view', 'add',\n'change' or 'delete' permissions.",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/BlobPayload"
+                        }
+                    }
+                },
+                "tags": [
+                    "core"
+                ]
+            },
+            "parameters": [
+                {
+                    "name": "uuid",
+                    "in": "path",
+                    "description": "A UUID string identifying this blob.",
+                    "required": true,
+                    "type": "string",
+                    "format": "uuid"
+                }
+            ]
+        },
         "/core/storage/": {
             "get": {
                 "operationId": "core_storage_list",
@@ -1232,6 +1260,11 @@
             ],
             "type": "object",
             "properties": {
+                "uuid": {
+                    "title": "Uuid",
+                    "type": "string",
+                    "format": "uuid"
+                },
                 "path": {
                     "title": "Path",
                     "type": "string",
@@ -1257,12 +1290,27 @@
                 }
             }
         },
+        "BlobPayload": {
+            "type": "object",
+            "properties": {
+                "payload": {
+                    "title": "Payload",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
         "BaseStorage": {
             "required": [
                 "name"
             ],
             "type": "object",
             "properties": {
+                "uuid": {
+                    "title": "Uuid",
+                    "type": "string",
+                    "format": "uuid"
+                },
                 "name": {
                     "title": "Name",
                     "type": "string",
@@ -1382,6 +1430,11 @@
             ],
             "type": "object",
             "properties": {
+                "uuid": {
+                    "title": "Uuid",
+                    "type": "string",
+                    "format": "uuid"
+                },
                 "name": {
                     "title": "Name",
                     "type": "string",

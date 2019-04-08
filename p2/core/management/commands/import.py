@@ -48,6 +48,7 @@ class Command(BaseCommand):
                     matching = matching_files.first()
                     LOGGER.warning("File '%s' exists already as %s, skipping.", path, matching.uuid)
                     return
+            # TODO: Set created/updated date from file stat
             Blob.objects.create(
                 path='/%s' % virtual_path,
                 volume=volume,
