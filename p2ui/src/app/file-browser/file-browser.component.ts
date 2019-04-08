@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from "@angular/router";
 
 import { CoreService } from '../api/services/core.service';
 import { ClrDatagridStateInterface } from '@clr/angular';
@@ -12,6 +13,8 @@ import { PathHelper, PathObject, ExtraBlob } from '../utils/path';
 export class FileBrowserComponent implements OnInit {
 
   blobs: Blob[] = [];
+  selected: Blob[] = [];
+
   prefixes: Array<PathObject> = [];
   total: number;
   loading = true;
@@ -22,7 +25,9 @@ export class FileBrowserComponent implements OnInit {
     pathStartswith: '/'
   };
 
-  constructor(private coreService: CoreService) { }
+  constructor(
+    private coreService: CoreService,
+    private router: Router) { }
 
   ngOnInit() {
     this.update(true);
@@ -60,6 +65,7 @@ export class FileBrowserComponent implements OnInit {
         pathName: child.name,
         attributes: {},
         isPrefix: true,
+        prefixObject: child,
       });
     });
     return newBlobList;
@@ -67,6 +73,15 @@ export class FileBrowserComponent implements OnInit {
 
   getChildren(prefix: PathObject) {
     return prefix.children;
+  }
+
+  dblclickHandler(blob: ExtraBlob) {
+    console.log("dblclick");
+    if (blob.isPrefix) {
+      this.changePrefix(blob.prefixObject);
+    } else {
+      this.router.navigate(['x/blob', blob.uuid ]);
+    }
   }
 
   changePrefix(prefix: PathObject) {

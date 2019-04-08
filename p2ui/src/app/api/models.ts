@@ -1,5 +1,6 @@
 export { AccessRule } from './models/access-rule';
 export { Blob } from './models/blob';
+export { BlobPayload } from './models/blob-payload';
 export { BaseStorage } from './models/base-storage';
 export { User } from './models/user';
 export { Volume } from './models/volume';

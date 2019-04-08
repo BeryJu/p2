@@ -5,6 +5,7 @@ export interface ExtraBlob extends Blob {
 
   pathName?: string;
   isPrefix?: boolean;
+  prefixObject?: PathObject;
 
 }
 

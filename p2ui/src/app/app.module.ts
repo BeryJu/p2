@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { ClarityModule } from '@clr/angular';
 import { MatToolbarModule, MatButtonModule, MatIconModule } from '@angular/material';
@@ -16,6 +17,12 @@ import { PageGalleryComponent } from './gallery/page-gallery/page-gallery.compon
 import { SidebarComponent } from './gallery/sidebar/sidebar.component';
 
 import { ApiModule } from './api/api.module';
+import { BlobViewComponent } from './blob/view/view.component';
+import { BlobRendererBaseComponent } from './blob/renderer/base/base.component';
+import { BlobRendererTextComponent } from './blob/renderer/text/text.component';
+import { DynamicComponentService } from './utils/dynamic-component.service';
+import { VolumeListComponent } from './volume/list/volume-list.component';
+import { VolumeEditComponent } from './volume/edit/volume-edit.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +31,12 @@ import { ApiModule } from './api/api.module';
     ImageTileComponent,
     ImageViewComponent,
     PageGalleryComponent,
-    SidebarComponent
+    SidebarComponent,
+    BlobViewComponent,
+    BlobRendererTextComponent,
+    BlobRendererBaseComponent,
+    VolumeListComponent,
+    VolumeEditComponent,
   ],
   imports: [
     BrowserModule,
@@ -32,11 +44,14 @@ import { ApiModule } from './api/api.module';
     ClarityModule,
     BrowserAnimationsModule,
     ApiModule,
+    FormsModule,
     MatToolbarModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
   ],
-  providers: [],
+  providers: [
+    DynamicComponentService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

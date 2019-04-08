@@ -1,5 +1,6 @@
 <div class="clr-row">
   <div class="clr-col-3">
+    <h3>Folders</h3>
     <clr-tree [clrLazy]="true">
       <clr-tree-node *clrRecursiveFor="let prefix of prefixes; getChildren: getChildren"
         [clrExpandable]="prefix.expandable">
@@ -11,27 +12,33 @@
     </clr-tree>
   </div>
   <div class="clr-col-9">
-    <clr-datagrid (clrDgRefresh)="refresh($event)" [clrDgLoading]="loading">
+    <h3>Files</h3>
+    <clr-datagrid (clrDgRefresh)="refresh($event)" [clrDgLoading]="loading" [(clrDgSelected)]="selected">
       <clr-dg-column [clrDgField]="'path'">Path</clr-dg-column>
       <clr-dg-column [clrDgField]="'attributes.size'">Size</clr-dg-column>
 
-      <clr-dg-row *ngFor="let blob of blobs">
-        <clr-dg-cell>
+      <clr-dg-row *ngFor="let blob of blobs" [clrDgItem]="blob">
+        <clr-dg-cell (dblclick)="dblclickHandler(blob);">
           <clr-icon [attr.shape]="blob.isPrefix ? 'folder': 'file'"></clr-icon>
           {{ blob.pathName }}
         </clr-dg-cell>
-        <clr-dg-cell>{{ blob.attributes['size:bytes'] }}</clr-dg-cell>
+        <clr-dg-cell (dblclick)="dblclickHandler(blob);">
+          {{ blob.attributes['size:bytes'] }}
+        </clr-dg-cell>
 
         <ng-container ngProjectAs="clr-dg-row-detail" *ngIf="!blob.isPrefix">
           <clr-dg-row-detail *clrIfExpanded>
-            <table class="table table-vertical table-compact">
-              <tbody>
-                <tr *ngFor="let item of blob.attributes | keyvalue">
-                  <td>{{ item.key }}</td>
-                  <td>{{ item.value }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div>
+              <h4>Attributes</h4>
+              <table class="table table-vertical table-compact">
+                <tbody>
+                  <tr *ngFor="let item of blob.attributes | keyvalue">
+                    <td>{{ item.key }}</td>
+                    <td>{{ item.value }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </clr-dg-row-detail>
         </ng-container>
       </clr-dg-row>

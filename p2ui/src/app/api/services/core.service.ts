@@ -8,6 +8,7 @@ import { Observable as __Observable } from 'rxjs';
 import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { Blob } from '../models/blob';
+import { BlobPayload } from '../models/blob-payload';
 import { BaseStorage } from '../models/base-storage';
 import { User } from '../models/user';
 import { Volume } from '../models/volume';
@@ -21,6 +22,7 @@ class CoreService extends __BaseService {
   static readonly coreBlobUpdatePath = '/core/blob/{uuid}/';
   static readonly coreBlobPartialUpdatePath = '/core/blob/{uuid}/';
   static readonly coreBlobDeletePath = '/core/blob/{uuid}/';
+  static readonly coreBlobPayloadPath = '/core/blob/{uuid}/payload/';
   static readonly coreStorageListPath = '/core/storage/';
   static readonly coreStorageCreatePath = '/core/storage/';
   static readonly coreStorageReadPath = '/core/storage/{uuid}/';
@@ -351,6 +353,46 @@ class CoreService extends __BaseService {
   coreBlobDelete(uuid: string): __Observable<null> {
     return this.coreBlobDeleteResponse(uuid).pipe(
       __map(_r => _r.body as null)
+    );
+  }
+
+  /**
+   * Viewset that only lists events if user has 'view' permissions, and only
+   * allows operations on individual events if user has appropriate 'view', 'add',
+   * 'change' or 'delete' permissions.
+   * @param uuid A UUID string identifying this blob.
+   */
+  coreBlobPayloadResponse(uuid: string): __Observable<__StrictHttpResponse<BlobPayload>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'GET',
+      this.rootUrl + `/core/blob/${uuid}/payload/`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<BlobPayload>;
+      })
+    );
+  }
+  /**
+   * Viewset that only lists events if user has 'view' permissions, and only
+   * allows operations on individual events if user has appropriate 'view', 'add',
+   * 'change' or 'delete' permissions.
+   * @param uuid A UUID string identifying this blob.
+   */
+  coreBlobPayload(uuid: string): __Observable<BlobPayload> {
+    return this.coreBlobPayloadResponse(uuid).pipe(
+      __map(_r => _r.body as BlobPayload)
     );
   }
 

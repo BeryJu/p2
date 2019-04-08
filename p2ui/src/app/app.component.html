@@ -7,8 +7,9 @@
       </a>
     </div>
     <div class="header-nav">
-      <a href="javascript://" class="active nav-link nav-text">Dashboard</a>
-      <a href="javascript://" class="nav-link nav-text">Interactive Analytics</a>
+      <a [routerLink]="['']" routerLinkActive="active" class="nav-link nav-text">Browse</a>
+      <a href="javascript://" class="nav-link nav-text">Manage</a>
+      <a href="javascript://" class="nav-link nav-text">Analyze</a>
     </div>
     <div class="header-actions">
       <a href="javascript://" class="nav-link nav-icon">
@@ -19,23 +20,19 @@
   <nav class="subnav">
     <ul class="nav">
       <li class="nav-item">
-        <a class="nav-link active" href="#">Dashboard</a>
+        <a class="nav-link" [routerLink]="['x/volume']" routerLinkActive="active">Volumes</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Management</a>
+        <a class="nav-link" [routerLink]="['x/browser']" routerLinkActive="active">Browse</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Cloud</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Tenants</a>
+        <a class="nav-link" href="#">Upload</a>
       </li>
     </ul>
   </nav>
   <div class="content-container">
     <div class="content-area">
       <router-outlet></router-outlet>
-      <p2-file-browser></p2-file-browser>
     </div>
   </div>
 </div>
