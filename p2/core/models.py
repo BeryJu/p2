@@ -79,6 +79,12 @@ class Blob(UUIDModel, TagModel):
         self._payload_dirty = True
         self._payload = new_payload
 
+    def __failsafe_path(self):
+        same_path = Blob.objects.filter(path=self.path, volume=self.volume)
+        if same_path.exists() and same_path.first() != self:
+            self.path = self.path + '.1'
+            self.__failsafe_path()
+
     def save(self, *args, **kwargs):
         """Name file on storage after generated UUID and populate initial attributes"""
         # Create a copy of the current tags and payload since
@@ -100,9 +106,7 @@ class Blob(UUIDModel, TagModel):
                 if self._payload_dirty:
                     self.storage_instance.update_payload(self, self.payload)
                 # Check if path exists already
-                same_path = Blob.objects.filter(path=self.path, volume=self.volume)
-                if same_path.exists() and same_path.first() != self:
-                    self.path = self.path + '.1'
+                self.__failsafe_path()
                 super().save(*args, **kwargs)
                 # Only reset _payload_dirty after save so it can still be accessed in signals
                 self._payload_dirty = False
