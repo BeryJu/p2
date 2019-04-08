@@ -8,6 +8,7 @@ from typing import Any
 
 import yaml
 from django.conf import ImproperlyConfigured
+from django.utils.autoreload import autoreload_started
 
 SEARCH_PATHS = [
     'p2/lib/default.yml',
@@ -15,11 +16,13 @@ SEARCH_PATHS = [
     '',
 ] + glob('/etc/p2/config.d/*.yml', recursive=True)
 LOGGER = getLogger(__name__)
-ENVIRONMENT = os.getenv('p2_ENV', 'local')
+ENVIRONMENT = os.getenv('P2_ENV', 'local')
 
 
 class ConfigLoader:
     """Search through SEARCH_PATHS and load configuration"""
+
+    loaded_file = []
 
     __config = {}
     __context_default = None
@@ -69,6 +72,8 @@ class ConfigLoader:
             with open(path) as file:
                 try:
                     self.update(self.__config, yaml.safe_load(file))
+                    LOGGER.debug("Loaded %s")
+                    self.loaded_file.append(path)
                 except yaml.YAMLError as exc:
                     raise ImproperlyConfigured from exc
         except PermissionError as exc:
@@ -109,3 +114,10 @@ class ConfigLoader:
 
 
 CONFIG = ConfigLoader()
+
+# pylint: disable=unused-argument
+def signal_handler(sender, **kwargs):
+    """Add all loaded config files to autoreload watcher"""
+    for path in CONFIG.loaded_file:
+        sender.watch_file(path)
+autoreload_started.connect(signal_handler)
