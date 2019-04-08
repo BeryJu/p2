@@ -48,11 +48,14 @@ class Command(BaseCommand):
                     matching = matching_files.first()
                     LOGGER.warning("File '%s' exists already as %s, skipping.", path, matching.uuid)
                     return
-            # TODO: Set created/updated date from file stat
             Blob.objects.create(
                 path='/%s' % virtual_path,
                 volume=volume,
-                payload=_file.read())
+                payload=_file.read(),
+                attributes={
+                    'stat:ctime': os.path.getctime(path),
+                    'stat:mtime': os.path.getmtime(path)
+                })
             LOGGER.info("Imported blob '%s'", path)
 
     def handle(self, *args, **options):

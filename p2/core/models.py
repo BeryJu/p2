@@ -93,10 +93,10 @@ class Blob(UUIDModel, TagModel):
             with transaction.atomic():
                 # Save current time as `created` attribute. This can be changed by users,
                 # but p2.log creates a log entry for new Blob being created
-                if not self.pk:
-                    self.attributes['date_created'] = now()
+                if 'stat:ctime' not in self.attributes:
+                    self.attributes['stat:ctime'] = now()
                 # Create/update `date_updated` attribute
-                self.attributes['date_updated'] = now()
+                self.attributes['stat:mtime'] = now()
                 # Only save payload if it changed
                 if self._payload_dirty:
                     self.storage_instance.update_payload(self, self.payload)
