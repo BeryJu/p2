@@ -1,14 +1,16 @@
-"""p2 Access Models"""
+"""p2 Serve Models"""
 import re
 
 from django.db import models
 
 
-class AccessRule(models.Model):
-    """AccessRule which converts a URL matching a regular expression toa database lookup"""
+class ServeRule(models.Model):
+    """ServeRule which converts a URL matching a regular expression toa database lookup"""
 
+    name = models.TextField()
     match = models.TextField()
     blob_query = models.TextField()
+    default = models.BooleanField(default=False, unique=True)
 
     _compiled_regex = None
 
@@ -20,4 +22,4 @@ class AccessRule(models.Model):
         return self._compiled_regex
 
     def __str__(self):
-        return "AccessRule %s" % self.match
+        return "ServeRule %s (%s)" % (self.name, self.match)

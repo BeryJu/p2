@@ -1,4 +1,4 @@
-"""p2 access URL converters"""
+"""p2 serve URL converters"""
 from django.urls.converters import StringConverter
 
 

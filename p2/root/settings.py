@@ -129,7 +129,7 @@ INSTALLED_APPS = [
     'p2.core.apps.P2CoreConfig',
     'p2.api.apps.P2APIConfig',
     'p2.s3.apps.P2S3Config',
-    'p2.access.apps.P2AccessConfig',
+    'p2.serve.apps.P2ServeConfig',
     'p2.image.apps.P2ImageConfig',
     # API Frameworks
     'rest_framework',

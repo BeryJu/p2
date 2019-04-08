@@ -105,8 +105,6 @@ class Blob(UUIDModel, TagModel):
                 super().save(*args, **kwargs)
                 # Only reset _payload_dirty after save so it can still be accessed in signals
                 self._payload_dirty = False
-                # TODO: Dynamically assign attributes, send signal?
-                # - Image attributes like resolution, DPI, color, etc
                 # TODO: Use p2.lib.tasks.marshall_task instead of synchronous sending
                 # blob_payload_updated.send(self, named={'blob_uuid': self.uuid.hex})
         except DatabaseError:
