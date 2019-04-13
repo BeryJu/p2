@@ -20,8 +20,13 @@ class ServeView(View):
                 blob = get_object_or_404(Blob, **{lookup_key: lookup_value})
                 if request.user.has_perm('p2_core.view_blob', blob):
                     request.log(
-                        blob=blob,
-                        rule=rule)
-                    return HttpResponse(blob.payload,
-                                        content_type=blob.attributes.get('mime', 'text/plain'))
+                        blob_pk=blob.pk,
+                        rule_pk=rule.pk)
+                    response = HttpResponse(blob.payload,
+                                            content_type=blob.attributes.get('mime', 'text/plain'))
+                    for header_key, header_value in blob.attributes.get('headers', {}).items():
+                        if header_key == 'Location':
+                            response.status_code = 302
+                        response[header_key] = header_value
+                    return response
         raise Http404
