@@ -110,14 +110,15 @@ class Blob(UUIDModel, TagModel):
                 # Check if path exists already
                 self.__failsafe_path()
                 super().save(*args, **kwargs)
+                if self._payload_dirty:
+                    signal_marshall.delay('p2.core.signals.BLOB_PAYLOAD_UPDATED', kwargs={
+                        'blob': {
+                            'class': class_to_path(self.__class__),
+                            'pk': self.uuid.hex,
+                        }
+                    })
                 # Only reset _payload_dirty after save so it can still be accessed in signals
                 self._payload_dirty = False
-                signal_marshall.delay('p2.core.signals.BLOB_PAYLOAD_UPDATED', kwargs={
-                    'blob': {
-                        'class': class_to_path(self.__class__),
-                        'pk': self.uuid.hex,
-                    }
-                })
         except DatabaseError:
             self._payload = _old_payload
             self.tags = _old_tags

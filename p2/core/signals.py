@@ -44,6 +44,7 @@ def blob_payload_hash(sender, blob, **kwargs):
             blob.attributes[hash_name+'_b64'] = url_b64encode(_hash)
             LOGGER.debug('Updated %s for %s to %s',
                          hash_name, blob.uuid.hex, _hash)
+    blob.save()
 
 
 @receiver(BLOB_PAYLOAD_UPDATED)
@@ -53,6 +54,7 @@ def blob_payload_size(sender, blob, **kwargs):
     size = len(blob.payload)
     blob.attributes['size:bytes'] = str(size)
     LOGGER.debug('Updated size to %d for %s', size, blob.uuid.hex)
+    blob.save()
 
 
 @receiver(BLOB_PAYLOAD_UPDATED)
@@ -62,3 +64,4 @@ def blob_payload_mime(sender, blob, **kwargs):
     mime_type = magic.from_buffer(blob.payload, mime=True)
     blob.attributes['mime'] = mime_type
     LOGGER.debug('Updated MIME to %s for %s', mime_type, blob.uuid.hex)
+    blob.save()
