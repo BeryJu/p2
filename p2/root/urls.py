@@ -16,6 +16,7 @@ urlpatterns = [
     path('_/core/', include('p2.core.urls')),
     path('_/admin/', admin.site.urls),
     path('_/api/', include('p2.api.urls')),
+    path('_/ui/', include('p2.ui.urls', namespace='p2_ui')),
 ]
 
 if settings.DEBUG:

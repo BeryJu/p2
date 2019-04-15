@@ -1,0 +1,42 @@
+{% extends 'base/base.html' %}
+
+{% load i18n %}
+
+{% block content %}
+<h2>
+    {% blocktrans with volume=volume.name %}Blobs in Volume {{ volume }}{% endblocktrans %}
+    <a class="btn btn-success" href="{% url 'p2_ui:core-blob-create' %}">
+        <i class="fa fa-file-o text-light" aria-hidden="true"></i>
+    </a>
+</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>{% trans 'Path' %}</th>
+            <th>{% trans 'Size' %}</th>
+            <th>{% trans 'Download' %}</th>
+            <th>{% trans 'Edit' %}</th>
+            <th>{% trans 'Delete' %}</th>
+        </td>
+    </thead>
+    <tbody>
+        {% for object in object_list %}
+        <tr>
+            <td>{{ object.path }}</td>
+            <td>0</td>
+            <td>0</td>
+            <td>
+                <a class="btn btn-primary" href="{% url 'p2_ui:core-blob-update' pk=object.pk %}">
+                    <i class="fa fa-pencil text-light" aria-hidden="true"></i>
+                </a>
+            </td>
+            <td>
+                <a class="btn btn-danger" href="{% url 'p2_ui:core-blob-delete' pk=object.pk %}">
+                    <i class="fa fa-trash text-light" aria-hidden="true"></i>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

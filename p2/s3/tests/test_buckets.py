@@ -20,11 +20,7 @@ class BucketTests(LiveServerTestCase):
             email='test@test.test',
             password=uuid4().hex)
         self.access_key, _ = S3AccessKey.objects.get_or_create(
-            user=self.user,
-            defaults={
-                'access_key': uuid4().hex,
-                'secret_key': uuid4().hex,
-            })
+            user=self.user)
         self.storage = BaseStorage.objects.create(
             name='p2_s3_unittest',
             tags={

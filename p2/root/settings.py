@@ -135,11 +135,15 @@ INSTALLED_APPS = [
     'p2.serve.apps.P2ServeConfig',
     'p2.image.apps.P2ImageConfig',
     'p2.log.apps.P2LogConfig',
+    'p2.ui.apps.P2UIConfig',
     # API Frameworks
     'rest_framework',
     'drf_yasg',
-    'django_filters'
+    'django_filters',
+    'crispy_forms',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'p2.log.middleware.StartRequestMiddleware',

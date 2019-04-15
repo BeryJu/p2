@@ -106,7 +106,7 @@ class S3Authentication(View):
         secret_key = self._lookup_access_key(access_key)
         if not secret_key:
             return False
-        signing_key = self._get_signautre_key(secret_key.secret_key.hex, date, region, service)
+        signing_key = self._get_signautre_key(secret_key.secret_key, date, region, service)
         canonical_request = self._get_canonical_request(signed_headers)
         # LOGGER.debug("Canonical Request: '%s'", canonical_request)
         canonical_request_hash = hashlib.sha256(canonical_request.encode('utf-8')).hexdigest()
