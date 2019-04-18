@@ -8,7 +8,7 @@
 {% if object %}
 Editing {{ object }}
 {% else %}
-Creating
+Creating {{ view.model }}
 {% endif %}
 </h3>
 <form enctype="multipart/form-data" method="post">

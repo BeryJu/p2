@@ -1,6 +1,7 @@
 {% extends 'base/skeleton.html' %}
 
 {% load i18n %}
+{% load p2_ui %}
 
 {% block body %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -12,11 +13,11 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
+        <li class="nav-item {% model_app %}">
           <a class="nav-link" href="{% url 'p2_ui:index' %}">Home</a>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <a class="nav-link dropdown-toggle {% model_app 'p2_core' %}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {% trans 'Core' %}
           </a>
           <div class="dropdown-menu">
@@ -24,7 +25,7 @@
           </div>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <a class="nav-link dropdown-toggle {% model_app 'p2_s3' %}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {% trans 'S3' %}
           </a>
           <div class="dropdown-menu">
@@ -32,7 +33,7 @@
           </div>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <a class="nav-link dropdown-toggle {% model_app 'p2_log' %}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {% trans 'Log' %}
           </a>
           <div class="dropdown-menu">
@@ -40,11 +41,11 @@
           </div>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <a class="nav-link dropdown-toggle {% model_app 'p2_serve' %}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {% trans 'Serve' %}
           </a>
           <div class="dropdown-menu">
-            <a class="dropdown-item" href="{% url 'p2_ui:s3-access-key-list' %}">{% trans "Access Keys" %}</a>
+            <a class="dropdown-item" href="{% url 'p2_ui:serve-rule-list' %}">{% trans "Serve Rules" %}</a>
           </div>
         </li>
       </ul>
@@ -72,7 +73,16 @@
 </div>
 <nav class="navbar fixed-bottom navbar-dark bg-dark">
   <div class="container">
-    <small class="text-light">{{ p2_version }}</small>
+    <small class="text-light">
+      {% blocktrans with version=p2_version %}
+      Version {{ version }}
+      {% endblocktrans %}
+    </small>
+    <small class="text-light">
+      {% blocktrans with uid=request.uid %}
+      Request-ID {{ uid }}
+      {% endblocktrans %}
+    </small>
   </div>
 </nav>
 {% endblock %}

@@ -31,7 +31,8 @@ class LogAdaptor:
         flattened['user'] = request.user.pk
         flattened['source_address'] = request.META['REMOTE_ADDR']
         flattened['request_path'] = request.path
-        flattened['app'] = request.resolver_match.app_name
+        if request.resolver_match:
+            flattened['app'] = request.resolver_match.app_name
         write_log_record.delay(dict(flattened))
 
 LOG_ADAPTOR = LogAdaptor()
