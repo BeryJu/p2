@@ -22,7 +22,7 @@ class LegacyObjectView(View):
         if 'id' in request.POST and 'imagedata' in request.FILES:
             blob = self.handle_post_file(request.FILES['imagedata'])
             # Generate url for client to open
-            # TODO: Implement this, integrate with p2.access?
+            # TODO: Implement this, integrate with p2.serve?
             # upload_prop = CONFIG.get('default_return_view').replace('view_', '')
             # upload_hash = getattr(upload, upload_prop, 'sha256')
             # url = reverse(CONFIG.get('default_return_view'), kwargs={'file_hash': upload_hash})

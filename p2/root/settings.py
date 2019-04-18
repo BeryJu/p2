@@ -136,6 +136,7 @@ INSTALLED_APPS = [
     'p2.image.apps.P2ImageConfig',
     'p2.log.apps.P2LogConfig',
     'p2.ui.apps.P2UIConfig',
+    'p2.quota.apps.P2QuotaConfig',
     # API Frameworks
     'rest_framework',
     'drf_yasg',

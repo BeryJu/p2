@@ -5,9 +5,12 @@ from logging import getLogger
 from typing import Union
 
 from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields.jsonb import KeyTextTransform
 from django.core.cache import cache
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import DatabaseError, models, transaction
+from django.db.models import IntegerField, Sum
+from django.db.models.functions import Cast
 from django.utils.timezone import now
 from model_utils.managers import InheritanceManager
 
@@ -26,6 +29,13 @@ class Volume(UUIDModel, TagModel):
 
     name = models.SlugField()
     storage = models.ForeignKey('BaseStorage', on_delete=models.CASCADE)
+
+    @property
+    def space_used(self):
+        """Return summed up size of all blobs in this volume."""
+        return self.blob_set.all().annotate(
+            size_value=Cast(KeyTextTransform('size:bytes', 'attributes'), IntegerField())
+        ).aggregate(sum=Sum('size_value')).get('sum', 0)
 
     def __str__(self):
         return "Volume %s on %s" % (self.name, self.storage)
@@ -131,7 +141,7 @@ class Blob(UUIDModel, TagModel):
             raise
 
     def __str__(self):
-        return 'Blob uuid=%s %s:/%s' % (self.uuid, self.volume.name, self.path)
+        return 'Blob %s:/%s' % (self.volume.name, self.path)
 
 
 class BaseStorage(UUIDModel, TagModel):
