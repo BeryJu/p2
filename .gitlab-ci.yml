@@ -50,7 +50,7 @@ package-docker:
   before_script:
     - echo "{\"auths\":{\"docker.$NEXUS_URL\":{\"auth\":\"$NEXUS_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination docker.pkg.beryju.org/p2:stable --destination docker.pkg.beryju.org/p2:1.9.7
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination docker.pkg.beryju.org/p2:stable --destination docker.pkg.beryju.org/p2:0.1.0
   stage: build
   only:
     - tags
