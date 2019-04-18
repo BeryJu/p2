@@ -3,8 +3,9 @@ from django.urls import path
 
 from p2.ui.views import general
 from p2.ui.views.core import blob, volume
-from p2.ui.views.log import records
+from p2.ui.views.log import record
 from p2.ui.views.s3 import access_key
+from p2.ui.views.serve import rule
 
 app_name = 'p2_ui'
 urlpatterns = [
@@ -41,5 +42,14 @@ urlpatterns = [
          access_key.S3AccessKeyDeleteView.as_view(), name='s3-access-key-delete'),
     # Log
     path('log/adaptor/<uuid:pk>/records/',
-         records.RecordListView.as_view(), name='log-records-list'),
+         record.RecordListView.as_view(), name='log-records-list'),
+    # Serve - Rules
+    path('serve/rule/',
+         rule.ServeRuleListView.as_view(), name='serve-rule-list'),
+    path('serve/rule/create/',
+         rule.ServeRuleCreateView.as_view(), name='serve-rule-create'),
+    path('serve/rule/<int:pk>/update/',
+         rule.ServeRuleUpdateView.as_view(), name='serve-rule-update'),
+    path('serve/rule/<int:pk>/delete/',
+         rule.ServeRuleDeleteView.as_view(), name='serve-rule-delete'),
 ]

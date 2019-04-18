@@ -10,4 +10,9 @@ class ServeRuleForm(forms.ModelForm):
     class Meta:
 
         model = ServeRule
-        fields = '__all__'
+        fields = ['name', 'match', 'blob_query']
+        widgets = {
+            'name': forms.TextInput,
+            'match': forms.TextInput,
+            'blob_query': forms.TextInput,
+        }

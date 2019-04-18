@@ -1,0 +1,47 @@
+{% extends 'base/base.html' %}
+
+{% load i18n %}
+
+{% block content %}
+<h2>
+  {% trans "Serve Rules" %}
+  <a class="btn btn-success" href="{% url 'p2_ui:serve-rule-create' %}">
+    <i class="fa fa-file-o text-light" aria-hidden="true"></i>
+  </a>
+</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>{% trans 'Name' %}</th>
+      <th>{% trans 'Match' %}</th>
+      <th>{% trans 'Query' %}</th>
+      <th>{% trans 'Edit' %}</th>
+      <th>{% trans 'Delete' %}</th>
+      </td>
+  </thead>
+  <tbody>
+    {% for object in object_list %}
+    <tr>
+      <td>{{ object.name }}</td>
+      <td>
+        <pre>{{ object.match }}</pre>
+      </td>
+      <td>
+        <pre>{{ object.blob_query }}</pre>
+      </td>
+      <td>
+        <a class="btn btn-primary" href="{% url 'p2_ui:serve-rule-update' pk=object.pk %}">
+          <i class="fa fa-pencil text-light" aria-hidden="true"></i>
+        </a>
+      </td>
+      <td>
+        <a class="btn btn-danger" href="{% url 'p2_ui:serve-rule-delete' pk=object.pk %}">
+          <i class="fa fa-trash text-light" aria-hidden="true"></i>
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% include 'blocks/pagination.html' %}
+{% endblock %}

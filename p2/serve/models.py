@@ -22,4 +22,4 @@ class ServeRule(models.Model):
         return self._compiled_regex
 
     def __str__(self):
-        return "ServeRule %s (%s)" % (self.name, self.match)
+        return "ServeRule %s" % self.name
