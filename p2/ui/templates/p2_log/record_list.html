@@ -1,0 +1,23 @@
+{% extends 'base/base.html' %}
+
+{% load i18n %}
+
+{% block content %}
+<h2>
+  {% blocktrans with adaptor=adaptor.pk.hex %}Log from adaptor {{ adaptor }}{% endblocktrans %}
+</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>{% trans 'Body' %}</th>
+  </thead>
+  <tbody>
+    {% for object in object_list %}
+    <tr>
+      <td>{{ object.body }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% include 'blocks/pagination.html' %}
+{% endblock %}

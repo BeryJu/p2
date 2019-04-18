@@ -9,8 +9,6 @@ from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
 
 from p2.s3.forms import S3AccessKeyForm
-# from p2.core.forms import S3AccessKeyForm
-# from p2.core.models import S3AccessKey, Volume
 from p2.s3.models import S3AccessKey
 
 
@@ -20,6 +18,7 @@ class S3AccessKeyListView(PermissionListMixin, ListView):
     model = S3AccessKey
     permission_required = 'p2_s3.view_s3accesskey'
     ordering = 'name'
+    paginate_by = 10
 
 class S3AccessKeyCreateView(SuccessMessageMixin, DjangoPermissionListMixin, CreateView):
     """Create new access key"""
@@ -33,7 +32,7 @@ class S3AccessKeyCreateView(SuccessMessageMixin, DjangoPermissionListMixin, Crea
     success_message = _('Successfully created S3AccessKey')
 
     def get_success_url(self):
-        return reverse('p2_ui:core-access-key-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:s3-access-key-list', kwargs={'pk': self.object.volume.pk})
 
 class S3AccessKeyUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView):
     """Update existing access key"""
@@ -45,7 +44,7 @@ class S3AccessKeyUpdateView(SuccessMessageMixin, PermissionRequiredMixin, Update
     success_message = _('Successfully updated S3AccessKey')
 
     def get_success_url(self):
-        return reverse('p2_ui:core-access-key-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:s3-access-key-list', kwargs={'pk': self.object.volume.pk})
 
 class S3AccessKeyDeleteView(SuccessMessageMixin, PermissionRequiredMixin, DeleteView):
     """Delete access key"""
@@ -56,7 +55,7 @@ class S3AccessKeyDeleteView(SuccessMessageMixin, PermissionRequiredMixin, Delete
     success_message = _('Successfully deleted S3AccessKey')
 
     def get_success_url(self):
-        return reverse('p2_ui:core-access-key-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:s3-access-key-list', kwargs={'pk': self.object.volume.pk})
 
     def delete(self, request, *args, **kwargs):
         obj = self.get_object()

@@ -1,0 +1,34 @@
+{% extends 'base/base.html' %}
+
+{% load i18n %}
+
+{% block content %}
+<h2>
+  {% blocktrans with user=user.username %}Welcome {{ user }}{% endblocktrans %}
+</h2>
+<h5>
+  {% blocktrans with count=count %}p2 is happily serving {{ count }} objects.{% endblocktrans %}
+</h5>
+<div class="row">
+  {% for volume in volumes %}
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ volume.name }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">
+          {% blocktrans with storage=volume.storage.name %}
+            On storage {{ storage }}
+          {% endblocktrans %}
+        </h6>
+        <p class="card-text">
+          {% blocktrans with usage=volume.space_used|filesizeformat %}
+            Using {{ usage }} space.
+          {% endblocktrans %}
+        </p>
+        <a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}" class="card-link">{% trans 'Browse' %}</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

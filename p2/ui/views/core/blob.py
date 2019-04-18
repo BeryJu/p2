@@ -3,9 +3,12 @@ from django.contrib import messages
 from django.contrib.auth.mixins import \
     PermissionRequiredMixin as DjangoPermissionListMixin
 from django.contrib.messages.views import SuccessMessageMixin
+# from django.views import View
+from django.http import HttpResponse
 from django.shortcuts import reverse
 from django.utils.translation import gettext as _
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  UpdateView)
 from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
 
 from p2.core.forms import BlobForm
@@ -18,6 +21,7 @@ class BlobListView(PermissionListMixin, ListView):
     model = Blob
     permission_required = 'p2_core.view_blob'
     ordering = 'path'
+    paginate_by = 10
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -88,3 +92,17 @@ class BlobDeleteView(SuccessMessageMixin, PermissionRequiredMixin, DeleteView):
         obj = self.get_object()
         messages.success(self.request, self.success_message % obj.__dict__)
         return super().delete(request, *args, **kwargs)
+
+
+class BlobDownloadView(PermissionRequiredMixin, DetailView):
+    """Download blob's payload"""
+
+    model = Blob
+    permission_required = 'p2_core.view_blob'
+
+    def get(self, *args, **kwargs):
+        super().get(*args, **kwargs)
+        response = HttpResponse(
+            self.object.payload, content_type=self.object.attributes.get('mime', 'text/plain'))
+        response['Content-Disposition'] = 'attachment; filename=' + self.object.path
+        return response

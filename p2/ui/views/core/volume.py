@@ -18,6 +18,7 @@ class VolumeListView(PermissionListMixin, ListView):
     model = Volume
     permission_required = 'p2_core.view_volume'
     ordering = 'name'
+    paginate_by = 10
 
 class VolumeCreateView(SuccessMessageMixin, DjangoPermissionListMixin, CreateView):
     """Create new volume"""
