@@ -19,7 +19,7 @@ class Quota(UUIDModel):
     """Quota about how much storage can be used on a per-volume level"""
 
     name = models.TextField()
-    volume = models.ForeignKey(Volume, on_delete=models.CASCADE)
+    volume = models.OneToOneField(Volume, on_delete=models.CASCADE)
     threshold = models.IntegerField()
     action = models.TextField(choices=ACTIONS, default=ACTION_NOTHING)
 

@@ -37,6 +37,16 @@ class Volume(UUIDModel, TagModel):
             size_value=Cast(KeyTextTransform('size:bytes', 'attributes'), IntegerField())
         ).aggregate(sum=Sum('size_value')).get('sum', 0)
 
+    @property
+    def quota_percentage(self):
+        """Check if volume is close to any quota"""
+        # pylint doesn't know about the automatic reverse field from django
+        # pylint: disable=no-member
+        if self.quota:
+            # pylint: disable=no-member
+            return self.space_used / (self.quota.threshold / 100)
+        return 0
+
     def __str__(self):
         return "Volume %s on %s" % (self.name, self.storage)
 

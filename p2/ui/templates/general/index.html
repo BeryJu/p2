@@ -4,7 +4,7 @@
 
 {% block content %}
 <h2>
-  {% blocktrans with user=user.username %}Welcome {{ user }}{% endblocktrans %}
+  {% blocktrans with user=user.username %}Welcome {{ user }}.{% endblocktrans %}
 </h2>
 <h5>
   {% blocktrans with count=count %}p2 is happily serving {{ count }} objects.{% endblocktrans %}
@@ -13,21 +13,35 @@
   {% for volume in volumes %}
   <div class="col-md-4">
     <div class="card">
-      <div class="card-body">
+      {% with percentage=volume.quota_percentage %}
+      <div class="card-body text-white {% if percentage > 75 %} bg-danger {% elif percentage > 50 %} bg-warning {% else %} bg-dark {% endif %}">
         <h5 class="card-title">{{ volume.name }}</h5>
         <h6 class="card-subtitle mb-2 text-muted">
           {% blocktrans with storage=volume.storage.name %}
-            On storage {{ storage }}
+          On storage {{ storage }}
           {% endblocktrans %}
         </h6>
         <p class="card-text">
           {% blocktrans with usage=volume.space_used|filesizeformat %}
-            Using {{ usage }} space.
+          Using {{ usage }} space.
           {% endblocktrans %}
+          <hr>
+          <strong>
+          {% if percentage > 50 %}
+          {% blocktrans with percentage=percentage|floatformat:"2" threshold=volume.quota.threshold|filesizeformat %}
+          Careful, you're using {{ percentage }}% of {{ threshold }} allocated.
+          {% endblocktrans %}
+          {% else %}
+          {% blocktrans with threshold=volume.quota.threshold|filesizeformat %}
+          This volume has {{ threshold }} allocated.
+          {% endblocktrans %}
+          {% endif %}
+          </strong>
         </p>
         <a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}" class="card-link">{% trans 'Browse' %}</a>
       </div>
     </div>
+    {% endwith %}
   </div>
   {% endfor %}
 </div>
