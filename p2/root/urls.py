@@ -5,8 +5,6 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
 
-# from p2.core.urls import ur
-
 admin.site.index_title = 'p2 Admin'
 admin.site.site_title = 'p2'
 
@@ -19,7 +17,6 @@ urlpatterns = [
     path('_/api/', include('p2.api.urls', namespace='p2_api')),
     path('', RedirectView.as_view(pattern_name='p2_ui:index')),
     path('_/ui/', include('p2.ui.urls', namespace='p2_ui')),
-    path('_/ui/search/', include('haystack.urls')),
 ]
 
 if settings.DEBUG:

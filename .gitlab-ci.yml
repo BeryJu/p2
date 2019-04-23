@@ -2,9 +2,6 @@
 before_script:
   - "apt-get update"
   - "apt-get install -y libsasl2-dev libldap2-dev"
-  - "python3 -m pip install -U virtualenv"
-  - "virtualenv env"
-  - "source env/bin/activate"
   - "pip3 install -U -r requirements-dev.txt"
 stages:
   - test
