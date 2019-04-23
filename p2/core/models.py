@@ -57,10 +57,12 @@ class Volume(UUIDModel, TagModel):
         )
 
 
+# pylint: disable=too-many-instance-attributes
 class Blob(UUIDModel, TagModel):
     """Binary-large object, member of a Volume and store in the volume's storage"""
 
     path = models.TextField()
+    prefix = models.TextField()
 
     volume = models.ForeignKey('Volume', on_delete=models.CASCADE)
     attributes = JSONField(default=dict, blank=True, encoder=DjangoJSONEncoder)
@@ -82,6 +84,11 @@ class Blob(UUIDModel, TagModel):
         return self._casted_storage
 
     @property
+    def filename(self):
+        """Return only the filename part of self.path"""
+        return self.path.split('/')[-1]
+
+    @property
     def payload(self) -> bytes:
         """Retrieve binary payload from storage and cache in class instance"""
         if not self._payload:
@@ -100,6 +107,12 @@ class Blob(UUIDModel, TagModel):
     def payload(self, new_payload: bytes):
         self._payload_dirty = True
         self._payload = new_payload
+
+    def __update_prefix(self):
+        path_parts = self.path.split('/')
+        self.prefix = '/'.join(path_parts[:-1])
+        if self.prefix == '':
+            self.prefix = '/'
 
     def __failsafe_path(self):
         same_path = Blob.objects.filter(path=self.path, volume=self.volume)
@@ -129,6 +142,8 @@ class Blob(UUIDModel, TagModel):
                     self.storage_instance.update_payload(self, self.payload)
                 # Check if path exists already
                 self.__failsafe_path()
+                # Update prefix
+                self.__update_prefix()
                 super().save(*args, **kwargs)
                 if self._payload_dirty:
                     signal_marshall.delay('p2.core.signals.BLOB_PAYLOAD_UPDATED', kwargs={
