@@ -1,8 +1,7 @@
 """p2 lib models"""
 from uuid import uuid4
 
-from django.contrib.postgres.fields import JSONField
-from django.core.serializers.json import DjangoJSONEncoder
+from django.contrib.postgres.fields import HStoreField
 from django.db import models
 
 
@@ -18,7 +17,7 @@ class UUIDModel(models.Model):
 class TagModel(models.Model):
     """Model which can be tagged and have pre-defined tag keys"""
 
-    tags = JSONField(default=dict, blank=True, encoder=DjangoJSONEncoder)
+    tags = HStoreField(default=dict, blank=True)
 
     PREDEFINED_KEYS = []
 
