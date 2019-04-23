@@ -20,10 +20,12 @@ from urllib.parse import urlparse
 import ldap
 from django_auth_ldap.config import LDAPSearch
 from sentry_sdk import init as sentry_init
+from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from p2 import __version__
 from p2.lib.config import CONFIG
+from p2.lib.sentry import before_send
 
 LOGGER = logging.getLogger(__name__)
 
@@ -261,7 +263,9 @@ sentry_init(
     dsn="https://9041d56f69bd496ea4edfa6420eac665@sentry.services.beryju.org/9",
     integrations=[
         DjangoIntegration(transaction_style="function_name"),
-    ]
+        CeleryIntegration(),
+    ],
+    before_send=before_send
 )
 
 
