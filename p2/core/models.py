@@ -166,7 +166,7 @@ class Blob(UUIDModel, TagModel):
             raise
 
     def __str__(self):
-        return 'Blob %s:/%s' % (self.volume.name, self.path)
+        return self.filename
 
 
 class BaseStorage(UUIDModel, TagModel):
