@@ -13,3 +13,4 @@ pytz
 pyyaml
 user-agents
 colorlog
+sentry-sdk

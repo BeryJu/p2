@@ -18,7 +18,9 @@ import sys
 from urllib.parse import urlparse
 
 import ldap
+import sentry_sdk
 from django_auth_ldap.config import LDAPSearch
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from p2 import __version__
 from p2.lib.config import CONFIG
@@ -252,6 +254,16 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 SITE_ID = 1
+
+# Sentry integration
+
+sentry_sdk.init(
+    dsn="https://9041d56f69bd496ea4edfa6420eac665:0fab3503a25a4e709c309a58df47d952@sentry.services.beryju.org/9",
+    integrations=[
+        DjangoIntegration(transaction_style="function_name"),
+    ]
+)
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
