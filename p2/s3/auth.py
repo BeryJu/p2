@@ -130,4 +130,6 @@ class S3Authentication(View):
         authenticated = self.authenticate()
         if not authenticated:
             return self.error_response(ErrorCodes.ACCESS_DENIED)
+        if 'redundant_slash' in kwargs:
+            kwargs.pop('redundant_slash')
         return super().dispatch(request, *args, **kwargs)

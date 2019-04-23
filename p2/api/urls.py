@@ -33,6 +33,7 @@ ROUTER.register('core/user', UserViewSet)
 ROUTER.register('s3/access_key', S3AccessKeyViewSet)
 ROUTER.register('serve/rule', ServeRuleViewSet)
 
+app_name = 'p2_api'
 urlpatterns = [
     path('v1/', include(ROUTER.urls)),
     url(r'^swagger(?P<format>\.json|\.yaml)$',

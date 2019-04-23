@@ -7,6 +7,7 @@ from p2.s3.views import buckets, get, objects
 register_converter(S3BucketConverter, 's3')
 register_converter(EverythingConverter, 'everything')
 
+app_name = 'p2_s3'
 urlpatterns = [
     path('<s3:bucket>', buckets.BucketView.as_view(), name='bucket'),
     path('<s3:bucket>/', buckets.BucketView.as_view(), name='bucket'),
