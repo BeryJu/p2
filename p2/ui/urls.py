@@ -21,7 +21,7 @@ urlpatterns = [
     path('core/volume/<uuid:pk>/delete/',
          volume.VolumeDeleteView.as_view(), name='core-volume-delete'),
     path('core/volume/<uuid:pk>/blobs/',
-         blob.BlobListView.as_view(), name='core-blob-list'),
+         blob.FileBrowserView.as_view(), name='core-blob-list'),
     # Core - Blobs
     path('core/blobs/create/',
          blob.BlobCreateView.as_view(), name='core-blob-create'),

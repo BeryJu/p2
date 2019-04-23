@@ -2,13 +2,14 @@
 
 {% load crispy_forms_tags %}
 {% load i18n %}
+{% load p2_ui %}
 
 {% block content %}
 <h3>
 {% if object %}
 Editing {{ object }}
 {% else %}
-Creating {{ view.model }}
+Creating {{ view.model|model_verbose_name }}
 {% endif %}
 </h3>
 <form enctype="multipart/form-data" method="post">

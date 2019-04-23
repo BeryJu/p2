@@ -1,39 +1,84 @@
 """Blob Views"""
 from django.contrib import messages
-from django.contrib.auth.mixins import \
-    PermissionRequiredMixin as DjangoPermissionListMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-# from django.views import View
 from django.http import HttpResponse
-from django.shortcuts import reverse
+from django.shortcuts import get_object_or_404, reverse
 from django.utils.translation import gettext as _
-from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
-                                  UpdateView)
-from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
+from django.views.generic import (CreateView, DeleteView, DetailView,
+                                  TemplateView, UpdateView)
+from guardian.mixins import PermissionRequiredMixin
+from guardian.shortcuts import get_objects_for_user
 
 from p2.core.forms import BlobForm
-from p2.core.models import Blob, Volume
+from p2.core.models import Blob
 
 
-class BlobListView(PermissionListMixin, ListView):
+class FileBrowserView(LoginRequiredMixin, TemplateView):
     """List all blobs a user has access to"""
 
-    model = Blob
-    permission_required = 'p2_core.view_blob'
-    ordering = 'path'
-    paginate_by = 10
+    template_name = 'p2_core/blob_list.html'
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(volume=self.kwargs.get('pk'))
+    def build_prefix_list(self, volume):
+        """Create list of all prefixes"""
+        prefix = self.request.GET.get('prefix', '/')
+        # Create separate list of all prefixes which should be displayed
+        relative_prefix_list = []
+        # If prefix is deeper than /, we add a .. prefix to go up
+        if prefix != '/':
+            parent_prefix = '/'.join(prefix.split('/')[:-1])
+            # parent_prefix can't be blank, so we fall back to slash
+            if parent_prefix == '':
+                parent_prefix = '/'
+            relative_prefix_list.append({
+                'absolute_prefix': parent_prefix,
+                'relative_prefix': '..'
+            })
+        for blob in get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
+                volume=volume,
+                prefix__startswith=prefix).distinct('prefix'):
+            # To prevent the absolute path being //x, replace prefix with ''
+            if prefix == '/':
+                prefix = ''
+            relative = blob.prefix.replace(prefix, '', 1)
+            if '/' in relative and relative != '' and relative != '/':
+                next_part = relative.split('/')[1]
+                relative_prefix_list.append({
+                    'absolute_prefix': '/'.join([prefix, next_part]),
+                    'relative_prefix': next_part
+                })
+        return relative_prefix_list
+
+    def build_breadcrumb_list(self):
+        """Build list for breadcrumbs"""
+        prefix = self.request.GET.get('prefix', '/')
+        until_here = []
+        crumbs = []
+        for part in prefix.split('/'):
+            until_here.append(part)
+            crumbs.append({
+                'title': part,
+                'prefix': '/'.join(until_here)
+            })
+        return crumbs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["volume"] = Volume.objects.get(pk=self.kwargs.get('pk'))
+        context['volume'] = get_object_or_404(get_objects_for_user(
+            self.request.user, 'p2_core.use_volume'), pk=self.kwargs.get('pk'))
+
+        # Get list of blobs with matching prefix
+        prefix = self.request.GET.get('prefix', '/')
+        context['objects'] = get_objects_for_user(
+            self.request.user, 'p2_core.view_blob').filter(prefix=prefix, volume=context['volume'])
+
+        context['prefixes'] = self.build_prefix_list(context['volume'])
+        context['breadcrumbs'] = self.build_breadcrumb_list()
+
         return context
 
 
-class BlobCreateView(SuccessMessageMixin, DjangoPermissionListMixin, CreateView):
+class BlobCreateView(SuccessMessageMixin, PermissionRequiredMixin, CreateView):
     """Create new blob"""
 
     # TODO: Assing permission after creation
