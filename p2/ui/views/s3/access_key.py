@@ -32,7 +32,7 @@ class S3AccessKeyCreateView(SuccessMessageMixin, DjangoPermissionListMixin, Crea
     success_message = _('Successfully created S3AccessKey')
 
     def get_success_url(self):
-        return reverse('p2_ui:s3-access-key-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:s3-access-key-list')
 
 class S3AccessKeyUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView):
     """Update existing access key"""
@@ -44,7 +44,7 @@ class S3AccessKeyUpdateView(SuccessMessageMixin, PermissionRequiredMixin, Update
     success_message = _('Successfully updated S3AccessKey')
 
     def get_success_url(self):
-        return reverse('p2_ui:s3-access-key-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:s3-access-key-list')
 
 class S3AccessKeyDeleteView(SuccessMessageMixin, PermissionRequiredMixin, DeleteView):
     """Delete access key"""
@@ -55,7 +55,7 @@ class S3AccessKeyDeleteView(SuccessMessageMixin, PermissionRequiredMixin, Delete
     success_message = _('Successfully deleted S3AccessKey')
 
     def get_success_url(self):
-        return reverse('p2_ui:s3-access-key-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:s3-access-key-list')
 
     def delete(self, request, *args, **kwargs):
         obj = self.get_object()
