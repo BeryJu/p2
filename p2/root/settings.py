@@ -265,7 +265,8 @@ sentry_init(
         DjangoIntegration(transaction_style="function_name"),
         CeleryIntegration(),
     ],
-    before_send=before_send
+    before_send=before_send,
+    release='p2@%s' % __version__
 )
 
 
