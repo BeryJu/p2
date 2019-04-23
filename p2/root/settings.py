@@ -128,7 +128,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'guardian',
+    # Authentication
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth_passbook',
     'p2.core.apps.P2CoreConfig',
     'p2.api.apps.P2APIConfig',
     'p2.s3.apps.P2S3Config',
@@ -143,6 +149,9 @@ INSTALLED_APPS = [
     'django_filters',
     'crispy_forms',
 ]
+
+LOGIN_URL = 'account_login'
+LOGIN_REDIRECT_URL = 'p2_ui:index'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
@@ -168,7 +177,10 @@ ROOT_URLCONF = 'p2.root.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'p2/templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'p2/ui/templates/'),
+            # os.path.join(BASE_DIR, 'p2/templates')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -239,6 +251,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+SITE_ID = 1
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/

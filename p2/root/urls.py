@@ -17,6 +17,7 @@ urlpatterns = [
     path('_/api/', include('p2.api.urls', namespace='p2_api')),
     path('', RedirectView.as_view(pattern_name='p2_ui:index')),
     path('_/ui/', include('p2.ui.urls', namespace='p2_ui')),
+    path('_/accounts/', include('allauth.urls')),
 ]
 
 if settings.DEBUG:

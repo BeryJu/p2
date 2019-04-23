@@ -15,5 +15,18 @@
     <script src="{% static 'js/jquery.min.js'%}" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script> {% endcomment %}
     <script src="{% static 'js/bootstrap.min.js' %}" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="{% static 'js/sentry.min.js' %}"></script>
+    <script>
+      window.feedbackMessage = function() {
+        Sentry.init({ dsn: 'https://9041d56f69bd496ea4edfa6420eac665@sentry.services.beryju.org/9' });
+        Sentry.showReportDialog({
+          eventId: 'ba9a8e90121f4da18cfa15d2069d55ff',
+          user: {
+            email: "{{ user.email }}",
+            name: "{{ user.username }}",
+          },
+        });
+      }
+    </script>
   </body>
 </html>

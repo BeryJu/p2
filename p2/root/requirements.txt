@@ -1,5 +1,7 @@
 django>=2.2
 django-guardian
+django-allauth
+django-allauth-passbook
 requests
 celery
 cherrypy
