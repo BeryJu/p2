@@ -1,13 +1,10 @@
 # Global Variables
-before_script:
-  - "apt-get update"
-  - "apt-get install -y libsasl2-dev libldap2-dev"
-  - "pip3 install -U -r requirements-dev.txt"
 stages:
+  - build-build-image
   - test
   - build
   - docs
-image: python:3.6
+image: docker.pkg.beryju.org/p2-build-base:latest
 services:
   - postgres:latest
   - redis:latest
@@ -16,6 +13,21 @@ variables:
   POSTGRES_DB: p2
   POSTGRES_USER: p2
   POSTGRES_PASSWORD: "EK-5jnKfjrGRm<77"
+
+
+create-build-image:
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - echo "{\"auths\":{\"docker.$NEXUS_URL\":{\"auth\":\"$NEXUS_AUTH\"}}}" > /kaniko/.docker/config.json
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.build-base --destination docker.pkg.beryju.org/p2-build-base:latest --destination docker.pkg.beryju.org/p2-build-base:0.1.1
+  stage: build-build-image
+  only:
+    refs:
+      - tags
+      - /^version/.*$/
 
 isort:
   script:
