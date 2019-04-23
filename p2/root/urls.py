@@ -10,7 +10,7 @@ admin.site.site_title = 'p2'
 
 urlpatterns = [
     # Some s3 requests don't have a trailing slash hence we need to accept both
-    url('s3(?P<redundant_slash>/?)', include('p2.s3.urls', namespace='p2_s3')),
+    url(r'^s3(?P<redundant_slash>/?)', include('p2.s3.urls', namespace='p2_s3')),
     path('', include('p2.serve.urls', namespace='p2_serve')),
     path('_/core/', include('p2.core.urls')), # TODO: Migrate these urls to api
     path('_/admin/', admin.site.urls),
