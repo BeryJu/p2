@@ -86,6 +86,8 @@ spec:
 EOF
 
 # Download Helm Chart CRD for k3s, replace values and install
-wget -O /tmp/p2_k3s.yml "https://git.beryju.org/BeryJu.org/p2/raw/${P2_VERSION}/install/helm_k3s.yaml"
+wget -O /tmp/p2_k3s.yml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/helm_k3s.yaml"
 sed -i "s/%INGRESS_HOST%/${INGRESS_HOST}/g" /tmp/p2_k3s.yml
+systemctl restart k3s # Not sure if this is needed, just to make sure k3s is ready
+sleep 5
 mv /tmp/p2_k3s.yml /var/lib/rancher/k3s/server/manifests/p2.yaml

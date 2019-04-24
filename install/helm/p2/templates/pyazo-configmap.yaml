@@ -8,10 +8,10 @@ data:
     databases:
       default:
         engine: django.db.backends.postgresql
-        name: {{ .Values.postgresql.postgresqlDatabase }}
-        user: {{ .Values.postgresql.postgresqlUsername }}
-        password: {{ .Values.postgresql.postgresqlPassword }}
-        host: {{ .Release.Name }}-postgresql
+        name: "{{ .Values.postgresql.postgresqlDatabase }}"
+        user: "{{ .Values.postgresql.postgresqlUsername }}"
+        password: "{{ .Values.postgresql.postgresqlPassword }}"
+        host: "{{ .Release.Name }}-postgresql"
         port: ''
     log:
       level:
