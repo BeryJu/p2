@@ -275,18 +275,6 @@ sentry_init(
 
 STATIC_URL = '/static/'
 
-# RAVEN_CONFIG = {
-#     'dsn': 'https://dfcc6acbd9c543ea8d4c9dbf4ac9a8c0:5340ca78902841b5b'
-#            '3372ecce5d548a5@sentry.services.beryju.org/4',
-#     'release': VERSION,
-#     'environment': 'production' if DEBUG is False else 'development',
-#     'tags': {'site': CONFIG.get('external_url')}
-# }
-
-# ERROR_REPORT_ENABLED = CONFIG.get('error_report_enabled', False)
-# if not ERROR_REPORT_ENABLED:
-#     RAVEN_CONFIG['dsn'] = ''
-
 # API Configurations
 
 JWT_AUTH = {
