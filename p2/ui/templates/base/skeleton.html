@@ -19,6 +19,7 @@
     <script src="{% static 'js/jquery.min.js'%}" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     {% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script> {% endcomment %}
     <script src="{% static 'js/bootstrap.min.js' %}" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    {% if user.is_authenticated %}
     <script src="{% static 'js/bundle.min.js' %}"></script>
     <script>
       Sentry.init({
@@ -46,5 +47,6 @@
         Sentry.captureException(new Error("Feedback"));
       }
     </script>
+    {% endif %}
   </body>
 </html>
