@@ -17,3 +17,4 @@ spec:
   selector:
     app.kubernetes.io/name: {{ include "p2.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
+    p2.io/component: web
