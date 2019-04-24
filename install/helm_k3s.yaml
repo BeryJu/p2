@@ -4,14 +4,13 @@ metadata:
   name: p2
   namespace: kube-system
 spec:
-  chart: https://pkg.beryju.org/repository/helm/p2-0.1.3.tgz
+  chart: https://pkg.beryju.org/repository/helm/p2-0.1.2.tgz
   targetNamespace: p2
   set:
     ingress:
       enabled: true
       hosts:
-        # - '%INGRESS_HOST%' # Replaced by install script
-        - 'p2.52.169.203.176.nip.io'
+        - '%INGRESS_HOST%' # Replaced by install script
     # Since this is made for a single-node deployment, we disable most of the HA pods
     postgresql:
       postgresqlUsername: p2

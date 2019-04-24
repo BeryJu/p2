@@ -6,6 +6,8 @@
 # TODO: Check if root
 
 K3S_VERSION="v0.4.0"
+P2_VERSION="0.1.2"
+# INGRESS_HOST=""
 
 # Check if docker installed
 curl "https://get.docker.com" | sh -
@@ -18,7 +20,12 @@ P2_DATABASE_PATH="/srv/p2/database/"
 mkdir -p $P2_STORAGE_PATH
 mkdir -p $P2_DATABASE_PATH
 
-echo <<EOF > /var/lib/rancher/k3s/server/manifests/p2-storage.yaml
+cat > /var/lib/rancher/k3s/server/manifests/p2-storage.yaml <<EOF
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: p2
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -55,6 +62,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: p2-pvc-app-storage
+  namespace: p2
 spec:
   storageClassName: standard
   accessModes:
@@ -67,6 +75,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: p2-pvc-postgresql
+  namespace: p2
 spec:
   storageClassName: standard
   accessModes:
@@ -75,3 +84,8 @@ spec:
     requests:
       storage: 100Gi
 EOF
+
+# Download Helm Chart CRD for k3s, replace values and install
+wget -O /tmp/p2_k3s.yml "https://git.beryju.org/BeryJu.org/p2/raw/${P2_VERSION}/install/helm_k3s.yaml"
+sed -i "s/%INGRESS_HOST%/${INGRESS_HOST}/g" /tmp/p2_k3s.yml
+mv /tmp/p2_k3s.yml /var/lib/rancher/k3s/server/manifests/p2.yaml
