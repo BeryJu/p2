@@ -9,7 +9,7 @@ data:
       default:
         engine: django.db.backends.postgresql
         name: "{{ .Values.postgresql.postgresqlDatabase }}"
-        user: "{{ .Values.postgresql.postgresqlUsername }}"
+        user: postgres
         password: "{{ .Values.postgresql.postgresqlPassword }}"
         host: "{{ .Release.Name }}-postgresql"
         port: ''
@@ -32,7 +32,7 @@ data:
       threads: 30
     debug: false
 
-    rabbitmq: "user:{{ .Values.rabbitmq.rabbitmq.password }}@{{ .Release.Name }}-rabbitmq"
+    rabbitmq: "p2:{{ .Values.rabbitmq.rabbitmq.password }}@{{ .Release.Name }}-rabbitmq"
     redis: ":{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/0"
 
     # Error reporting, disabled by default

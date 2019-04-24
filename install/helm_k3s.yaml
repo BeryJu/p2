@@ -13,13 +13,12 @@ spec:
         - '%INGRESS_HOST%' # Replaced by install script
     # Since this is made for a single-node deployment, we disable most of the HA pods
     postgresql:
-      postgresqlUsername: p2
       postgresqlDatabase: p2
-      postgresqlPassword: 'todo: autogenerate this password somehow'
+      postgresqlPassword: 'kMxZy2cxr8xyK5SL'
       persistence:
         existingClaim: p2-pvc-postgresql
     redis:
-      password: 'todo: autogenerate this password somehow'
+      password: 'kMxZy2cxr8xyK5SL'
       master:
         persistence:
           # Since redis is only used as cache, persistence is not needed
@@ -29,6 +28,6 @@ spec:
     rabbitmq:
       rabbitmq:
         username: p2
-        password: 'todo: autogenerate this password somehow'
+        password: 'kMxZy2cxr8xyK5SL'
       persistence:
         enabled: false

@@ -29,9 +29,9 @@ spec:
       initContainers:
         - name: fix-volume-permissions
           image: busybox
-          command: ["sh", "-c", "chown -R 100: /app/media"]
+          command: ["sh", "-c", "chown -R 100: /storage"]
           volumeMounts:
-            - mountPath: /app/media
+            - mountPath: /storage
               name: media-storage
       containers:
         - name: {{ .Chart.Name }}
@@ -45,7 +45,7 @@ spec:
           volumeMounts:
             - mountPath: /etc/p2
               name: config-volume
-            - mountPath: /app/media
+            - mountPath: /storage
               name: media-storage
           resources:
 {{ toYaml .Values.resources | indent 12 }}
