@@ -7,10 +7,9 @@
 
 K3S_VERSION="v0.4.0"
 P2_VERSION="0.1.5"
-# INGRESS_HOST=""
 
 # Check if docker installed
-curl "https://get.docker.com" | sh -
+curl "https://get.docker.com" | sh - >/dev/null 2>&1
 # Check if k3s installed
 curl "https://raw.githubusercontent.com/rancher/k3s/${K3S_VERSION}/install.sh" | INSTALL_K3S_EXEC="--cluster-cidr 10.121.0.0/16 --cluster-domain p2.baked --docker" sh -
 
@@ -91,3 +90,5 @@ sed -i "s/%INGRESS_HOST%/${INGRESS_HOST}/g" /tmp/p2_k3s.yml
 systemctl restart k3s # Not sure if this is needed, just to make sure k3s is ready
 sleep 5
 mv /tmp/p2_k3s.yml /var/lib/rancher/k3s/server/manifests/p2.yaml
+echo " * Your p2 instanace will be available at $INGRESS_HOST in a few minutes."
+echo " * You can use the username admin with password admin to login."
