@@ -18,6 +18,10 @@ spec:
       postgresqlPassword: 'kMxZy2cxr8xyK5SL'
       persistence:
         existingClaim: p2-pvc-postgresql
+      initdbScripts:
+        enable_hstore.sql: |
+          \connect p2
+          create extension hstore;
     redis:
       password: 'kMxZy2cxr8xyK5SL'
       master:
