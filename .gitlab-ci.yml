@@ -22,7 +22,7 @@ create-build-image:
   before_script:
     - echo "{\"auths\":{\"docker.$NEXUS_URL\":{\"auth\":\"$NEXUS_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.build-base --destination docker.pkg.beryju.org/p2-build-base:latest --destination docker.pkg.beryju.org/p2-build-base:0.1.2
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.build-base --destination docker.pkg.beryju.org/p2-build-base:latest --destination docker.pkg.beryju.org/p2-build-base:0.1.3
   stage: build-build-image
   only:
     refs:
@@ -59,7 +59,7 @@ package-docker:
   before_script:
     - echo "{\"auths\":{\"docker.$NEXUS_URL\":{\"auth\":\"$NEXUS_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination docker.pkg.beryju.org/p2:latest --destination docker.pkg.beryju.org/p2:0.1.2
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination docker.pkg.beryju.org/p2:latest --destination docker.pkg.beryju.org/p2:0.1.3
   stage: build
   only:
     - tags

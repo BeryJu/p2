@@ -6,7 +6,7 @@
 # TODO: Check if root
 
 K3S_VERSION="v0.4.0"
-P2_VERSION="0.1.2"
+P2_VERSION="0.1.3"
 # INGRESS_HOST=""
 
 # Check if docker installed
