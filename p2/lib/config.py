@@ -63,8 +63,17 @@ class ConfigLoader:
             if isinstance(value, Mapping):
                 root[key] = self.update(root.get(key, {}), value)
             else:
+                if isinstance(value, str):
+                    value = self.parse_uri(value)
                 root[key] = value
         return root
+
+    def parse_uri(self, value):
+        """Parse string values which start with a URI"""
+        # If value starts with env://, get variable from env
+        if value.startswith('env://'):
+            value = os.getenv(value.replace('env://', ''))
+        return value
 
     def update_from_file(self, path: str):
         """Update config from file contents"""

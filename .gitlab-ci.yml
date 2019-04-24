@@ -69,8 +69,8 @@ package-helm:
   script:
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
     - helm init --client-only
-    - helm dependency build helm/p2
-    - helm package helm/p2
+    - helm dependency build install/helm/p2
+    - helm package install/helm/p2
     - ./manage.py nexus_upload --method put --url $NEXUS_URL --auth $NEXUS_AUTH --repo helm *.tgz
   only:
     - tags
