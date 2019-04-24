@@ -4,7 +4,7 @@ metadata:
   name: p2
   namespace: kube-system
 spec:
-  chart: https://pkg.beryju.org/repository/helm/p2-0.1.3.tgz
+  chart: https://pkg.beryju.org/repository/helm/p2-0.1.4.tgz
   targetNamespace: p2
   set:
     ingress:
