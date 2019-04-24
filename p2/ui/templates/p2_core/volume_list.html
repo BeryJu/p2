@@ -6,13 +6,17 @@
 <h2>
   {% trans 'Volumes' %}
   <a class="btn btn-success" href="{% url 'p2_ui:core-volume-create' %}">
-    <i class="fa fa-file-o text-light" aria-hidden="true"></i>
+    <i class="fa fa-plus text-light" aria-hidden="true"></i>
   </a>
 </h2>
-<table class="table">
-  <thead>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="">&nbsp;</a></li>
+  </ol>
+</nav>
+<table class="table table-striped table-bordered table-hover table-sm">
+  <thead class="thead-dark">
     <tr>
-      <th>{% trans 'Blobs' %}</th>
       <th>{% trans 'Name' %}</th>
       <th>{% trans 'Storage' %}</th>
       <th>{% trans 'Edit' %}</th>
@@ -23,11 +27,10 @@
     {% for object in object_list %}
     <tr>
       <td>
-        <a class="btn btn-primary" href="{% url 'p2_ui:core-blob-list' pk=object.pk %}">
-          <i class="fa fa-list text-light" aria-hidden="true"></i>
+        <a href="{% url 'p2_ui:core-blob-list' pk=object.pk %}">
+          {{ object.name }}
         </a>
       </td>
-      <td>{{ object.name }}</td>
       <td>{{ object.storage.name }}</td>
       <td>
         <a class="btn btn-primary" href="{% url 'p2_ui:core-volume-update' pk=object.pk %}">

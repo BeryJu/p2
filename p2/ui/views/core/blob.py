@@ -18,6 +18,7 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
     """List all blobs a user has access to"""
 
     template_name = 'p2_core/blob_list.html'
+    model = Blob
 
     def build_prefix_list(self, volume):
         """Create list of all prefixes"""
