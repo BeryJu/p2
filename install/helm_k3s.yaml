@@ -6,7 +6,7 @@ metadata:
 spec:
   chart: https://pkg.beryju.org/repository/helm/p2-0.1.4.tgz
   targetNamespace: p2
-  set:
+  valuesContent: |-
     ingress:
       enabled: true
       hosts:
@@ -14,6 +14,7 @@ spec:
     # Since this is made for a single-node deployment, we disable most of the HA pods
     postgresql:
       postgresqlDatabase: p2
+      postgresqlUsername: p2
       postgresqlPassword: 'kMxZy2cxr8xyK5SL'
       persistence:
         existingClaim: p2-pvc-postgresql
@@ -29,5 +30,9 @@ spec:
       rabbitmq:
         username: p2
         password: 'kMxZy2cxr8xyK5SL'
+        clustering:
+          k8s_domain: p2.baked
+        extraConfiguration: |-
+          cluster_formation.k8s.host = kubernetes.default.svc.p2.baked
       persistence:
         enabled: false
