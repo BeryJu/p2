@@ -32,7 +32,7 @@ class VolumeCreateView(SuccessMessageMixin, DjangoPermissionListMixin, CreateVie
     success_message = _('Successfully created Volume')
 
     def get_success_url(self):
-        return reverse('p2_ui:core-volume-list', kwargs={'volume_uuid': self.object.volume.pk})
+        return reverse('p2_ui:core-volume-list')
 
 class VolumeUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView):
     """Update existing volume"""
@@ -44,7 +44,7 @@ class VolumeUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView)
     success_message = _('Successfully updated Volume')
 
     def get_success_url(self):
-        return reverse('p2_ui:core-volume-list', kwargs={'volume_uuid': self.object.volume.pk})
+        return reverse('p2_ui:core-volume-list')
 
 class VolumeDeleteView(SuccessMessageMixin, PermissionRequiredMixin, DeleteView):
     """Delete volume"""
@@ -55,7 +55,7 @@ class VolumeDeleteView(SuccessMessageMixin, PermissionRequiredMixin, DeleteView)
     success_message = _('Successfully deleted Volume')
 
     def get_success_url(self):
-        return reverse('p2_ui:core-volume-list', kwargs={'volume_uuid': self.object.volume.pk})
+        return reverse('p2_ui:core-volume-list')
 
     def delete(self, request, *args, **kwargs):
         obj = self.get_object()
