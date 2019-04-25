@@ -1,7 +1,7 @@
 """Volume Views"""
 from django.contrib import messages
 from django.contrib.auth.mixins import \
-    PermissionRequiredMixin as DjangoPermissionListMixin
+    PermissionRequiredMixin as DjangoPermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import reverse
 from django.utils.translation import gettext as _
@@ -20,7 +20,7 @@ class VolumeListView(PermissionListMixin, ListView):
     ordering = 'name'
     paginate_by = 10
 
-class VolumeCreateView(SuccessMessageMixin, DjangoPermissionListMixin, CreateView):
+class VolumeCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateView):
     """Create new volume"""
 
     # TODO: Set permission for request.user

@@ -1,6 +1,8 @@
 """Blob Views"""
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import \
+    PermissionRequiredMixin as DjangoPermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, reverse
@@ -79,7 +81,7 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class BlobCreateView(SuccessMessageMixin, PermissionRequiredMixin, CreateView):
+class BlobCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateView):
     """Create new blob"""
 
     # TODO: Assing permission after creation
