@@ -6,7 +6,7 @@
 # TODO: Check if root
 
 K3S_VERSION="v0.4.0"
-P2_VERSION="0.1.5"
+P2_VERSION="0.1.6"
 
 # Check if docker installed
 curl "https://get.docker.com" | sh - >/dev/null 2>&1
