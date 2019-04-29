@@ -4,7 +4,7 @@ metadata:
   name: p2
   namespace: kube-system
 spec:
-  chart: https://pkg.beryju.org/repository/helm/p2-0.1.6.tgz
+  chart: https://docker.beryju.org/chartrepo/p2/charts/p2-0.1.6.tgz
   targetNamespace: p2
   valuesContent: |-
     ingress:
@@ -15,7 +15,7 @@ spec:
     postgresql:
       postgresqlDatabase: p2
       postgresqlUsername: p2
-      postgresqlPassword: 'kMxZy2cxr8xyK5SL'
+      postgresqlPassword: '%PASSWORD%'
       persistence:
         existingClaim: p2-pvc-postgresql
       initdbScripts:
@@ -23,7 +23,7 @@ spec:
           \connect p2
           create extension hstore;
     redis:
-      password: 'kMxZy2cxr8xyK5SL'
+      password: '%PASSWORD%'
       master:
         persistence:
           # Since redis is only used as cache, persistence is not needed
@@ -33,7 +33,7 @@ spec:
     rabbitmq:
       rabbitmq:
         username: p2
-        password: 'kMxZy2cxr8xyK5SL'
+        password: '%PASSWORD%'
         clustering:
           k8s_domain: p2.baked
         extraConfiguration: |-

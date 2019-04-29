@@ -2,93 +2,52 @@
 
 # p2 Install script
 # Installs and updates a p2 instance using k3s and docker
+# Supported enviormnet variables:
+# - INGRESS_HOST: Hostname under which p2 will be available
+# - STORAGE_BASE: Base directory in which p2 data will be storeed
 
-# TODO: Check if root
-
-K3S_VERSION="v0.4.0"
+K3S_VERSION="0.4.0"
 P2_VERSION="0.1.6"
 
-# Check if docker installed
+if [ "$EUID" -ne 0 ]; then
+    echo "Please run as root"
+    exit
+fi
+
+# Make sure docker is installed
 curl "https://get.docker.com" | sh - >/dev/null 2>&1
-# Check if k3s installed
-curl "https://raw.githubusercontent.com/rancher/k3s/${K3S_VERSION}/install.sh" | INSTALL_K3S_EXEC="--cluster-cidr 10.121.0.0/16 --cluster-domain p2.baked --docker" sh -
+# Make sure K3s is installed
+export INSTAL_LK3S_EXEC="--cluster-cidr 10.121.0.0/16 --cluster-domain p2.baked --docker"
+curl "https://raw.githubusercontent.com/rancher/k3s/v${K3S_VERSION}/install.sh" |  sh - >/dev/null 2>&1
 
-P2_STORAGE_PATH="/srv/p2/storage/"
-P2_DATABASE_PATH="/srv/p2/database/"
+P2_STORAGE_PATH="${STORAGE_BASE:-/srv/p2}/storage/"
+P2_DATABASE_PATH="${STORAGE_BASE:-/srv/p2}/database/"
+P2_PASSWORD_FILE="${STORAGE_BASE:-/srv/p2}/password"
 
+# Make sure storage directories exist
 mkdir -p $P2_STORAGE_PATH
 mkdir -p $P2_DATABASE_PATH
 
-cat > /var/lib/rancher/k3s/server/manifests/p2-storage.yaml <<EOF
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: p2
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: p2-pv-app-storage
-spec:
-  capacity:
-    storage: 100Gi
-  accessModes:
-  - ReadWriteOnce
-  claimRef:
-    namespace: p2
-    name: p2-pvc-app-storage
-  storageClassName: standard
-  hostPath:
-    path: ${P2_STORAGE_PATH}
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: p2-pv-postgresql
-spec:
-  capacity:
-    storage: 100Gi
-  accessModes:
-  - ReadWriteOnce
-  claimRef:
-    namespace: p2
-    name: p2-pvc-postgresql
-  storageClassName: standard
-  hostPath:
-    path: ${P2_DATABASE_PATH}
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: p2-pvc-app-storage
-  namespace: p2
-spec:
-  storageClassName: standard
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Gi
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: p2-pvc-postgresql
-  namespace: p2
-spec:
-  storageClassName: standard
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Gi
-EOF
+# Check if password has been generated, generate if not
+if [[ ! -f "$P2_PASSWORD_FILE" ]]; then
+    openssl rand 30 -base64 > "$P2_PASSWORD_FILE"
+fi
+PASSWORD=$(cat $P2_PASSWORD_FILE)
 
 # Download Helm Chart CRD for k3s, replace values and install
-wget -O /tmp/p2_k3s.yml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/helm_k3s.yaml"
-sed -i "s/%INGRESS_HOST%/${INGRESS_HOST}/g" /tmp/p2_k3s.yml
-systemctl restart k3s # Not sure if this is needed, just to make sure k3s is ready
-sleep 5
-mv /tmp/p2_k3s.yml /var/lib/rancher/k3s/server/manifests/p2.yaml
+wget -O /tmp/p2_k3s_helm.yml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-helm.yaml"
+wget -O /tmp/p2_k3s_storage.yml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-storage.yaml"
+
+# Replace variable in Helm CRD
+sed -i "s/%INGRESS_HOST%/${INGRESS_HOST}/g" /tmp/p2_k3s_helm.yml
+sed -i "s/%PASSWORD%/${PASSWORD}/g" /tmp/p2_k3s_helm.yml
+
+# Replace variable in Storage
+sed -i "s/%P2_STORAGE_PATH%/${P2_STORAGE_PATH}/g" /tmp/p2_k3s_storage.yml
+sed -i "s/%P2_DATABASE_PATH%/${P2_DATABASE_PATH}/g" /tmp/p2_k3s_storage.yml
+
+mv /tmp/p2_k3s_storage.yml /var/lib/rancher/k3s/server/manifests/p2.yaml
+mv /tmp/p2_k3s_helm.yml /var/lib/rancher/k3s/server/manifests/p2.yaml
+
 echo " * Your p2 instanace will be available at $INGRESS_HOST in a few minutes."
 echo " * You can use the username admin with password admin to login."
