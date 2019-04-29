@@ -71,7 +71,10 @@ package-helm:
     - helm init --client-only
     - helm dependency build install/helm/p2
     - helm package install/helm/p2
-    - ./manage.py nexus_upload --method put --url beryju.org --auth $DOCKER_AUTH --repo helm *.tgz
+  artifacts:
+    paths:
+    - p2-*.tgz
+    expire_in: 1 week
   only:
     - tags
     - /^version/.*$/
