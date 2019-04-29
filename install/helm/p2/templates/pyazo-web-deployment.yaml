@@ -36,7 +36,7 @@ spec:
               name: media-storage
       containers:
         - name: {{ .Chart.Name }}
-          image: "docker.pkg.beryju.org/p2:{{ .Values.image.tag }}"
+          image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh","-c"]
           args: ["./manage.py migrate && ./manage.py web"]
