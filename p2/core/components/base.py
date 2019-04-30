@@ -1,15 +1,16 @@
 """p2 core component"""
 
+from p2.core.controllers import Controller
+
+
 # pylint: disable=too-few-public-methods
-class ComponentController:
+class ComponentController(Controller):
     """Base Component Controller"""
 
     volume = None
-    component = None
 
     template_name = ''
-    form_class = ''
 
-    def __init__(self, component):
-        self.component = component
-        self.volume = component.volume
+    def __init__(self, instance):
+        super().__init__(instance)
+        self.volume = self.instance.volume

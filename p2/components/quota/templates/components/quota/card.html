@@ -12,11 +12,11 @@
         <hr>
         <strong>
           {% if percentage > 50 %}
-          {% blocktrans with percentage=percentage|floatformat:"2" threshold=volume.quota.threshold|filesizeformat %}
+          {% blocktrans with percentage=percentage|floatformat:"2" threshold=component.controller.threshold|filesizeformat %}
           Careful, you're using {{ percentage }}% of {{ threshold }} allocated.
           {% endblocktrans %}
           {% else %}
-          {% blocktrans with threshold=volume.quota.threshold|filesizeformat %}
+          {% blocktrans with threshold=component.controller.threshold|filesizeformat %}
           This volume has {{ threshold }} allocated.
           {% endblocktrans %}
           {% endif %}
