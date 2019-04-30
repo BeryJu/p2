@@ -3,7 +3,7 @@ from django.urls import path
 
 from p2.ui.views import general
 from p2.ui.views.core import blob, component, storage, volume
-from p2.ui.views.log import record
+from p2.ui.views.log import adaptor, record
 from p2.ui.views.s3 import access_key
 from p2.ui.views.serve import rule
 
@@ -58,7 +58,16 @@ urlpatterns = [
          access_key.S3AccessKeyUpdateView.as_view(), name='s3-access-key-update'),
     path('s3/access-key/<int:pk>/delete/',
          access_key.S3AccessKeyDeleteView.as_view(), name='s3-access-key-delete'),
-    # Log
+    # Log - Adaptors
+    path('log/adaptor/',
+         adaptor.LogAdaptorListView.as_view(), name='log-adaptor-list'),
+    path('log/adaptor/create/',
+         adaptor.LogAdaptorCreateView.as_view(), name='log-adaptor-create'),
+    path('log/adaptor/<uuid:pk>/update/',
+         adaptor.LogAdaptorUpdateView.as_view(), name='log-adaptor-update'),
+    path('log/adaptor/<uuid:pk>/delete/',
+         adaptor.LogAdaptorDeleteView.as_view(), name='log-adaptor-delete'),
+    # Log - Records
     path('log/adaptor/<uuid:pk>/records/',
          record.RecordListView.as_view(), name='log-records-list'),
     # Serve - Rules

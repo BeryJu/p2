@@ -10,6 +10,7 @@ from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
 
 from p2.core.forms import StorageForm
 from p2.core.models import Storage
+from p2.lib.reflection import path_to_class
 
 
 class StorageListView(PermissionListMixin, ListView):
@@ -40,10 +41,12 @@ class StorageUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView
     """Update existing storage"""
 
     model = Storage
-    form_class = StorageForm
     permission_required = 'p2_core.update_storage'
     template_name = 'generic/form.html'
     success_message = _('Successfully updated Storage')
+
+    def get_form_class(self):
+        return path_to_class(self.object.controller.form_class)
 
     def get_success_url(self):
         return reverse('p2_ui:core-storage-list')

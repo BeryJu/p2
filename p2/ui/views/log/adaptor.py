@@ -8,8 +8,12 @@ from django.utils.translation import gettext as _
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
 
-# from p2.log.forms import LogAdaptorForm
+from p2.lib.reflection import path_to_class
+from p2.lib.reflection.manager import ControllerManager
+from p2.log.forms import LogAdaptorForm
 from p2.log.models import LogAdaptor
+
+LOG_CONTROLLER_MANAGER = ControllerManager('log.controllers', lazy=True)
 
 
 class LogAdaptorListView(PermissionListMixin, ListView):
@@ -27,26 +31,30 @@ class LogAdaptorCreateView(SuccessMessageMixin, DjangoPermissionListMixin, Creat
     # TODO: add permissions for request.user
 
     model = LogAdaptor
-    # form_class = LogAdaptorForm
+    form_class = LogAdaptorForm
     permission_required = 'p2_log.add_logadaptor'
     template_name = 'generic/form.html'
     success_message = _('Successfully created LogAdaptor')
 
     def get_success_url(self):
-        return reverse('p2_ui:log-adaptor-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:log-adaptor-list')
 
 
 class LogAdaptorUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView):
     """Update existing access key"""
 
     model = LogAdaptor
-    # form_class = LogAdaptorForm
     permission_required = 'p2_log.update_logadaptor'
     template_name = 'generic/form.html'
     success_message = _('Successfully updated LogAdaptor')
 
+    controller_path = None
+
+    def get_form_class(self):
+        return path_to_class(self.object.controller.form_class)
+
     def get_success_url(self):
-        return reverse('p2_ui:log-adaptor-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:log-adaptor-list')
 
 
 class LogAdaptorDeleteView(SuccessMessageMixin, PermissionRequiredMixin, DeleteView):
@@ -58,7 +66,7 @@ class LogAdaptorDeleteView(SuccessMessageMixin, PermissionRequiredMixin, DeleteV
     success_message = _('Successfully deleted LogAdaptor')
 
     def get_success_url(self):
-        return reverse('p2_ui:log-adaptor-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:log-adaptor-list')
 
     def delete(self, request, *args, **kwargs):
         obj = self.get_object()

@@ -11,6 +11,9 @@ log:
     console: DEBUG
     file: DEBUG
   file: /dev/null
+  controllers:
+    - p2.log.controllers.database.DatabaseLogController
+
 email:
   host: localhost
   port: 25

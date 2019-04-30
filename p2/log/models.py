@@ -1,36 +1,39 @@
 """p2 log models"""
-from datetime import datetime
 
 from django.contrib.postgres.fields import JSONField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from model_utils.managers import InheritanceManager
-from pytz import UTC
+from django.utils.translation import gettext as _
 
-from p2.lib.models import UUIDModel
+from p2.lib.models import TagModel, UUIDModel
+from p2.lib.reflection import path_to_class
+from p2.lib.reflection.manager import ControllerManager
 
+LOG_CONTROLLER_MANAGER = ControllerManager('log.controllers', lazy=True)
 
-class LogAdaptor(UUIDModel):
+class LogAdaptor(TagModel, UUIDModel):
     """Base Log Adaptor, doesn't write to anything"""
 
-    options = JSONField(default=dict)
+    name = models.TextField()
+    controller_path = models.TextField(choices=LOG_CONTROLLER_MANAGER.as_choices())
 
-    objects = InheritanceManager()
+    _controller_instance = None
 
-    def log(self, record_data):
-        """Write log record"""
-        raise NotImplementedError()
+    @property
+    def controller(self):
+        """Get instantiated controller class"""
+        if not self._controller_instance:
+            controller_class = path_to_class(self.controller_path)
+            self._controller_instance = controller_class(self)
+        return self._controller_instance
 
-class DatabaseLogAdaptor(LogAdaptor):
-    """Database Log adaptor, writes log records into database"""
+    def __str__(self):
+        return "Log Adaptor %s" % self.name
 
-    def log(self, record_data):
-        Record.objects.create(
-            adaptor=self,
-            start_time=datetime.fromtimestamp(record_data.pop('start_time'), tz=UTC),
-            end_time=datetime.fromtimestamp(record_data.pop('end_time', None), tz=UTC),
-            request_uid=record_data.pop('uid', None),
-            body=record_data)
+    class Meta:
+
+        verbose_name = _('Log Adaptor')
+        verbose_name_plural = _('Log Adaptors')
 
 class Record(UUIDModel):
     """Log record from DatabaseLogAdaptor"""
@@ -44,3 +47,8 @@ class Record(UUIDModel):
     def __str__(self):
         body_string = ' '.join(["%s=%s" % kv for kv in self.body.items()])
         return "[%s] [%s] %s" % (self.start_time, self.request_uid.hex, body_string)
+
+    class Meta:
+
+        verbose_name = _('Log Record')
+        verbose_name_plural = _('Log Records')
