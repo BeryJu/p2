@@ -17,8 +17,8 @@ from model_utils.managers import InheritanceManager
 from p2.core.constants import TAG_VOLUME_LEGACY_DEFAULT
 from p2.lib.reflection.manager import ControllerManager
 from p2.core.tasks import signal_marshall
-from p2.lib.models import TagModel, UUIDModel, ControllerModel
-from p2.lib.reflection import class_to_path
+from p2.lib.models import TagModel, UUIDModel
+from p2.lib.reflection import class_to_path, path_to_class
 
 LOGGER = getLogger(__name__)
 STORAGE_MANAGER = ControllerManager('storage.controllers', lazy=True)
@@ -170,15 +170,28 @@ class Blob(UUIDModel, TagModel):
         return self.filename
 
 
-class Storage(ControllerModel, UUIDModel, TagModel):
+class Storage(UUIDModel, TagModel):
     """Storage instance which stores blob instances."""
 
     name = models.TextField()
+    controller_path = models.TextField(choices=STORAGE_MANAGER.as_choices())
 
     objects = InheritanceManager()
 
-    def get_controller_choices(self):
-        return STORAGE_MANAGER.as_choices()
+    @property
+    def provider(self):
+        """Provider Name for UI"""
+        return None
+
+    _controller_instance = None
+
+    @property
+    def controller(self):
+        """Get instantiated controller class"""
+        if not self._controller_instance:
+            controller_class = path_to_class(self.controller_path)
+            self._controller_instance = controller_class(self)
+        return self._controller_instance
 
     def get_required_keys(self):
         return self.controller.get_required_tags()
@@ -199,15 +212,26 @@ class Storage(ControllerModel, UUIDModel, TagModel):
             ('use_storage', 'Can use storage'),
         )
 
-class Component(ControllerModel, UUIDModel, TagModel):
+class Component(UUIDModel, TagModel):
     """Pluggable component instance connection volume to ComponentController"""
 
     enabled = models.BooleanField(default=True)
     configured = True
     volume = models.ForeignKey('Volume', on_delete=models.CASCADE)
+    controller_path = models.TextField(choices=COMPONENT_MANAGER.as_choices())
 
-    def get_controller_choices(self):
-        return COMPONENT_MANAGER.as_choices()
+    _controller_instance = None
+
+    @property
+    def controller(self):
+        """Get instantiated controller class"""
+        if not self._controller_instance:
+            controller_class = path_to_class(self.controller_path)
+            try:
+                self._controller_instance = controller_class(self)
+            except (TypeError, ImportError) as exc:
+                LOGGER.warning(exc)
+        return self._controller_instance
 
     def __str__(self):
         return "%s for %s" % (self.controller.__class__.__name__, self.volume.name)
