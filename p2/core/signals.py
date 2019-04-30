@@ -20,7 +20,7 @@ BLOB_ACCESS = Signal(providing_args=['status_code', ''])
 # pylint: disable=unused-argument
 def blob_pre_delete(sender, instance, **kwargs):
     """Tell storage to delete blob"""
-    instance.storage_instance.update_payload(instance, None)
+    instance.volume.storage.controller.update_payload(instance, None)
 
 @receiver(BLOB_PAYLOAD_UPDATED)
 # pylint: disable=unused-argument

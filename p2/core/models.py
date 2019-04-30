@@ -68,20 +68,11 @@ class Blob(UUIDModel, TagModel):
     _payload = None
     _payload_dirty = False
 
-    _casted_storage = None
-
     class Meta:
 
         verbose_name = _('Blob')
         verbose_name_plural = _('Blobs')
         unique_together = (('path', 'volume',),)
-
-    @property
-    def storage_instance(self):
-        """Return casted instance of storage"""
-        if not self._casted_storage:
-            self._casted_storage = Storage.objects.get_subclass(pk=self.volume.storage.pk)
-        return self._casted_storage
 
     @property
     def filename(self):
@@ -96,7 +87,7 @@ class Blob(UUIDModel, TagModel):
             cached_payload = cache.get(self.uuid)
             if cached_payload:
                 self._payload = cached_payload
-            self._payload = self.storage_instance.retrieve_payload(self)
+            self._payload = self.volume.storage.controller.retrieve_payload(self)
             # Initialize a new Payload if backend has nothing saved
             if not self._payload:
                 self._payload = b''
@@ -129,7 +120,7 @@ class Blob(UUIDModel, TagModel):
         _old_payload = deepcopy(self._payload)
         try:
             # Run update code in transaction in case
-            # Storage.update_payload fails and we need to revert
+            # Storage.controller.update_payload fails and we need to revert
             with transaction.atomic():
                 # Save current time as `created` attribute. This can be changed by users,
                 # but p2.log creates a log entry for new Blob being created
@@ -139,7 +130,7 @@ class Blob(UUIDModel, TagModel):
                 self.attributes['stat:mtime'] = now()
                 # Only save payload if it changed
                 if self._payload_dirty:
-                    self.storage_instance.update_payload(self, self.payload)
+                    self.volume.storage.controller.update_payload(self, self.payload)
                 # Check if path exists already
                 self.__failsafe_path()
                 # Update prefix
@@ -162,7 +153,7 @@ class Blob(UUIDModel, TagModel):
             if self._payload_dirty:
                 # self._payload_dirty hasn't been reset yet, so exception was thrown
                 # in super().save() -> call update with old storage
-                self.storage_instance.update_payload(self, self.payload)
+                self.volume.storage.controller.update_payload(self, self.payload)
             raise
 
     def __str__(self):
@@ -187,14 +178,6 @@ class Storage(UUIDModel, TagModel):
 
     def get_required_keys(self):
         return self.controller.get_required_tags()
-
-    def retrieve_payload(self, blob: Blob) -> Union[None, bytes]:
-        """Fetch binary payload for <blob>, return None if payload doesn't exist"""
-        return self.controller.retrieve_payload(blob)
-
-    def update_payload(self, blob: Blob, payload: Union[None, bytes]):
-        """Update binary payload for <blob> with <payload>, if <payload> is None, delete it."""
-        return self.controller.update_payload(blob, payload)
 
     class Meta:
 
