@@ -13,22 +13,26 @@
   {% for volume in volumes %}
   <div class="col-md-4">
     <div class="card">
-      <div class="card-body text-white bg-dark">
-        <h5 class="card-title">{{ volume.name }}</h5>
-        <h6 class="card-subtitle mb-2 text-muted">
-          {% blocktrans with storage=volume.storage.name %}
-          On storage {{ storage }}
-          {% endblocktrans %}
-        </h6>
-        <p class="card-text">
-          {% blocktrans with usage=volume.space_used|filesizeformat %}
-          Using {{ usage }} space.
-          {% endblocktrans %}
-          <hr>
-        </p>
-        <a href="{% url 'p2_ui:core-volume-detail' pk=volume.pk %}" class="card-link">{% trans 'View' %}</a>
-        <a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}" class="card-link">{% trans 'Browse' %}</a>
-      </div>
+      <form action="{% url 'p2_api:volume-upload' pk=volume.pk %}" class="dropzone" method="POST">
+        {% csrf_token %}
+        <div class="card-body text-white bg-dark">
+          <h5 class="card-title">{{ volume.name }}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">
+            {% blocktrans with storage=volume.storage.name %}
+            On storage {{ storage }}
+            {% endblocktrans %}
+          </h6>
+          <p class="card-text">
+            {% blocktrans with usage=volume.space_used|filesizeformat %}
+            Using {{ usage }} space.
+            {% endblocktrans %}
+            <hr>
+          </p>
+          <a href="{% url 'p2_ui:core-volume-detail' pk=volume.pk %}" class="card-link">{% trans 'View' %}</a>
+          <a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}" class="card-link">{% trans 'Browse' %}</a>
+        </div>
+        <input type="hidden" class="dz-message">
+      </form>
     </div>
   </div>
   {% endfor %}
