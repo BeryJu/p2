@@ -36,7 +36,7 @@ mkdir -p $P2_DATABASE_PATH
 
 # Check if password has been generated, generate if not
 if [[ ! -f "$P2_PASSWORD_FILE" ]]; then
-    openssl rand -base64 32 > "$P2_PASSWORD_FILE"
+    openssl rand -hex 48 > "$P2_PASSWORD_FILE"
 fi
 PASSWORD=$(cat $P2_PASSWORD_FILE)
 
