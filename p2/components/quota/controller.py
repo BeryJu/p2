@@ -16,4 +16,7 @@ class QuotaController(ComponentController):
     @property
     def quota_percentage(self):
         """Check if volume is close to any quota"""
-        return self.volume.space_used / (int(self.component.tags.get(TAG_QUOTA_THRESHOLD)) / 100)
+        threshold = int(self.component.tags.get(TAG_QUOTA_THRESHOLD, 0))
+        if threshold == 0:
+            return 0
+        return self.volume.space_used / (threshold / 100)
