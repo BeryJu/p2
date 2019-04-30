@@ -10,9 +10,11 @@ from django.views.generic import CreateView, DeleteView, UpdateView
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_objects_for_user
 
-from p2.core.manager import MANAGER
+from p2.lib.reflection.manager import ControllerManager
 from p2.core.models import Component
 from p2.lib.reflection import path_to_class
+
+COMPONENT_MANAGER = ControllerManager('component.controllers')
 
 
 class ComponentCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateView):
@@ -31,9 +33,8 @@ class ComponentCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, Cr
         self.volume = get_objects_for_user(self.request.user, 'p2_core.view_volume') \
             .filter(pk=self.kwargs.get('pk')).first()
         controller_path = self.request.GET.get('controller')
-        # TODO: Better validation before calling path_to_class
-        controller = path_to_class(controller_path)
-        if controller in MANAGER.component_controller_list():
+        if controller_path in COMPONENT_MANAGER:
+            controller = path_to_class(controller_path)
             self.controller_path = controller_path
             return path_to_class(controller(Component(volume=self.volume)).form_class)
         raise Http404

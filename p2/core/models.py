@@ -15,12 +15,14 @@ from django.utils.translation import gettext as _
 from model_utils.managers import InheritanceManager
 
 from p2.core.constants import TAG_VOLUME_LEGACY_DEFAULT
-from p2.core.manager import MANAGER
+from p2.lib.reflection.manager import ControllerManager
 from p2.core.tasks import signal_marshall
 from p2.lib.models import TagModel, UUIDModel
 from p2.lib.reflection import class_to_path, path_to_class
 
 LOGGER = getLogger(__name__)
+STORAGE_MANAGER = ControllerManager('storage.controllers', lazy=True)
+COMPONENT_MANAGER = ControllerManager('component.controllers', lazy=True)
 
 class Volume(UUIDModel, TagModel):
     """Folder-like object, holding a collection of blobs"""
@@ -172,7 +174,7 @@ class Storage(UUIDModel, TagModel):
     """Storage instance which stores blob instances."""
 
     name = models.TextField()
-    controller_path = models.TextField(choices=MANAGER.storage_controller_choices())
+    controller_path = models.TextField(choices=STORAGE_MANAGER.as_choices())
 
     objects = InheritanceManager()
 
@@ -216,7 +218,7 @@ class Component(UUIDModel, TagModel):
     enabled = models.BooleanField(default=True)
     configured = True
     volume = models.ForeignKey('Volume', on_delete=models.CASCADE)
-    controller_path = models.TextField(choices=MANAGER.component_controller_choices())
+    controller_path = models.TextField(choices=COMPONENT_MANAGER.as_choices())
 
     _controller_instance = None
 

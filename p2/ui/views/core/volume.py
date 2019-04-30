@@ -11,9 +11,11 @@ from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
 from guardian.shortcuts import get_objects_for_user
 
 from p2.core.forms import VolumeForm
-from p2.core.manager import MANAGER
 from p2.core.models import Component, Volume
 from p2.lib.reflection import class_to_path
+from p2.lib.reflection.manager import ControllerManager
+
+COMPONENT_MANAGER = ControllerManager('component.controllers')
 
 
 class VolumeListView(PermissionListMixin, ListView):
@@ -23,6 +25,7 @@ class VolumeListView(PermissionListMixin, ListView):
     permission_required = 'p2_core.view_volume'
     ordering = 'name'
     paginate_by = 10
+
 
 class VolumeDetailView(PermissionRequiredMixin, DetailView):
     """Show volume overview and all components activated/available"""
@@ -34,7 +37,7 @@ class VolumeDetailView(PermissionRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         components = []
         existing_components = get_objects_for_user(self.request.user, 'p2_core.view_component')
-        for controller in MANAGER.component_controller_list():
+        for controller in COMPONENT_MANAGER.list():
             controller_path = class_to_path(controller)
             # Check if component for this volume is configure
             existing_component = existing_components.filter(
