@@ -121,6 +121,22 @@ class ConfigLoader:
         """Get raw config dictionary"""
         return self.__config
 
+    # pylint: disable=invalid-name
+    def y(self, path: str, default=None, sep='.') -> Any:
+        """Access attribute by using yaml path"""
+        if default is None:
+            default = self.__context_default
+        # Walk sub_dicts before parsing path
+        root = self.raw
+        for sub in self.__sub_dicts:
+            root = root.get(sub, None)
+        # Walk each component of the path
+        for comp in path.split(sep):
+            if comp in root:
+                root = root.get(comp)
+            else:
+                return default
+        return root
 
 CONFIG = ConfigLoader()
 

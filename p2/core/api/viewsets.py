@@ -5,10 +5,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from p2.core.api.filters import BlobFilter
-from p2.core.api.serializers import (BaseStorageSerializer,
-                                     BlobPayloadSerializer, BlobSerializer,
-                                     VolumeSerializer)
-from p2.core.models import BaseStorage, Blob, Volume
+from p2.core.api.serializers import (BlobPayloadSerializer, BlobSerializer,
+                                     StorageSerializer, VolumeSerializer)
+from p2.core.models import Blob, Storage, Volume
 from p2.lib.utils import b64encode
 
 
@@ -51,5 +50,5 @@ class StorageViewSet(ModelViewSet):
     allows operations on individual events if user has appropriate 'view', 'add',
     'change' or 'delete' permissions.
     """
-    queryset = BaseStorage.objects.all().select_subclasses()
-    serializer_class = BaseStorageSerializer
+    queryset = Storage.objects.all().select_subclasses()
+    serializer_class = StorageSerializer

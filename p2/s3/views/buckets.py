@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from guardian.shortcuts import get_objects_for_user
 
-from p2.core.models import BaseStorage, Blob, Volume
+from p2.core.models import Blob, Storage, Volume
 from p2.s3.auth import S3Authentication
 from p2.s3.constants import XML_NAMESPACE
 from p2.s3.http import XMLResponse
@@ -63,8 +63,8 @@ class BucketView(S3Authentication):
 
     def handler_create(self, request, bucket):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUT.html"""
-        # default_storage = get_object_or_404(BaseStorage)
-        default_storage = get_objects_for_user(request.user, 'use_storage', BaseStorage) \
+        # default_storage = get_object_or_404(Storage)
+        default_storage = get_objects_for_user(request.user, 'use_storage', Storage) \
                                 .filter(**{
                                     'tags_default.s3.p2.io': True
                                 }) \

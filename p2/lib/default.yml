@@ -34,6 +34,11 @@ error_report_enabled: false
 # Set this to true if you only want to use external authentication
 external_auth_only: false
 
+storage:
+  controllers:
+    - p2.core.storage.null.NullStorageController
+    - p2.storage.local.controller.LocalStorageController
+
 # LDAP Authentication
 ldap:
   enabled: false

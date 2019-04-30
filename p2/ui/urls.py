@@ -2,7 +2,7 @@
 from django.urls import path
 
 from p2.ui.views import general
-from p2.ui.views.core import blob, volume
+from p2.ui.views.core import blob, storage, volume
 from p2.ui.views.log import record
 from p2.ui.views.s3 import access_key
 from p2.ui.views.serve import rule
@@ -31,6 +31,15 @@ urlpatterns = [
          blob.BlobDeleteView.as_view(), name='core-blob-delete'),
     path('core/blobs/<uuid:pk>/download/',
          blob.BlobDownloadView.as_view(), name='core-blob-download'),
+    # Core - Storages
+    path('core/storage/',
+         storage.StorageListView.as_view(), name='core-storage-list'),
+    path('core/storage/create/',
+         storage.StorageCreateView.as_view(), name='core-storage-create'),
+    path('core/storage/<uuid:pk>/update/',
+         storage.StorageUpdateView.as_view(), name='core-storage-update'),
+    path('core/storage/<uuid:pk>/delete/',
+         storage.StorageDeleteView.as_view(), name='core-storage-delete'),
     # S3
     path('s3/access-key/',
          access_key.S3AccessKeyListView.as_view(), name='s3-access-key-list'),

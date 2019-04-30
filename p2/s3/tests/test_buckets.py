@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.test import LiveServerTestCase
 from guardian.shortcuts import assign_perm
 
-from p2.core.models import BaseStorage, Volume
+from p2.core.models import Storage, Volume
 from p2.s3.models import S3AccessKey
 
 
@@ -21,7 +21,7 @@ class BucketTests(LiveServerTestCase):
             password=uuid4().hex)
         self.access_key, _ = S3AccessKey.objects.get_or_create(
             user=self.user)
-        self.storage = BaseStorage.objects.create(
+        self.storage = Storage.objects.create(
             name='p2_s3_unittest',
             tags={
                 'default.s3.p2.io': True

@@ -19,7 +19,16 @@ class TagModel(models.Model):
 
     tags = HStoreField(default=dict, blank=True)
 
-    PREDEFINED_KEYS = []
+    PREDEFINED_TAGS = {}
+    REQUIRED_KEYS = []
+
+    def get_predefined_tags(self):
+        """Get list of pre-defined keys, which should be set as default"""
+        return self.PREDEFINED_TAGS
+
+    def get_required_keys(self):
+        """Get list of required keys. Will be checked in form"""
+        return self.REQUIRED_KEYS
 
     class Meta:
 

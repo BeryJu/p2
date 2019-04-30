@@ -1,9 +1,11 @@
-"""p2 core storage tests"""
+"""p2 local storage tests"""
 from shutil import rmtree
 
 from django.test import TestCase
 
-from p2.core.models import Blob, LocalFileStorage, Volume
+from p2.lib.reflection import class_to_path
+from p2.core.models import Blob, Storage, Volume
+from p2.storage.local.controller import LocalStorageController
 
 
 class LocalFileStorageTests(TestCase):
@@ -11,8 +13,9 @@ class LocalFileStorageTests(TestCase):
 
     def setUp(self):
         self.storage_path = './storage/local-unittest/'
-        self.storage = LocalFileStorage.objects.create(
+        self.storage = Storage.objects.create(
             name='local-storage-1',
+            controller=class_to_path(LocalStorageController),
             tags={
                 'root.fs.p2.io': self.storage_path
             })
