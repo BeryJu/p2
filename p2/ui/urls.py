@@ -2,7 +2,7 @@
 from django.urls import path
 
 from p2.ui.views import general
-from p2.ui.views.core import blob, storage, volume
+from p2.ui.views.core import blob, component, storage, volume
 from p2.ui.views.log import record
 from p2.ui.views.s3 import access_key
 from p2.ui.views.serve import rule
@@ -25,14 +25,21 @@ urlpatterns = [
     path('core/volume/<uuid:pk>/blobs/',
          blob.FileBrowserView.as_view(), name='core-blob-list'),
     # Core - Blobs
-    path('core/blobs/create/',
+    path('core/blob/create/',
          blob.BlobCreateView.as_view(), name='core-blob-create'),
-    path('core/blobs/<uuid:pk>/update/',
+    path('core/blob/<uuid:pk>/update/',
          blob.BlobUpdateView.as_view(), name='core-blob-update'),
-    path('core/blobs/<uuid:pk>/delete/',
+    path('core/blob/<uuid:pk>/delete/',
          blob.BlobDeleteView.as_view(), name='core-blob-delete'),
-    path('core/blobs/<uuid:pk>/download/',
+    path('core/blob/<uuid:pk>/download/',
          blob.BlobDownloadView.as_view(), name='core-blob-download'),
+    # Core - Components
+    path('core/volume/<uuid:pk>/component/create/',
+         component.ComponentCreateView.as_view(), name='core-component-create'),
+    path('core/component/<uuid:pk>/update/',
+         component.ComponentUpdateView.as_view(), name='core-component-update'),
+    path('core/component/<uuid:pk>/delete/',
+         component.ComponentDeleteView.as_view(), name='core-component-delete'),
     # Core - Storages
     path('core/storage/',
          storage.StorageListView.as_view(), name='core-storage-list'),

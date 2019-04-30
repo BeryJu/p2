@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
+from p2.core.constants import TAG_VOLUME_LEGACY_DEFAULT
 from p2.core.models import Blob, Volume
 
 LOGGER = getLogger(__name__)
@@ -36,7 +37,7 @@ class LegacyObjectView(View):
         Otherwise, new Upload instance is created and returned in a tuple with True."""
         # Find volume which is default for legacy uploads
         volumes = get_objects_for_user(self.request.user, 'use_volume', Volume).filter(
-            **{'tags__legacy-default.volume.p2.io': True}
+            **{'tags__%s' % TAG_VOLUME_LEGACY_DEFAULT: True}
         )
         if not volumes.exists():
             raise Http404

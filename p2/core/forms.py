@@ -24,7 +24,7 @@ class StorageForm(TagModelForm):
     """storage form"""
 
     def clean_tags(self):
-        controller_class = path_to_class(self.cleaned_data.get('controller'))
+        controller_class = path_to_class(self.cleaned_data.get('controller_path'))
         controller = controller_class(self.instance)
         for key in controller.get_required_tags():
             if key not in self.cleaned_data.get('tags'):
@@ -34,7 +34,7 @@ class StorageForm(TagModelForm):
     class Meta:
 
         model = Storage
-        fields = ['name', 'controller', 'tags']
+        fields = ['name', 'controller_path', 'tags']
         widgets = {
             'name': forms.TextInput
         }

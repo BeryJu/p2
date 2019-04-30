@@ -11,9 +11,11 @@ from django.db import DatabaseError, models, transaction
 from django.db.models import IntegerField, Sum
 from django.db.models.functions import Cast
 from django.utils.timezone import now
+from django.utils.translation import gettext as _
 from model_utils.managers import InheritanceManager
 
-from p2.core.storage.manager import choices
+from p2.core.constants import TAG_VOLUME_LEGACY_DEFAULT
+from p2.core.manager import MANAGER
 from p2.core.tasks import signal_marshall
 from p2.lib.models import TagModel, UUIDModel
 from p2.lib.reflection import class_to_path, path_to_class
@@ -33,25 +35,18 @@ class Volume(UUIDModel, TagModel):
             size_value=Cast(KeyTextTransform('size:bytes', 'attributes'), IntegerField())
         ).aggregate(sum=Sum('size_value')).get('sum', 0)
 
-    @property
-    def quota_percentage(self):
-        """Check if volume is close to any quota"""
-        # pylint doesn't know about the automatic reverse field from django
-        # pylint: disable=no-member
-        if self.quota:
-            # pylint: disable=no-member
-            return self.space_used / (self.quota.threshold / 100)
-        return 0
-
     def get_predefined_tags(self):
         return {
-            'legacy-default.volume.p2.io': False
+            TAG_VOLUME_LEGACY_DEFAULT: False
         }
 
     def __str__(self):
         return "Volume %s on %s" % (self.name, self.storage)
 
     class Meta:
+
+        verbose_name = _('Volume')
+        verbose_name_plural = _('Volumes')
         permissions = (
             ('list_contents', 'List contents'),
             ('use_volume', 'Use Volume')
@@ -75,6 +70,8 @@ class Blob(UUIDModel, TagModel):
 
     class Meta:
 
+        verbose_name = _('Blob')
+        verbose_name_plural = _('Blobs')
         unique_together = (('path', 'volume',),)
 
     @property
@@ -174,7 +171,7 @@ class Storage(UUIDModel, TagModel):
     """Storage instance which stores blob instances."""
 
     name = models.TextField()
-    controller = models.TextField(choices=choices())
+    controller_path = models.TextField(choices=MANAGER.storage_controller_choices())
 
     objects = InheritanceManager()
 
@@ -186,24 +183,58 @@ class Storage(UUIDModel, TagModel):
     _controller_instance = None
 
     @property
-    def _controller(self):
+    def controller(self):
+        """Get instantiated controller class"""
         if not self._controller_instance:
-            controller_class = path_to_class(self.controller)
+            controller_class = path_to_class(self.controller_path)
             self._controller_instance = controller_class(self)
         return self._controller_instance
 
     def get_required_keys(self):
-        return self._controller.get_required_tags()
+        return self.controller.get_required_tags()
 
     def retrieve_payload(self, blob: Blob) -> Union[None, bytes]:
         """Fetch binary payload for <blob>, return None if payload doesn't exist"""
-        return self._controller.retrieve_payload(blob)
+        return self.controller.retrieve_payload(blob)
 
     def update_payload(self, blob: Blob, payload: Union[None, bytes]):
         """Update binary payload for <blob> with <payload>, if <payload> is None, delete it."""
-        return self._controller.update_payload(blob, payload)
+        return self.controller.update_payload(blob, payload)
 
     class Meta:
+
+        verbose_name = _('Storage')
+        verbose_name_plural = _('Storages')
         permissions = (
             ('use_storage', 'Can use storage'),
         )
+
+class Component(UUIDModel, TagModel):
+    """Pluggable component instance connection volume to ComponentController"""
+
+    enabled = models.BooleanField(default=True)
+    configured = True
+    volume = models.ForeignKey('Volume', on_delete=models.CASCADE)
+    controller_path = models.TextField(choices=MANAGER.component_controller_choices())
+
+    _controller_instance = None
+
+    @property
+    def controller(self):
+        """Get instantiated controller class"""
+        if not self._controller_instance:
+            controller_class = path_to_class(self.controller_path)
+            try:
+                self._controller_instance = controller_class(self)
+            except (TypeError, ImportError) as exc:
+                LOGGER.warning(exc)
+        return self._controller_instance
+
+    def __str__(self):
+        return "%s for %s" % (self.controller.__class__.__name__, self.volume.name)
+
+    class Meta:
+
+        verbose_name = _('Component')
+        verbose_name_plural = _('Components')
+        unique_together = (('volume', 'controller_path',),)

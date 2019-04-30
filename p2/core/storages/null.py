@@ -2,7 +2,7 @@
 from typing import Union
 
 from p2.core.models import Blob
-from p2.core.storage.base import StorageController
+from p2.core.storages.base import StorageController
 
 
 class NullStorageController(StorageController):

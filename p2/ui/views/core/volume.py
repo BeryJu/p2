@@ -8,9 +8,12 @@ from django.utils.translation import gettext as _
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
+from guardian.shortcuts import get_objects_for_user
 
 from p2.core.forms import VolumeForm
-from p2.core.models import Volume
+from p2.core.manager import MANAGER
+from p2.core.models import Component, Volume
+from p2.lib.reflection import class_to_path
 
 
 class VolumeListView(PermissionListMixin, ListView):
@@ -26,6 +29,31 @@ class VolumeDetailView(PermissionRequiredMixin, DetailView):
 
     model = Volume
     permission_required = 'p2_core.view_volume'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        components = []
+        existing_components = get_objects_for_user(self.request.user, 'p2_core.view_component')
+        for controller in MANAGER.component_controller_list():
+            controller_path = class_to_path(controller)
+            # Check if component for this volume is configure
+            existing_component = existing_components.filter(
+                controller_path=controller_path,
+                volume=self.object)
+            if existing_component.exists():
+                components.append(existing_component.first())
+            else:
+                # Create an in-memory Object with the controller_path assigned
+                _component = Component()
+                _component.controller_path = controller_path
+                _component.volume = self.object
+                # Set an extra attribute so the template can reflect it
+                _component.configured = False
+                _component.enabled = False
+                components.append(_component)
+
+        context['components'] = components
+        return context
 
 class VolumeCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateView):
     """Create new volume"""

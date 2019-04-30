@@ -4,7 +4,8 @@ from logging import getLogger
 from typing import Union
 
 from p2.core.models import Blob
-from p2.core.storage.base import StorageController
+from p2.core.storages.base import StorageController
+from p2.storage.local.constants import TAG_ROOT_PATH
 
 LOGGER = getLogger(__name__)
 
@@ -13,7 +14,7 @@ class LocalStorageController(StorageController):
 
     def get_required_tags(self):
         return [
-            'root.fs.p2.io'
+            TAG_ROOT_PATH
         ]
 
     def _build_subdir(self, blob: Blob) -> str:
@@ -24,7 +25,7 @@ class LocalStorageController(StorageController):
         ])
 
     def retrieve_payload(self, blob: Blob) -> Union[None, bytes]:
-        root = self.tags.get('root.fs.p2.io')
+        root = self.tags.get(TAG_ROOT_PATH)
         fs_path = os.path.join(root, self._build_subdir(blob), blob.uuid.hex)
         LOGGER.debug('RETR "%s"', blob.uuid)
         if os.path.exists(fs_path) and os.path.isfile(fs_path):
@@ -37,7 +38,7 @@ class LocalStorageController(StorageController):
         return None
 
     def update_payload(self, blob: Blob, payload: Union[None, bytes]):
-        root = self.tags.get('root.fs.p2.io')
+        root = self.tags.get(TAG_ROOT_PATH)
         fs_path = os.path.join(root, self._build_subdir(blob), blob.uuid.hex)
         os.makedirs(os.path.dirname(fs_path), exist_ok=True)
         LOGGER.debug('UPDT "%s" "%.5s"', blob.uuid, payload)

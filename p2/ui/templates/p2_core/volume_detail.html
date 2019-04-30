@@ -7,72 +7,10 @@
   {% blocktrans with volume=object.name %}Volume {{ volume }}{% endblocktrans %}
 </h2>
 <div class="row">
+  {% for component in components %}
   <div class="col-md-4">
-    <div class="card">
-      <div class="card-body text-white bg-primary">
-        <h5 class="card-title">Directory Listing</h5>
-        <h6 class="card-subtitle mb-2">
-          Directory Listing is enabled for this volume. You can see the contents here:
-          <a href="">http://not.a.real.url/yes</a>
-        </h6>
-        <a href="" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Disable' %}</a>
-        <a href="" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Configure...' %}</a>
-      </div>
-    </div>
+    {% include component.controller.template_name with component=component %}
   </div>
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-body text-white bg-dark">
-        <h5 class="card-title">Quota</h5>
-        <h6 class="card-subtitle mb-2">
-          Quota is not enabled for this Volume.
-        </h6>
-        <a href="" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Enable' %}</a>
-        <a href="" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Configure...' %}</a>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card">
-      <div
-        class="card-body text-white bg-primary">
-        <h5 class="card-title">Image</h5>
-        <h6 class="card-subtitle mb-2">
-          Image attribute scanning is enabled for this volume. p2 will add the following attributes:
-          <ul>
-            <li>Resolution</li>
-            <li>EXIF Data</li>
-            <li>stuff</li>
-          </ul>
-        </h6>
-        <a href="" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Disable' %}</a>
-        <a href="" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Configure...' %}</a>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-body text-white bg-dark">
-        <h5 class="card-title">Mockup</h5>
-        <h6 class="card-subtitle mb-2">
-          This is actually just a mockup.
-        </h6>
-        <a href="" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Enable' %}</a>
-        <a href="" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Configure...' %}</a>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-body text-white bg-primary">
-        <h5 class="card-title">Expiry</h5>
-        <h6 class="card-subtitle mb-2">
-          Blobs will be delted.
-        </h6>
-        <a href="" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Disable' %}</a>
-        <a href="" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Configure...' %}</a>
-      </div>
-    </div>
-  </div>
+  {% endfor %}
 </div>
 {% endblock %}

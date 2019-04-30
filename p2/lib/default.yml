@@ -36,8 +36,12 @@ external_auth_only: false
 
 storage:
   controllers:
-    - p2.core.storage.null.NullStorageController
+    - p2.core.storages.null.NullStorageController
     - p2.storage.local.controller.LocalStorageController
+component:
+  controllers:
+    - p2.components.image.controller.ImageController
+    - p2.components.quota.controller.QuotaController
 
 # LDAP Authentication
 ldap:
