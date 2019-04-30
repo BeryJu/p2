@@ -1,5 +1,5 @@
  -r p2/root/requirements.txt
- -r p2/image/requirements.txt
+ -r p2/components/image/requirements.txt
  -r p2/api/requirements.txt
  -r p2/ui/requirements.txt
 psycopg2
