@@ -7,7 +7,7 @@
 # - STORAGE_BASE: Base directory in which p2 data will be storeed
 
 K3S_VERSION="0.4.0"
-P2_VERSION="0.1.8"
+P2_VERSION="0.1.9"
 export INSTALL_K3S_EXEC="--cluster-cidr 10.121.0.0/16 --cluster-domain p2.baked --docker"
 
 if [ "$EUID" -ne 0 ]; then
