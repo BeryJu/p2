@@ -11,6 +11,8 @@ from p2.lib.reflection import class_to_path
 # pylint: disable=unused-argument
 def payload_updated_exif(sender, blob, **kwargs):
     """extract EXIF data from image and save as attributes"""
-    image_component = blob.volume.component_set.filter(controller=class_to_path(ImageController))
+    image_component = blob.volume.component_set.filter(
+        controller_path=class_to_path(ImageController),
+        enabled=True)
     if image_component.exists():
-        image_component.first().handle(blob)
+        image_component.first().controller.handle(blob)
