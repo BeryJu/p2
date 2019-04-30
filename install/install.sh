@@ -7,7 +7,7 @@
 # - STORAGE_BASE: Base directory in which p2 data will be storeed
 
 K3S_VERSION="0.4.0"
-P2_VERSION="0.1.7"
+P2_VERSION="0.1.8"
 
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
