@@ -7,7 +7,8 @@ from guardian.shortcuts import get_objects_for_user
 
 from p2.core.models import Blob, Storage, Volume
 from p2.s3.auth import S3Authentication
-from p2.s3.constants import XML_NAMESPACE, TAG_S3_STORAGE_CLASS, TAG_S3_DEFAULT_STORAGE
+from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
+                             XML_NAMESPACE)
 from p2.s3.http import XMLResponse
 
 

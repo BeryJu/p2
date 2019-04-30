@@ -7,8 +7,8 @@ from django.test import LiveServerTestCase
 from guardian.shortcuts import assign_perm
 
 from p2.core.models import Storage, Volume
-from p2.s3.models import S3AccessKey
 from p2.s3.constants import TAG_S3_DEFAULT_STORAGE
+from p2.s3.models import S3AccessKey
 
 
 class BucketTests(LiveServerTestCase):

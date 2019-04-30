@@ -1,7 +1,6 @@
 """p2 Core models"""
 from copy import deepcopy
 from logging import getLogger
-from typing import Union
 
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.fields.jsonb import KeyTextTransform
