@@ -3,6 +3,7 @@
 from p2.lib.config import CONFIG
 from p2.lib.reflection import class_to_path, path_to_class
 
+
 class ControllerManager:
     """Central manager of storage and component controllers"""
 

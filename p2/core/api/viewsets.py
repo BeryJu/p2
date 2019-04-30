@@ -78,5 +78,5 @@ class StorageViewSet(ModelViewSet):
     allows operations on individual events if user has appropriate 'view', 'add',
     'change' or 'delete' permissions.
     """
-    queryset = Storage.objects.all().select_subclasses()
+    queryset = Storage.objects.all()
     serializer_class = StorageSerializer

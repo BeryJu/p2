@@ -10,9 +10,9 @@ from django.views.generic import CreateView, DeleteView, UpdateView
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_objects_for_user
 
-from p2.lib.reflection.manager import ControllerManager
 from p2.core.models import Component
 from p2.lib.reflection import path_to_class
+from p2.lib.reflection.manager import ControllerManager
 
 COMPONENT_MANAGER = ControllerManager('component.controllers')
 

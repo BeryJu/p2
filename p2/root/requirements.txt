@@ -6,7 +6,6 @@ requests
 celery
 cherrypy
 django-auth-ldap
-django-model-utils
 django-redis
 python-magic
 pytz

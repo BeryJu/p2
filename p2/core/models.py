@@ -12,13 +12,12 @@ from django.db.models import IntegerField, Sum
 from django.db.models.functions import Cast
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
-from model_utils.managers import InheritanceManager
 
 from p2.core.constants import TAG_VOLUME_LEGACY_DEFAULT
-from p2.lib.reflection.manager import ControllerManager
 from p2.core.tasks import signal_marshall
 from p2.lib.models import TagModel, UUIDModel
 from p2.lib.reflection import class_to_path, path_to_class
+from p2.lib.reflection.manager import ControllerManager
 
 LOGGER = getLogger(__name__)
 STORAGE_MANAGER = ControllerManager('storage.controllers', lazy=True)
@@ -175,13 +174,6 @@ class Storage(UUIDModel, TagModel):
 
     name = models.TextField()
     controller_path = models.TextField(choices=STORAGE_MANAGER.as_choices())
-
-    objects = InheritanceManager()
-
-    @property
-    def provider(self):
-        """Provider Name for UI"""
-        return None
 
     _controller_instance = None
 

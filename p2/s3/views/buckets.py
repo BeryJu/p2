@@ -67,9 +67,7 @@ class BucketView(S3Authentication):
         default_storage = get_objects_for_user(request.user, 'use_storage', Storage) \
                                 .filter(**{
                                     'tags_default.s3.p2.io': True
-                                }) \
-                                .select_subclasses() \
-                                .first()
+                                }).first()
         bucket, _ = Volume.objects.get_or_create(name=bucket, defaults={
             'storage': default_storage
         })
