@@ -140,18 +140,23 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth_passbook',
+    # p2 - Core Components
     'p2.core.apps.P2CoreConfig',
     'p2.api.apps.P2APIConfig',
     'p2.s3.apps.P2S3Config',
     'p2.serve.apps.P2ServeConfig',
-    'p2.image.apps.P2ImageConfig',
     'p2.log.apps.P2LogConfig',
     'p2.ui.apps.P2UIConfig',
-    'p2.quota.apps.P2QuotaConfig',
+    # p2 - Components
+    'p2.components.quota.apps.P2QuotaComponentConfig',
+    'p2.components.image.apps.P2ImageComponentConfig',
+    # p2 - Storage
+    'p2.storage.local.apps.P2LocalStorageConfig',
     # API Frameworks
     'rest_framework',
     'drf_yasg',
     'django_filters',
+    # UI Helpers
     'crispy_forms',
 ]
 

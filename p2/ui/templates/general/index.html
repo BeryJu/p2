@@ -38,6 +38,7 @@
           {% endif %}
           </strong>
         </p>
+        <a href="{% url 'p2_ui:core-volume-detail' pk=volume.pk %}" class="card-link">{% trans 'View' %}</a>
         <a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}" class="card-link">{% trans 'Browse' %}</a>
       </div>
     </div>

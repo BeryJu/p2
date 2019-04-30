@@ -24,5 +24,9 @@ class EndRequestMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        LOG_ADAPTOR.end_request(request)
+        try:
+            LOG_ADAPTOR.end_request(request)
+        except TypeError:
+            pass
+        response['X-p2-Request-Id'] = request.uid
         return response

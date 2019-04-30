@@ -3,8 +3,8 @@ from shutil import rmtree
 
 from django.test import TestCase
 
-from p2.lib.reflection import class_to_path
 from p2.core.models import Blob, Storage, Volume
+from p2.lib.reflection import class_to_path
 from p2.storage.local.controller import LocalStorageController
 
 

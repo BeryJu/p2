@@ -16,6 +16,8 @@ urlpatterns = [
          volume.VolumeListView.as_view(), name='core-volume-list'),
     path('core/volume/create/',
          volume.VolumeCreateView.as_view(), name='core-volume-create'),
+    path('core/volume/<uuid:pk>/',
+         volume.VolumeDetailView.as_view(), name='core-volume-detail'),
     path('core/volume/<uuid:pk>/update/',
          volume.VolumeUpdateView.as_view(), name='core-volume-update'),
     path('core/volume/<uuid:pk>/delete/',
