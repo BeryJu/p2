@@ -31,9 +31,10 @@ class Volume(UUIDModel, TagModel):
     @property
     def space_used(self):
         """Return summed up size of all blobs in this volume."""
-        return self.blob_set.all().annotate(
+        used = self.blob_set.all().annotate(
             size_value=Cast(KeyTextTransform('size:bytes', 'attributes'), IntegerField())
         ).aggregate(sum=Sum('size_value')).get('sum', 0)
+        return used if used else 0
 
     def get_predefined_tags(self):
         return {
