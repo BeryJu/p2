@@ -38,6 +38,10 @@ mkdir -p $P2_DATABASE_PATH
 if [[ ! -f "$P2_PASSWORD_FILE" ]]; then
     openssl rand -hex 48 > "$P2_PASSWORD_FILE"
 fi
+# Make sure Password file can only be read by root
+chown root: "$P2_PASSWORD_FILE"
+chmod 600: "$P2_PASSWORD_FILE"
+
 PASSWORD=$(cat $P2_PASSWORD_FILE)
 
 # Download Helm Chart CRD for k3s, replace values and install
