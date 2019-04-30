@@ -18,7 +18,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "p2.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
-        p2.io/component: worker
+        k8s.p2.io/component: worker
     spec:
       volumes:
         - name: config-volume

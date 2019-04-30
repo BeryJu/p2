@@ -8,6 +8,7 @@ from guardian.shortcuts import assign_perm
 
 from p2.core.models import Storage, Volume
 from p2.s3.models import S3AccessKey
+from p2.s3.constants import TAG_S3_DEFAULT_STORAGE
 
 
 class BucketTests(LiveServerTestCase):
@@ -24,7 +25,7 @@ class BucketTests(LiveServerTestCase):
         self.storage = Storage.objects.create(
             name='p2_s3_unittest',
             tags={
-                'default.s3.p2.io': True
+                TAG_S3_DEFAULT_STORAGE: True
             })
         session = boto3.session.Session()
         self.boto3 = session.client(

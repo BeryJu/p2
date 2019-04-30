@@ -7,7 +7,7 @@ from guardian.shortcuts import get_objects_for_user
 
 from p2.core.models import Blob, Storage, Volume
 from p2.s3.auth import S3Authentication
-from p2.s3.constants import XML_NAMESPACE
+from p2.s3.constants import XML_NAMESPACE, TAG_S3_STORAGE_CLASS, TAG_S3_DEFAULT_STORAGE
 from p2.s3.http import XMLResponse
 
 
@@ -56,7 +56,8 @@ class BucketView(S3Authentication):
                 content, "ETag").text = blob.attributes.get('sha512')
             ElementTree.SubElement(content, "Size").text = str(
                 blob.attributes.get('size:bytes', 0))
-            ElementTree.SubElement(content, "StorageClass").text = blob.storage_instance.provider
+            ElementTree.SubElement(content, "StorageClass").text = \
+                blob.volume.storage.controller.tags.get(TAG_S3_STORAGE_CLASS, 'default')
             root.append(content)
 
         return XMLResponse(root)
@@ -66,7 +67,7 @@ class BucketView(S3Authentication):
         # default_storage = get_object_or_404(Storage)
         default_storage = get_objects_for_user(request.user, 'use_storage', Storage) \
                                 .filter(**{
-                                    'tags_default.s3.p2.io': True
+                                    'tags_%s' % TAG_S3_DEFAULT_STORAGE: True
                                 }).first()
         bucket, _ = Volume.objects.get_or_create(name=bucket, defaults={
             'storage': default_storage
