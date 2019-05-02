@@ -12,7 +12,8 @@ from django.db.models.functions import Cast
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
-from p2.core.constants import TAG_VOLUME_LEGACY_DEFAULT
+from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
+                               ATTR_BLOB_STAT_MTIME, TAG_VOLUME_LEGACY_DEFAULT)
 from p2.core.tasks import signal_marshall
 from p2.lib.models import TagModel, UUIDModel
 from p2.lib.reflection import class_to_path, path_to_class
@@ -32,7 +33,7 @@ class Volume(UUIDModel, TagModel):
     def space_used(self):
         """Return summed up size of all blobs in this volume."""
         used = self.blob_set.all().annotate(
-            size_value=Cast(KeyTextTransform('size:bytes', 'attributes'), IntegerField())
+            size_value=Cast(KeyTextTransform(ATTR_BLOB_SIZE_BYTES, 'attributes'), IntegerField())
         ).aggregate(sum=Sum('size_value')).get('sum', 0)
         return used if used else 0
 
@@ -123,10 +124,10 @@ class Blob(UUIDModel, TagModel):
             with transaction.atomic():
                 # Save current time as `created` attribute. This can be changed by users,
                 # but p2.log creates a log entry for new Blob being created
-                if 'stat:ctime' not in self.attributes:
-                    self.attributes['stat:ctime'] = now()
+                if ATTR_BLOB_STAT_CTIME not in self.attributes:
+                    self.attributes[ATTR_BLOB_STAT_CTIME] = now()
                 # Create/update `date_updated` attribute
-                self.attributes['stat:mtime'] = now()
+                self.attributes[ATTR_BLOB_STAT_MTIME] = now()
                 # Only save payload if it changed
                 if self._payload_dirty:
                     self.volume.storage.controller.update_payload(self, self.payload)

@@ -5,6 +5,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from guardian.shortcuts import get_objects_for_user
 
+from p2.core.constants import (ATTR_BLOB_HASH_SHA512, ATTR_BLOB_SIZE_BYTES,
+                               ATTR_BLOB_STAT_MTIME)
 from p2.core.models import Blob, Storage, Volume
 from p2.s3.auth import S3Authentication
 from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
@@ -52,11 +54,11 @@ class BucketView(S3Authentication):
             content = ElementTree.Element("Contents")
             ElementTree.SubElement(content, "Key").text = blob.path[1:]
             ElementTree.SubElement(
-                content, "LastModified").text = blob.attributes.get('date_updated')
+                content, "LastModified").text = blob.attributes.get(ATTR_BLOB_STAT_MTIME)
             ElementTree.SubElement(
-                content, "ETag").text = blob.attributes.get('sha512')
+                content, "ETag").text = blob.attributes.get(ATTR_BLOB_HASH_SHA512)
             ElementTree.SubElement(content, "Size").text = str(
-                blob.attributes.get('size:bytes', 0))
+                blob.attributes.get(ATTR_BLOB_SIZE_BYTES, 0))
             ElementTree.SubElement(content, "StorageClass").text = \
                 blob.volume.storage.controller.tags.get(TAG_S3_STORAGE_CLASS, 'default')
             root.append(content)

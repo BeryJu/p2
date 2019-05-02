@@ -7,6 +7,8 @@ from django.core.signals import Signal
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
+from p2.core import constants
+from p2.core.constants import ATTR_BLOB_MINE, ATTR_BLOB_SIZE_BYTES
 from p2.core.models import Blob
 from p2.lib.utils import url_b64encode
 
@@ -40,8 +42,8 @@ def blob_payload_hash(sender, blob, **kwargs):
         hasher.update(_payload)
         _hash = hasher.hexdigest()
         if hash_name not in blob.attributes or blob.attributes[hash_name] != _hash:
-            blob.attributes[hash_name] = _hash
-            blob.attributes[hash_name+'_b64'] = url_b64encode(_hash)
+            attr_name = getattr(constants, 'ATTR_BLOB_HASH_%s' % hash_name.upper())
+            blob.attributes[attr_name] = _hash
             LOGGER.debug('Updated %s for %s to %s',
                          hash_name, blob.uuid.hex, _hash)
     blob.save()
@@ -52,7 +54,7 @@ def blob_payload_hash(sender, blob, **kwargs):
 def blob_payload_size(sender, blob, **kwargs):
     """Add size in bytes as attribute"""
     size = len(blob.payload)
-    blob.attributes['size:bytes'] = str(size)
+    blob.attributes[ATTR_BLOB_SIZE_BYTES] = str(size)
     LOGGER.debug('Updated size to %d for %s', size, blob.uuid.hex)
     blob.save()
 
@@ -62,6 +64,6 @@ def blob_payload_size(sender, blob, **kwargs):
 def blob_payload_mime(sender, blob, **kwargs):
     """Add mime type as attribute"""
     mime_type = magic.from_buffer(blob.payload, mime=True)
-    blob.attributes['mime'] = mime_type
+    blob.attributes[ATTR_BLOB_MINE] = mime_type
     LOGGER.debug('Updated MIME to %s for %s', mime_type, blob.uuid.hex)
     blob.save()
