@@ -1,8 +1,19 @@
 {% extends 'base/base.html' %}
 
-{% load crispy_forms_tags %}
 {% load i18n %}
+{% load static %}
+
+{% load crispy_forms_tags %}
 {% load p2_ui %}
+
+{% block head %}
+{{ block.super }}
+{{ form.media }}
+<script src="{% static 'codemirror/codemirror.js' %}"></script>
+<link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
+<link rel="stylesheet" href="{% static 'codemirror/theme/monokai.css' %}">
+<script src="{% static 'codemirror/mode/javascript.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 <h3>
@@ -17,4 +28,14 @@ Creating {{ view.model|model_verbose_name }}
 {{ form|crispy }}
 <button type="submit" class="btn btn-success">{% trans 'Save' %}</button>
 </form>
+<script>
+let tags = document.getElementsByName('tags');
+if (tags.length > 0) {
+  let myCodeMirror = CodeMirror.fromTextArea(tags[0], {
+    mode: 'javascript',
+    theme: 'monokai',
+    lineNumbers: true,
+  });
+}
+</script>
 {% endblock %}
