@@ -37,6 +37,18 @@ class Volume(UUIDModel, TagModel):
         ).aggregate(sum=Sum('size_value')).get('sum', 0)
         return used if used else 0
 
+    def component(self, class_or_path):
+        """Get component instance for class or class path.
+        Return None if component not confugued."""
+        if not isinstance(class_or_path, str):
+            class_or_path = class_to_path(class_or_path)
+        component = self.component_set.filter(
+            controller_path=class_or_path,
+            enabled=True)
+        if component.exists():
+            return component.first()
+        return None
+
     def get_predefined_tags(self):
         return {
             TAG_VOLUME_LEGACY_DEFAULT: False
@@ -73,6 +85,15 @@ class Blob(UUIDModel, TagModel):
         verbose_name = _('Blob')
         verbose_name_plural = _('Blobs')
         unique_together = (('path', 'volume',),)
+
+    @staticmethod
+    def from_uploaded_file(file, volume, prefix=''):
+        """Create Blob instance from Django's UploadedFile"""
+        return Blob.objects.create(
+            path=prefix + '/' + file.name,
+            volume=volume,
+            payload=file.read()
+        )
 
     @property
     def filename(self):
