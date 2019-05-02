@@ -1,5 +1,6 @@
 """serve rule views"""
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import \
     PermissionRequiredMixin as DjangoPermissionListMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -12,7 +13,7 @@ from p2.serve.forms import ServeRuleForm
 from p2.serve.models import ServeRule
 
 
-class ServeRuleListView(PermissionListMixin, ListView):
+class ServeRuleListView(PermissionListMixin, LoginRequiredMixin, ListView):
     """List all serve rules the user has access to"""
 
     model = ServeRule

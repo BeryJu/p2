@@ -1,5 +1,6 @@
 """Storage Views"""
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import \
     PermissionRequiredMixin as DjangoPermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -13,7 +14,7 @@ from p2.core.models import Storage
 from p2.lib.reflection import path_to_class
 
 
-class StorageListView(PermissionListMixin, ListView):
+class StorageListView(PermissionListMixin, LoginRequiredMixin, ListView):
     """List all storages a user can use"""
 
     model = Storage

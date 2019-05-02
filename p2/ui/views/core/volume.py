@@ -1,5 +1,6 @@
 """Volume Views"""
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import \
     PermissionRequiredMixin as DjangoPermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -18,7 +19,7 @@ from p2.lib.reflection.manager import ControllerManager
 COMPONENT_MANAGER = ControllerManager('component.controllers')
 
 
-class VolumeListView(PermissionListMixin, ListView):
+class VolumeListView(PermissionListMixin, LoginRequiredMixin, ListView):
     """List all volumes a user can use"""
 
     model = Volume

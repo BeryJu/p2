@@ -1,5 +1,6 @@
 """s3 access-key views"""
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import \
     PermissionRequiredMixin as DjangoPermissionListMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -12,7 +13,7 @@ from p2.s3.forms import S3AccessKeyForm
 from p2.s3.models import S3AccessKey
 
 
-class S3AccessKeyListView(PermissionListMixin, ListView):
+class S3AccessKeyListView(PermissionListMixin, LoginRequiredMixin, ListView):
     """List all access keys the user has access to"""
 
     model = S3AccessKey

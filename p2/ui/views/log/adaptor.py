@@ -1,5 +1,6 @@
 """log log-adaptor views"""
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import \
     PermissionRequiredMixin as DjangoPermissionListMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -16,7 +17,7 @@ from p2.log.models import LogAdaptor
 LOG_CONTROLLER_MANAGER = ControllerManager('log.controllers', lazy=True)
 
 
-class LogAdaptorListView(PermissionListMixin, ListView):
+class LogAdaptorListView(PermissionListMixin, LoginRequiredMixin, ListView):
     """List all access keys the user has access to"""
 
     model = LogAdaptor
