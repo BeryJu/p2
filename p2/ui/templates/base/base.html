@@ -4,26 +4,6 @@
 {% load static %}
 {% load p2_ui %}
 
-{% block head %}
-<style>
-.btn-float {
-  position: fixed;
-  width: 60px;
-  height: 60px;
-  bottom: 75px;
-  right: 40px;
-  color: #FFF;
-  border-radius: 50%;
-  text-align: center;
-  box-shadow:  2px 2px 3px #999;
-}
-
-.btn-float > i {
-  margin-top: 6px;
-}
-</style>
-{% endblock %}
-
 {% block body %}
 {% if user.is_authenticated and not hide_navbar %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
