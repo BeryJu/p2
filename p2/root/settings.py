@@ -364,7 +364,7 @@ with CONFIG.cd('log'):
             },
             'cherrypy': {
                 'handlers': ['console', 'file'],
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'propagate': True,
             },
             'django': {
