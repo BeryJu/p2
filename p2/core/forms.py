@@ -9,7 +9,12 @@ from p2.lib.reflection import path_to_class
 class BlobForm(TagModelForm):
     """blob form"""
 
-    payload = forms.FileField()
+    payload = forms.FileField(required=False)
+
+    def save(self, **kwargs):
+        if not self.cleaned_data.get('payload'):
+            del self.cleaned_data['payload']
+        return super().save(**kwargs)
 
     class Meta:
 

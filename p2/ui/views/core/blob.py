@@ -113,17 +113,6 @@ class BlobUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('p2_ui:core-blob-list', kwargs={'pk': self.object.volume.pk})
 
-    # def get_form(self):
-    #     form = super().get_form()
-    #     bytes_file = BytesIO(self.object.payload)
-    #     form.data['payload'] = InMemoryUploadedFile(
-    #         bytes_file,
-    #         'payload',
-    #         self.object.path,
-    #         self.object.attributes.get('mime'),
-    #         self.object.attributes.get('size:bytes'),
-    #         'utf8')
-    #     return form
 
 class BlobDeleteView(SuccessMessageMixin, PermissionRequiredMixin, DeleteView):
     """Delete blob"""

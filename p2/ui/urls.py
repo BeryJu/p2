@@ -25,8 +25,9 @@ urlpatterns = [
     path('core/volume/<uuid:pk>/blobs/',
          blob.FileBrowserView.as_view(), name='core-blob-list'),
     # Core - Blobs
-    path('core/blob/create/',
-         blob.BlobCreateView.as_view(), name='core-blob-create'),
+    # Blob creation disabled for now
+    # path('core/blob/create/',
+    #      blob.BlobCreateView.as_view(), name='core-blob-create'),
     path('core/blob/<uuid:pk>/update/',
          blob.BlobUpdateView.as_view(), name='core-blob-update'),
     path('core/blob/<uuid:pk>/delete/',
