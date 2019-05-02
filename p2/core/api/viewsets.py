@@ -1,16 +1,16 @@
 """Core API Viewsets"""
 from drf_yasg.utils import swagger_auto_schema
-from guardian.shortcuts import assign_perm, get_objects_for_user
+from guardian.shortcuts import assign_perm
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.exceptions import PermissionDenied
 
-from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.core.api.filters import BlobFilter
 from p2.core.api.serializers import (BlobPayloadSerializer, BlobSerializer,
                                      StorageSerializer, VolumeSerializer)
 from p2.core.models import Blob, Storage, Volume
+from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.lib.utils import b64encode
 
 

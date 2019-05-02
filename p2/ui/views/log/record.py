@@ -3,7 +3,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from guardian.mixins import PermissionListMixin
 
-from p2.log.models import LogAdaptor, Record
+from p2.lib.shortcuts import (get_list_for_user_or_404,
+                              get_object_for_user_or_404)
+from p2.log.models import Record
 
 
 class RecordListView(PermissionListMixin, LoginRequiredMixin, ListView):
@@ -15,8 +17,10 @@ class RecordListView(PermissionListMixin, LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        # TODO Filter by permission
+        adaptor = get_object_for_user_or_404(
+            self.request.user, 'view_adaptor', pk=self.kwargs.get('pk'))
         self.extra_context = {
-            'adaptor': LogAdaptor.objects.get(pk=self.kwargs.get('pk'))
+            'adaptor': adaptor
         }
-        return Record.objects.filter(adaptor__pk=self.kwargs.get('pk')).order_by(self.ordering)
+        return get_list_for_user_or_404(
+            self.request.user, 'view_record', adaptor=adaptor).order_by(self.ordering)

@@ -6,8 +6,7 @@ from django.contrib.auth.mixins import \
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import reverse
 from django.utils.translation import gettext as _
-from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
-                                  UpdateView)
+from django.views.generic import DeleteView, DetailView, ListView, UpdateView
 from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
 from guardian.shortcuts import get_objects_for_user
 
@@ -15,6 +14,7 @@ from p2.core.forms import VolumeForm
 from p2.core.models import Component, Volume
 from p2.lib.reflection import class_to_path
 from p2.lib.reflection.manager import ControllerManager
+from p2.lib.views import CreateAssignPermView
 
 COMPONENT_MANAGER = ControllerManager('component.controllers')
 
@@ -59,16 +59,21 @@ class VolumeDetailView(PermissionRequiredMixin, DetailView):
         context['components'] = components
         return context
 
-class VolumeCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateView):
-    """Create new volume"""
 
-    # TODO: Set permission for request.user
+class VolumeCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateAssignPermView):
+    """Create new volume"""
 
     model = Volume
     form_class = VolumeForm
     permission_required = 'p2_core.add_volume'
     template_name = 'generic/form.html'
     success_message = _('Successfully created Volume')
+    permissions = [
+        'p2_core.view_volume',
+        'p2_core.use_volume',
+        'p2_core.update_volume',
+        'p2_core.delete_volume',
+    ]
 
     def get_success_url(self):
         return reverse('p2_ui:core-volume-list')

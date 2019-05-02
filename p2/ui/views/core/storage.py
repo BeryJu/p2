@@ -6,12 +6,13 @@ from django.contrib.auth.mixins import \
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import reverse
 from django.utils.translation import gettext as _
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import DeleteView, ListView, UpdateView
 from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
 
 from p2.core.forms import StorageForm
 from p2.core.models import Storage
 from p2.lib.reflection import path_to_class
+from p2.lib.views import CreateAssignPermView
 
 
 class StorageListView(PermissionListMixin, LoginRequiredMixin, ListView):
@@ -23,16 +24,19 @@ class StorageListView(PermissionListMixin, LoginRequiredMixin, ListView):
     paginate_by = 10
 
 
-class StorageCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateView):
+class StorageCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateAssignPermView):
     """Create new storage"""
-
-    # TODO: Set permission for request.user
 
     model = Storage
     form_class = StorageForm
     permission_required = 'p2_core.add_storage'
     template_name = 'generic/form.html'
     success_message = _('Successfully created Storage')
+    permissions = [
+        'p2_core.view_storage',
+        'p2_core.update_storage',
+        'p2_core.delete_storage',
+    ]
 
     def get_success_url(self):
         return reverse('p2_ui:core-storage-list')

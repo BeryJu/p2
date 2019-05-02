@@ -6,11 +6,12 @@ from django.contrib.auth.mixins import \
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import reverse
 from django.utils.translation import gettext as _
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import DeleteView, ListView, UpdateView
 from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
 
 from p2.lib.reflection import path_to_class
 from p2.lib.reflection.manager import ControllerManager
+from p2.lib.views import CreateAssignPermView
 from p2.log.forms import LogAdaptorForm
 from p2.log.models import LogAdaptor
 
@@ -26,16 +27,19 @@ class LogAdaptorListView(PermissionListMixin, LoginRequiredMixin, ListView):
     paginate_by = 10
 
 
-class LogAdaptorCreateView(SuccessMessageMixin, DjangoPermissionListMixin, CreateView):
+class LogAdaptorCreateView(SuccessMessageMixin, DjangoPermissionListMixin, CreateAssignPermView):
     """Create new access key"""
-
-    # TODO: add permissions for request.user
 
     model = LogAdaptor
     form_class = LogAdaptorForm
     permission_required = 'p2_log.add_logadaptor'
     template_name = 'generic/form.html'
     success_message = _('Successfully created LogAdaptor')
+    permissions = [
+        'p2_log.view_logadaptor',
+        'p2_log.update_logadaptor',
+        'p2_log.delete_logadaptor',
+    ]
 
     def get_success_url(self):
         return reverse('p2_ui:log-adaptor-list')

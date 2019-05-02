@@ -6,9 +6,10 @@ from django.contrib.auth.mixins import \
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import reverse
 from django.utils.translation import gettext as _
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import DeleteView, ListView, UpdateView
 from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
 
+from p2.lib.views import CreateAssignPermView
 from p2.s3.forms import S3AccessKeyForm
 from p2.s3.models import S3AccessKey
 
@@ -21,16 +22,20 @@ class S3AccessKeyListView(PermissionListMixin, LoginRequiredMixin, ListView):
     ordering = 'name'
     paginate_by = 10
 
-class S3AccessKeyCreateView(SuccessMessageMixin, DjangoPermissionListMixin, CreateView):
-    """Create new access key"""
 
-    # TODO: add permissions for request.user
+class S3AccessKeyCreateView(SuccessMessageMixin, DjangoPermissionListMixin, CreateAssignPermView):
+    """Create new access key"""
 
     model = S3AccessKey
     form_class = S3AccessKeyForm
     permission_required = 'p2_s3.add_s3accesskey'
     template_name = 'generic/form.html'
     success_message = _('Successfully created S3AccessKey')
+    permissions = [
+        'p2_s3.view_s3accesskey',
+        'p2_s3.update_s3accesskey',
+        'p2_s3.delete_s3accesskey',
+    ]
 
     def get_success_url(self):
         return reverse('p2_ui:s3-access-key-list')

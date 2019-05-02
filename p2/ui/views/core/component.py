@@ -6,24 +6,30 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404
 from django.shortcuts import reverse
 from django.utils.translation import gettext as _
-from django.views.generic import CreateView, DeleteView, UpdateView
+from django.views.generic import DeleteView, UpdateView
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_objects_for_user
 
 from p2.core.models import Component
 from p2.lib.reflection import path_to_class
 from p2.lib.reflection.manager import ControllerManager
+from p2.lib.views import CreateAssignPermView
 
 COMPONENT_MANAGER = ControllerManager('component.controllers')
 
 
-class ComponentCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateView):
+class ComponentCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateAssignPermView):
     """Create new component"""
 
     model = Component
     permission_required = 'p2_core.add_component'
     template_name = 'generic/form.html'
     success_message = _('Successfully created Component')
+    permissions = [
+        'p2_core.view_component',
+        'p2_core.update_component',
+        'p2_core.delete_component',
+    ]
 
     volume = None
     controller_path = None
@@ -42,7 +48,6 @@ class ComponentCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, Cr
     def form_valid(self, form):
         form.instance.volume = self.volume
         form.instance.controller_path = self.controller_path
-        # TODO: Set permission for request.user
         return super().form_valid(form)
 
     def get_success_url(self):

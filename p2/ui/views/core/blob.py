@@ -7,13 +7,14 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, reverse
 from django.utils.translation import gettext as _
-from django.views.generic import (CreateView, DeleteView, DetailView,
-                                  TemplateView, UpdateView)
+from django.views.generic import (DeleteView, DetailView, TemplateView,
+                                  UpdateView)
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_objects_for_user
 
 from p2.core.forms import BlobForm
 from p2.core.models import Blob
+from p2.lib.views import CreateAssignPermView
 
 
 class FileBrowserView(LoginRequiredMixin, TemplateView):
@@ -81,16 +82,19 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class BlobCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateView):
+class BlobCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateAssignPermView):
     """Create new blob"""
-
-    # TODO: Assing permission after creation
 
     model = Blob
     form_class = BlobForm
     permission_required = 'p2_core.add_blob'
     template_name = 'generic/form.html'
     success_message = _('Successfully created Blob')
+    permissions = [
+        'p2_core.view_blob',
+        'p2_core.update_blob',
+        'p2_core.delete_blob',
+    ]
 
     def get_success_url(self):
         return reverse('p2_ui:core-blob-list', kwargs={'pk': self.object.volume.pk})

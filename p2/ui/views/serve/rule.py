@@ -6,9 +6,10 @@ from django.contrib.auth.mixins import \
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import reverse
 from django.utils.translation import gettext as _
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import DeleteView, ListView, UpdateView
 from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
 
+from p2.lib.views import CreateAssignPermView
 from p2.serve.forms import ServeRuleForm
 from p2.serve.models import ServeRule
 
@@ -22,16 +23,19 @@ class ServeRuleListView(PermissionListMixin, LoginRequiredMixin, ListView):
     paginate_by = 10
 
 
-class ServeRuleCreateView(SuccessMessageMixin, DjangoPermissionListMixin, CreateView):
+class ServeRuleCreateView(SuccessMessageMixin, DjangoPermissionListMixin, CreateAssignPermView):
     """Create new serve rule"""
-
-    # TODO: add permissions for request.user
 
     model = ServeRule
     form_class = ServeRuleForm
     permission_required = 'p2_serve.add_serverule'
     template_name = 'generic/form.html'
     success_message = _('Successfully created Rule')
+    permissions = [
+        'p2_serve.view_serverule',
+        'p2_serve.update_serverule',
+        'p2_serve.delete_serverule',
+    ]
 
     def get_success_url(self):
         return reverse('p2_ui:serve-rule-list', kwargs={'pk': self.object.volume.pk})
