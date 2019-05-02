@@ -92,7 +92,7 @@ class BlobCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateA
     success_message = _('Successfully created Blob')
     permissions = [
         'p2_core.view_blob',
-        'p2_core.update_blob',
+        'p2_core.change_blob',
         'p2_core.delete_blob',
     ]
 
@@ -110,7 +110,7 @@ class BlobUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView):
 
     model = Blob
     form_class = BlobForm
-    permission_required = 'p2_core.update_blob'
+    permission_required = 'p2_core.change_blob'
     template_name = 'generic/form.html'
     success_message = _('Successfully updated Blob')
 

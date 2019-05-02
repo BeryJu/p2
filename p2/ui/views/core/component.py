@@ -27,7 +27,7 @@ class ComponentCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, Cr
     success_message = _('Successfully created Component')
     permissions = [
         'p2_core.view_component',
-        'p2_core.update_component',
+        'p2_core.change_component',
         'p2_core.delete_component',
     ]
 
@@ -58,7 +58,7 @@ class ComponentUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateVi
     """Update existing component"""
 
     model = Component
-    permission_required = 'p2_core.update_component'
+    permission_required = 'p2_core.change_component'
     template_name = 'generic/form.html'
     success_message = _('Successfully updated Component')
 

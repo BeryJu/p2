@@ -34,7 +34,7 @@ class StorageCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, Crea
     success_message = _('Successfully created Storage')
     permissions = [
         'p2_core.view_storage',
-        'p2_core.update_storage',
+        'p2_core.change_storage',
         'p2_core.delete_storage',
     ]
 
@@ -46,7 +46,7 @@ class StorageUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView
     """Update existing storage"""
 
     model = Storage
-    permission_required = 'p2_core.update_storage'
+    permission_required = 'p2_core.change_storage'
     template_name = 'generic/form.html'
     success_message = _('Successfully updated Storage')
 

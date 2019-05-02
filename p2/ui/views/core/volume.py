@@ -71,7 +71,7 @@ class VolumeCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, Creat
     permissions = [
         'p2_core.view_volume',
         'p2_core.use_volume',
-        'p2_core.update_volume',
+        'p2_core.change_volume',
         'p2_core.delete_volume',
     ]
 
@@ -83,7 +83,7 @@ class VolumeUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView)
 
     model = Volume
     form_class = VolumeForm
-    permission_required = 'p2_core.update_volume'
+    permission_required = 'p2_core.change_volume'
     template_name = 'generic/form.html'
     success_message = _('Successfully updated Volume')
 

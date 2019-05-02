@@ -37,7 +37,7 @@ class LogAdaptorCreateView(SuccessMessageMixin, DjangoPermissionListMixin, Creat
     success_message = _('Successfully created LogAdaptor')
     permissions = [
         'p2_log.view_logadaptor',
-        'p2_log.update_logadaptor',
+        'p2_log.change_logadaptor',
         'p2_log.delete_logadaptor',
     ]
 
@@ -49,7 +49,7 @@ class LogAdaptorUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateV
     """Update existing access key"""
 
     model = LogAdaptor
-    permission_required = 'p2_log.update_logadaptor'
+    permission_required = 'p2_log.change_logadaptor'
     template_name = 'generic/form.html'
     success_message = _('Successfully updated LogAdaptor')
 

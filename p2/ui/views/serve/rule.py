@@ -33,7 +33,7 @@ class ServeRuleCreateView(SuccessMessageMixin, DjangoPermissionListMixin, Create
     success_message = _('Successfully created Rule')
     permissions = [
         'p2_serve.view_serverule',
-        'p2_serve.update_serverule',
+        'p2_serve.change_serverule',
         'p2_serve.delete_serverule',
     ]
 
@@ -46,7 +46,7 @@ class ServeRuleUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateVi
 
     model = ServeRule
     form_class = ServeRuleForm
-    permission_required = 'p2_serve.update_serverule'
+    permission_required = 'p2_serve.change_serverule'
     template_name = 'generic/form.html'
     success_message = _('Successfully updated Rule')
 

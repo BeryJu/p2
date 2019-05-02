@@ -30,10 +30,10 @@ class S3AccessKeyCreateView(SuccessMessageMixin, DjangoPermissionListMixin, Crea
     form_class = S3AccessKeyForm
     permission_required = 'p2_s3.add_s3accesskey'
     template_name = 'generic/form.html'
-    success_message = _('Successfully created S3AccessKey')
+    success_message = _('Successfully created S3 Access Key')
     permissions = [
         'p2_s3.view_s3accesskey',
-        'p2_s3.update_s3accesskey',
+        'p2_s3.change_s3accesskey',
         'p2_s3.delete_s3accesskey',
     ]
 
@@ -45,9 +45,9 @@ class S3AccessKeyUpdateView(SuccessMessageMixin, PermissionRequiredMixin, Update
 
     model = S3AccessKey
     form_class = S3AccessKeyForm
-    permission_required = 'p2_s3.update_s3accesskey'
+    permission_required = 'p2_s3.change_s3accesskey'
     template_name = 'generic/form.html'
-    success_message = _('Successfully updated S3AccessKey')
+    success_message = _('Successfully updated S3 Access Key')
 
     def get_success_url(self):
         return reverse('p2_ui:s3-access-key-list')
@@ -58,7 +58,7 @@ class S3AccessKeyDeleteView(SuccessMessageMixin, PermissionRequiredMixin, Delete
     model = S3AccessKey
     permission_required = 'p2_s3.delete_s3accesskey'
     template_name = 'generic/delete.html'
-    success_message = _('Successfully deleted S3AccessKey')
+    success_message = _('Successfully deleted S3 Access Key')
 
     def get_success_url(self):
         return reverse('p2_ui:s3-access-key-list')

@@ -27,7 +27,7 @@ class S3AccessKey(models.Model):
     secret_key = models.CharField(max_length=40, default=get_secret_key)
 
     def __str__(self):
-        return "Access Key %s for user %r" % (self.name, self.user)
+        return "Access Key %s for user %s" % (self.name, self.user.username)
 
     class Meta:
         verbose_name = _('S3 Access Key')
