@@ -1,11 +1,12 @@
 """Core API Viewsets"""
-from django.http import Http404
 from drf_yasg.utils import swagger_auto_schema
 from guardian.shortcuts import assign_perm, get_objects_for_user
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.exceptions import PermissionDenied
 
+from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.core.api.filters import BlobFilter
 from p2.core.api.serializers import (BlobPayloadSerializer, BlobSerializer,
                                      StorageSerializer, VolumeSerializer)
@@ -52,12 +53,10 @@ class VolumeViewSet(ModelViewSet):
     # pylint: disable=invalid-name
     def upload(self, request, pk=None):
         """Create blob from HTML Form upload"""
-        volumes = get_objects_for_user(request.user, 'p2_core.use_volume')
-        if not volumes.exists():
-            raise Http404
-        volume = volumes.first()
+        volume = get_object_for_user_or_404(request.user, 'p2_core.user_volume', pk=pk)
         count = 0
-        # TODO: Check blob create permissions
+        if not request.user.has_perm('p2_core.create_blob'):
+            raise PermissionDenied()
         for key in request.FILES:
             file = request.FILES[key]
             blob = Blob.objects.create(
@@ -66,7 +65,7 @@ class VolumeViewSet(ModelViewSet):
                 payload=file.read()
             )
             # assign permission to blob
-            assign_perm('view_blob', request.user, blob)
+            assign_perm('p2_core.view_blob', request.user, blob)
             count += 1
         return Response({
             'count': count
