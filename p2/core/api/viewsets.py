@@ -53,14 +53,16 @@ class VolumeViewSet(ModelViewSet):
     # pylint: disable=invalid-name
     def upload(self, request, pk=None):
         """Create blob from HTML Form upload"""
-        volume = get_object_for_user_or_404(request.user, 'p2_core.user_volume', pk=pk)
+        volume = get_object_for_user_or_404(request.user, 'p2_core.use_volume', pk=pk)
         count = 0
         if not request.user.has_perm('p2_core.create_blob'):
             raise PermissionDenied()
+        # If upload was made from a subdirectory, we accept the ?prefix parameter
+        prefix = request.GET.get('prefix', '')
         for key in request.FILES:
             file = request.FILES[key]
             blob = Blob.objects.create(
-                path=file.name,
+                path=prefix + '/' + file.name,
                 volume=volume,
                 payload=file.read()
             )

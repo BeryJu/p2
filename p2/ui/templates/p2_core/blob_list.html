@@ -23,57 +23,60 @@
     {% endfor %}
   </ol>
 </nav>
-<table class="table table-striped table-bordered table-hover table-sm">
-  <thead class="thead-dark">
-    <tr>
-      <th>{% trans 'Path' %}</th>
-      <th>{% trans 'Size' %}</th>
-      <th>{% trans 'Download' %}</th>
-      <th>{% trans 'Edit' %}</th>
-      <th>{% trans 'Delete' %}</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for prefix in prefixes %}
-    <tr>
-      <td>
-        <i class="fa fa-folder" aria-hidden="true"></i>
-        <a href="?prefix={{ prefix.absolute_prefix }}">
-          {{ prefix.relative_prefix }}
-        </a>
-      </td>
-      <td>-</td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    {% endfor %}
-    {% for object in objects %}
-    <tr>
-      <td>
-        <i class="fa fa-file" aria-hidden="true"></i>
-        {{ object.filename }}
-      </td>
-      {# TODO: Find a way to reference p2.core.constants here #}
-      <td>{{ object|get_attribute:"blob.p2.io/size/bytes"|filesizeformat }}</td>
-      <td>
-        <a class="btn btn-sm btn-primary" href="{% url 'p2_ui:core-blob-download' pk=object.pk %}">
-          <i class="fa fa-download text-light" aria-hidden="true"></i>
-        </a>
-      </td>
-      <td>
-        <a class="btn btn-sm btn-primary" href="{% url 'p2_ui:core-blob-update' pk=object.pk %}">
-          <i class="fa fa-pencil text-light" aria-hidden="true"></i>
-        </a>
-      </td>
-      <td>
-        <a class="btn btn-sm btn-danger" href="{% url 'p2_ui:core-blob-delete' pk=object.pk %}">
-          <i class="fa fa-trash text-light" aria-hidden="true"></i>
-        </a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<form action="{% url 'p2_api:volume-upload' pk=volume.pk %}?prefix={{ request.GET.prefix }}" class="dz" method="POST">
+  {% csrf_token %}
+  <table class="table table-striped table-bordered table-hover table-sm">
+    <thead class="thead-dark">
+      <tr>
+        <th>{% trans 'Path' %}</th>
+        <th>{% trans 'Size' %}</th>
+        <th>{% trans 'Download' %}</th>
+        <th>{% trans 'Edit' %}</th>
+        <th>{% trans 'Delete' %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for prefix in prefixes %}
+      <tr>
+        <td>
+          <i class="fa fa-folder" aria-hidden="true"></i>
+          <a href="?prefix={{ prefix.absolute_prefix }}">
+            {{ prefix.relative_prefix }}
+          </a>
+        </td>
+        <td>-</td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>
+      {% endfor %}
+      {% for object in objects %}
+      <tr>
+        <td>
+          <i class="fa fa-file" aria-hidden="true"></i>
+          {{ object.filename }}
+        </td>
+        {# TODO: Find a way to reference p2.core.constants here #}
+        <td>{{ object|get_attribute:"blob.p2.io/size/bytes"|filesizeformat }}</td>
+        <td>
+          <a class="btn btn-sm btn-primary" href="{% url 'p2_ui:core-blob-download' pk=object.pk %}">
+            <i class="fa fa-download text-light" aria-hidden="true"></i>
+          </a>
+        </td>
+        <td>
+          <a class="btn btn-sm btn-primary" href="{% url 'p2_ui:core-blob-update' pk=object.pk %}">
+            <i class="fa fa-pencil text-light" aria-hidden="true"></i>
+          </a>
+        </td>
+        <td>
+          <a class="btn btn-sm btn-danger" href="{% url 'p2_ui:core-blob-delete' pk=object.pk %}">
+            <i class="fa fa-trash text-light" aria-hidden="true"></i>
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</form>
 {% include 'blocks/pagination.html' %}
 {% endblock %}
