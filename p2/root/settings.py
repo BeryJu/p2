@@ -265,15 +265,16 @@ SITE_ID = 1
 
 # Sentry integration
 
-sentry_init(
-    dsn="https://9041d56f69bd496ea4edfa6420eac665@sentry.services.beryju.org/9",
-    integrations=[
-        DjangoIntegration(transaction_style="function_name"),
-        CeleryIntegration(),
-    ],
-    before_send=before_send,
-    release='p2@%s' % __version__
-)
+if not DEBUG:
+    sentry_init(
+        dsn="https://9041d56f69bd496ea4edfa6420eac665@sentry.services.beryju.org/9",
+        integrations=[
+            DjangoIntegration(transaction_style="function_name"),
+            CeleryIntegration(),
+        ],
+        before_send=before_send,
+        release='p2@%s' % __version__
+    )
 
 
 # Static files (CSS, JavaScript, Images)
