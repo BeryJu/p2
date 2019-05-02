@@ -12,9 +12,17 @@ class BlobForm(TagModelForm):
     payload = forms.FileField(required=False)
 
     def save(self, **kwargs):
+        # If payload field is empty, remove key for cleaned_data
+        # so payload doesn't get overwritten
         if not self.cleaned_data.get('payload'):
             del self.cleaned_data['payload']
-        return super().save(**kwargs)
+        instance = super().save(**kwargs)
+        # If payload key still exists, a file has been selected
+        # Hence we read the file and update the payload
+        if 'payload' in self.cleaned_data:
+            instance.payload = self.cleaned_data.get('payload').read()
+            instance.save()
+        return instance
 
     class Meta:
 
