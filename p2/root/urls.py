@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
 
+from p2.lib.config import CONFIG
 from p2.ui.views.errors import ServerErrorView
 
 admin.site.index_title = 'p2 Admin'
@@ -16,13 +17,20 @@ urlpatterns = [
     # Some s3 requests don't have a trailing slash hence we need to accept both
     url(r'^s3(?P<redundant_slash>/?)', include('p2.s3.urls', namespace='p2_s3')),
     path('', include('p2.serve.urls', namespace='p2_serve')),
-    path('_/core/', include('p2.core.urls')), # TODO: Migrate these urls to api
     path('_/admin/', admin.site.urls),
     path('_/api/', include('p2.api.urls', namespace='p2_api')),
     path('', RedirectView.as_view(pattern_name='p2_ui:index')),
     path('_/ui/', include('p2.ui.urls', namespace='p2_ui')),
     path('_/accounts/', include('allauth.urls')),
 ]
+
+if CONFIG.get('legacy_upload_enabled'):
+    from p2.api.legacy import LegacyObjectView
+    urlpatterns = [
+        # Legacy upload URL
+        path('gyazo.php', LegacyObjectView.as_view(), name='upload'),
+        path('upload/', LegacyObjectView.as_view(), name='upload'),
+    ] + urlpatterns
 
 if settings.DEBUG:
     import debug_toolbar
