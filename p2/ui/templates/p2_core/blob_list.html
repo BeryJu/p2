@@ -54,7 +54,8 @@
         <i class="fa fa-file" aria-hidden="true"></i>
         {{ object.filename }}
       </td>
-      <td>{{ object|get_attribute:"size:bytes"|filesizeformat }}</td>
+      {# TODO: Find a way to reference p2.core.constants here #}
+      <td>{{ object|get_attribute:"blob.p2.io/size/bytes"|filesizeformat }}</td>
       <td>
         <a class="btn btn-sm btn-primary" href="{% url 'p2_ui:core-blob-download' pk=object.pk %}">
           <i class="fa fa-download text-light" aria-hidden="true"></i>
