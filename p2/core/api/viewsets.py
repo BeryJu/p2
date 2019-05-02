@@ -2,13 +2,14 @@
 from drf_yasg.utils import swagger_auto_schema
 from guardian.shortcuts import assign_perm
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import APIException, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from p2.core.api.filters import BlobFilter
 from p2.core.api.serializers import (BlobPayloadSerializer, BlobSerializer,
                                      StorageSerializer, VolumeSerializer)
+from p2.core.exceptions import BlobException
 from p2.core.models import Blob, Storage, Volume
 from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.lib.utils import b64encode
@@ -61,14 +62,13 @@ class VolumeViewSet(ModelViewSet):
         prefix = request.GET.get('prefix', '')
         for key in request.FILES:
             file = request.FILES[key]
-            blob = Blob.objects.create(
-                path=prefix + '/' + file.name,
-                volume=volume,
-                payload=file.read()
-            )
-            # assign permission to blob
-            assign_perm('p2_core.view_blob', request.user, blob)
-            count += 1
+            try:
+                blob = Blob.from_uploaded_file(file, volume, prefix=prefix)
+                # assign permission to blob
+                assign_perm('p2_core.view_blob', request.user, blob)
+                count += 1
+            except BlobException as exc:
+                raise APIException(detail=repr(exc))
         return Response({
             'count': count
         })

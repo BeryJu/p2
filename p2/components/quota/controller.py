@@ -1,8 +1,13 @@
 """p2 quota controller"""
+from logging import getLogger
 
-from p2.components.quota.constants import TAG_QUOTA_THRESHOLD
+from p2.components.quota.constants import (ACTION_BLOCK, ACTION_EMAIL,
+                                           ACTION_NOTHING, TAG_QUOTA_ACTION,
+                                           TAG_QUOTA_THRESHOLD)
+from p2.components.quota.exceptions import QuotaExceededException
 from p2.core.components.base import ComponentController
 
+LOGGER = getLogger(__name__)
 
 # pylint: disable=too-few-public-methods
 class QuotaController(ComponentController):
@@ -11,7 +16,25 @@ class QuotaController(ComponentController):
     template_name = 'components/quota/card.html'
     form_class = 'p2.components.quota.forms.QuotaForm'
 
-    # TODO: Implement core functionality
+    def before_save(self, blob):
+        """Check if new blob would be over threshold"""
+        new_blob_size = len(blob.payload)
+        if (self.volume.space_used + new_blob_size) > self.threshold:
+            # We'd be over, so execute our action and raise an Exception to prevent saving.
+            self.do_action(blob)
+
+    def do_action(self, blob):
+        """Execute action"""
+        LOGGER.info("Blob %r is pushing us over the threshold.", blob)
+        action = self.instance.tags.get(TAG_QUOTA_ACTION, ACTION_NOTHING)
+        LOGGER.info("Action: %s", action)
+        if action == ACTION_NOTHING:
+            return
+        elif action == ACTION_BLOCK:
+            raise QuotaExceededException
+        elif action == ACTION_EMAIL:
+            # TODO: Send Email
+            pass
 
     @property
     def threshold(self):

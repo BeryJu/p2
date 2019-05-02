@@ -4,7 +4,7 @@ from logging import getLogger
 
 import magic
 from django.core.signals import Signal
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
 
 from p2.core import constants
@@ -15,7 +15,14 @@ LOGGER = getLogger(__name__)
 
 BLOB_PAYLOAD_UPDATED = Signal(providing_args=['blob'])
 BLOB_ACCESS = Signal(providing_args=['status_code', ''])
+BLOB_BEFORE_SAVE = Signal(providing_args=['blob'])
 
+
+@receiver(pre_save, sender=Blob)
+# pylint: disable=unused-argument
+def blob_pre_save(sender, instance, **kwargs):
+    """Trigger BLOB_BEFORE_SAVE"""
+    BLOB_BEFORE_SAVE.send(sender=sender, blob=instance)
 
 @receiver(pre_delete, sender=Blob)
 # pylint: disable=unused-argument
