@@ -10,7 +10,6 @@ from django.dispatch import receiver
 from p2.core import constants
 from p2.core.constants import ATTR_BLOB_MINE, ATTR_BLOB_SIZE_BYTES
 from p2.core.models import Blob
-from p2.lib.utils import url_b64encode
 
 LOGGER = getLogger(__name__)
 
