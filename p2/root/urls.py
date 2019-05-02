@@ -5,8 +5,12 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
 
+from p2.ui.views.errors import ServerErrorView
+
 admin.site.index_title = 'p2 Admin'
 admin.site.site_title = 'p2'
+
+handler500 = ServerErrorView.as_view()
 
 urlpatterns = [
     # Some s3 requests don't have a trailing slash hence we need to accept both
@@ -23,5 +27,5 @@ urlpatterns = [
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [
-        path('_/__debug__/', include(debug_toolbar.urls)),
+        path('_/debug/', include(debug_toolbar.urls)),
     ] + urlpatterns
