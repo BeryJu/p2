@@ -12,7 +12,7 @@ class DatabaseLogController(LogController):
     def log(self, record_data):
         from p2.log.models import Record
         Record.objects.create(
-            adaptor=self,
+            adaptor=self.instance,
             start_time=datetime.fromtimestamp(
                 record_data.pop('start_time'), tz=UTC),
             end_time=datetime.fromtimestamp(
