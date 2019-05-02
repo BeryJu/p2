@@ -30,9 +30,9 @@ class QuotaController(ComponentController):
         LOGGER.info("Action: %s", action)
         if action == ACTION_NOTHING:
             return
-        elif action == ACTION_BLOCK:
+        if action == ACTION_BLOCK:
             raise QuotaExceededException
-        elif action == ACTION_EMAIL:
+        if action == ACTION_EMAIL:
             # TODO: Send Email
             pass
 
