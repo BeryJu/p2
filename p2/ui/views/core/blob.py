@@ -20,9 +20,8 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
     template_name = 'p2_core/blob_list.html'
     model = Blob
 
-    def build_prefix_list(self, volume):
+    def build_prefix_list(self, prefix, volume):
         """Create list of all prefixes"""
-        prefix = self.request.GET.get('prefix', '/')
         # Create separate list of all prefixes which should be displayed
         relative_prefix_list = []
         # If prefix is deeper than /, we add a .. prefix to go up
@@ -72,7 +71,7 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
         context['objects'] = get_objects_for_user(
             self.request.user, 'p2_core.view_blob').filter(prefix=prefix, volume=context['volume'])
 
-        context['prefixes'] = self.build_prefix_list(context['volume'])
+        context['prefixes'] = self.build_prefix_list(prefix, context['volume'])
         context['breadcrumbs'] = self.build_breadcrumb_list(prefix)
 
         return context
