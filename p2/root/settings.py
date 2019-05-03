@@ -389,6 +389,11 @@ with CONFIG.cd('log'):
                 'level': 'DEBUG',
                 'propagate': True,
             },
+            'werkzeug': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
         }
     }
 
@@ -409,5 +414,8 @@ if TEST:
     CELERY_TASK_ALWAYS_EAGER = True
 
 if DEBUG is True:
-    INSTALLED_APPS.append('debug_toolbar')
+    INSTALLED_APPS += [
+        'debug_toolbar',
+        'django_extensions',
+    ]
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
