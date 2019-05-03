@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import \
     PermissionRequiredMixin as DjangoPermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, reverse
+from django.shortcuts import reverse
 from django.utils.translation import gettext as _
 from django.views.generic import (DeleteView, DetailView, TemplateView,
                                   UpdateView)
@@ -14,6 +14,7 @@ from guardian.shortcuts import get_objects_for_user
 
 from p2.core.forms import BlobForm
 from p2.core.models import Blob
+from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.lib.views import CreateAssignPermView
 
 
@@ -68,8 +69,8 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['volume'] = get_object_or_404(get_objects_for_user(
-            self.request.user, 'p2_core.use_volume'), pk=self.kwargs.get('pk'))
+        context['volume'] = get_object_for_user_or_404(
+            self.request.user, 'p2_core.use_volume', pk=self.kwargs.get('pk'))
 
         # Get list of blobs with matching prefix
         prefix = self.request.GET.get('prefix', '/')

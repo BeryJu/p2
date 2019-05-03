@@ -2,12 +2,12 @@
 from xml.etree import ElementTree
 
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from guardian.shortcuts import get_objects_for_user
 
 from p2.core.constants import (ATTR_BLOB_HASH_SHA512, ATTR_BLOB_SIZE_BYTES,
                                ATTR_BLOB_STAT_MTIME)
-from p2.core.models import Blob, Storage, Volume
+from p2.core.models import Volume
+from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.s3.auth import S3Authentication
 from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
                              XML_NAMESPACE)
@@ -40,8 +40,8 @@ class BucketView(S3Authentication):
         """Bucket List API Method"""
         # https://docs.aws.amazon.com/AmazonS3/latest/API/v2-RESTBucketGET.html
         root = ElementTree.Element("{%s}ListBucketResult" % XML_NAMESPACE)
-        volume = get_object_or_404(Volume, name=bucket)
-        blobs = get_objects_for_user(self.request.user, 'view_blob', Blob)
+        volume = get_object_for_user_or_404(self.request.user, 'p2_core.use_volume', name=bucket)
+        blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob')
 
         ElementTree.SubElement(root, "Name").text = volume.name
         ElementTree.SubElement(root, "Prefix").text = ''
@@ -67,11 +67,9 @@ class BucketView(S3Authentication):
 
     def handler_create(self, request, bucket):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUT.html"""
-        # default_storage = get_object_or_404(Storage)
-        default_storage = get_objects_for_user(request.user, 'use_storage', Storage) \
-                                .filter(**{
-                                    'tags_%s' % TAG_S3_DEFAULT_STORAGE: True
-                                }).first()
+        default_storage = get_object_for_user_or_404(request.user, 'p2_core.use_storage', **{
+            'tags_%s' % TAG_S3_DEFAULT_STORAGE: True
+        })
         bucket, _ = Volume.objects.get_or_create(name=bucket, defaults={
             'storage': default_storage
         })
