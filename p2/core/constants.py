@@ -12,3 +12,4 @@ ATTR_BLOB_HASH_SHA512 = 'blob.p2.io/hash/sha512'
 
 ATTR_BLOB_SIZE_BYTES = 'blob.p2.io/size/bytes'
 ATTR_BLOB_MINE = 'blob.p2.io/mime'
+ATTR_BLOB_HEADERS = 'blob.p2.io/headers'
