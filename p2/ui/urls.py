@@ -2,9 +2,9 @@
 from django.urls import path
 
 from p2.ui.views import general
+from p2.ui.views.api import key
 from p2.ui.views.core import blob, component, storage, volume
 from p2.ui.views.log import adaptor, record
-from p2.ui.views.s3 import access_key
 from p2.ui.views.serve import rule
 
 app_name = 'p2_ui'
@@ -50,15 +50,15 @@ urlpatterns = [
          storage.StorageUpdateView.as_view(), name='core-storage-update'),
     path('core/storage/<uuid:pk>/delete/',
          storage.StorageDeleteView.as_view(), name='core-storage-delete'),
-    # S3
+    # API - Keys
     path('s3/access-key/',
-         access_key.S3AccessKeyListView.as_view(), name='s3-access-key-list'),
+         key.APIKeyListView.as_view(), name='api-key-list'),
     path('s3/access-key/create/',
-         access_key.S3AccessKeyCreateView.as_view(), name='s3-access-key-create'),
+         key.APIKeyCreateView.as_view(), name='api-key-create'),
     path('s3/access-key/<int:pk>/update/',
-         access_key.S3AccessKeyUpdateView.as_view(), name='s3-access-key-update'),
+         key.APIKeyUpdateView.as_view(), name='api-key-update'),
     path('s3/access-key/<int:pk>/delete/',
-         access_key.S3AccessKeyDeleteView.as_view(), name='s3-access-key-delete'),
+         key.APIKeyDeleteView.as_view(), name='api-key-delete'),
     # Log - Adaptors
     path('log/adaptor/',
          adaptor.LogAdaptorListView.as_view(), name='log-adaptor-list'),
