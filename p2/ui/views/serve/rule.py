@@ -38,7 +38,7 @@ class ServeRuleCreateView(SuccessMessageMixin, DjangoPermissionListMixin, Create
     ]
 
     def get_success_url(self):
-        return reverse('p2_ui:serve-rule-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:serve-rule-list')
 
 
 class ServeRuleUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView):
@@ -51,7 +51,7 @@ class ServeRuleUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateVi
     success_message = _('Successfully updated Rule')
 
     def get_success_url(self):
-        return reverse('p2_ui:serve-rule-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:serve-rule-list')
 
 
 class ServeRuleDeleteView(SuccessMessageMixin, PermissionRequiredMixin, DeleteView):
@@ -63,7 +63,7 @@ class ServeRuleDeleteView(SuccessMessageMixin, PermissionRequiredMixin, DeleteVi
     success_message = _('Successfully deleted Rule')
 
     def get_success_url(self):
-        return reverse('p2_ui:serve-rule-list', kwargs={'pk': self.object.volume.pk})
+        return reverse('p2_ui:serve-rule-list')
 
     def delete(self, request, *args, **kwargs):
         obj = self.get_object()
