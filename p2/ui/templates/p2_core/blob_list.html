@@ -59,7 +59,7 @@
           </a>
         </td>
         {# TODO: Find a way to reference p2.core.constants here #}
-        <td>{{ object|get_attribute:"blob.p2.io/size/bytes"|filesizeformat }}</td>
+        <td>{{ object|get_attribute:"p2.core.constants.ATTR_BLOB_SIZE_BYTES"|filesizeformat }}</td>
         <td>
           <a class="btn btn-sm btn-primary" href="{% url 'p2_ui:core-blob-download' pk=object.pk %}">
             <i class="fa fa-download text-light" aria-hidden="true"></i>

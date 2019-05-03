@@ -2,6 +2,8 @@
 from django import template
 from django.db.models import Model
 
+from p2.lib.reflection import path_to_class
+
 register = template.Library()
 
 
@@ -22,6 +24,6 @@ def model_verbose_name(model):
     return model._meta.verbose_name
 
 @register.filter
-def get_attribute(blob, key):
+def get_attribute(blob, path):
     """Access blob.attributes but allow keys like 'site:bytes"""
-    return blob.attributes.get(key)
+    return blob.attributes.get(path_to_class(path))
