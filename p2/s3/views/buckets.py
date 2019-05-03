@@ -12,6 +12,7 @@ from p2.s3.auth import S3Authentication
 from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
                              XML_NAMESPACE)
 from p2.s3.http import XMLResponse
+from p2.ui.views.core.blob import FileBrowserView
 
 
 class BucketView(S3Authentication):
@@ -21,6 +22,8 @@ class BucketView(S3Authentication):
         """Boilerplate to pass request to correct handler"""
         if "versioning" in request.GET:
             return self.handler_versioning(request, *args, **kwargs)
+        if 'uploads' in request.GET:
+            return self.handler_uploads(request, *args, **kwargs)
         return self.handler_list(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
@@ -36,20 +39,33 @@ class BucketView(S3Authentication):
 
         return XMLResponse(root)
 
+    def handler_uploads(self, request, bucket):
+        """Versioning API Method"""
+        # https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketGETversioningStatus.html
+        root = ElementTree.Element("{%s}VersioningConfiguration" % XML_NAMESPACE)
+
+        ElementTree.SubElement(root, "Status").text = "Disabled"
+
+        return XMLResponse(root)
+
     def handler_list(self, request, bucket):
         """Bucket List API Method"""
         # https://docs.aws.amazon.com/AmazonS3/latest/API/v2-RESTBucketGET.html
         root = ElementTree.Element("{%s}ListBucketResult" % XML_NAMESPACE)
         volume = get_object_or_404(Volume, name=bucket)
-        blobs = get_objects_for_user(self.request.user, 'view_blob', Blob)
+        prefix = '/' + request.GET.get('prefix')[:-1]
+        blobs = get_objects_for_user(self.request.user, 'view_blob', Blob).filter(
+            prefix=prefix
+        )
 
         ElementTree.SubElement(root, "Name").text = volume.name
-        ElementTree.SubElement(root, "Prefix").text = ''
+        ElementTree.SubElement(root, "Prefix").text = prefix
         ElementTree.SubElement(root, "KeyCount").text = str(len(blobs))
         ElementTree.SubElement(root, "MaxKeys").text = "1000"
         ElementTree.SubElement(root, "Delimiter").text = '/'
         ElementTree.SubElement(root, "IsTruncated").text = 'false'
 
+        # append all blobs
         for blob in blobs:
             content = ElementTree.Element("Contents")
             ElementTree.SubElement(content, "Key").text = blob.path[1:]
@@ -62,6 +78,17 @@ class BucketView(S3Authentication):
             ElementTree.SubElement(content, "StorageClass").text = \
                 blob.volume.storage.controller.tags.get(TAG_S3_STORAGE_CLASS, 'default')
             root.append(content)
+
+        # append CommonPrefixes
+        common_prefixes = ElementTree.Element("CommonPrefixes")
+        # TODO: move this logic to a class in p2.lib
+        fbv = FileBrowserView()
+        fbv.request = request
+        for prefix in fbv.build_prefix_list(prefix, volume, add_up_prefix=False):
+            ElementTree.SubElement(
+                common_prefixes, 'Prefix').text = prefix.get('relative_prefix')
+
+        root.append(common_prefixes)
 
         return XMLResponse(root)
 

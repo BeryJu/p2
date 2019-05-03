@@ -20,12 +20,12 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
     template_name = 'p2_core/blob_list.html'
     model = Blob
 
-    def build_prefix_list(self, prefix, volume):
+    def build_prefix_list(self, prefix, volume, add_up_prefix=True):
         """Create list of all prefixes"""
         # Create separate list of all prefixes which should be displayed
         relative_prefix_list = []
         # If prefix is deeper than /, we add a .. prefix to go up
-        if prefix != '/':
+        if prefix != '/' and add_up_prefix:
             parent_prefix = '/'.join(prefix.split('/')[:-1])
             # parent_prefix can't be blank, so we fall back to slash
             if parent_prefix == '':
