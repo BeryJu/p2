@@ -1,11 +1,14 @@
 """S3 Auth tests"""
 from uuid import uuid4
+from xml.etree import ElementTree
 
 import boto3
+import requests
 from botocore.exceptions import ClientError
 from django.contrib.auth.models import User
 from django.test import LiveServerTestCase
 
+from p2.s3.constants import ErrorCodes
 from p2.s3.models import S3AccessKey
 
 
@@ -44,8 +47,8 @@ class AuthenticationTests(LiveServerTestCase):
 
     def test_without_auth(self):
         """Test request without authorization header"""
-        boto3 = self.session.client(
-            service_name='s3',
-            endpoint_url=self.live_server_url)
-        with self.assertRaises(ClientError):
-            boto3.list_buckets()
+        tree = ElementTree.fromstring(requests.get(self.live_server_url, headers={
+            'x-amz-date': 'test'}).content)
+        for child in tree:
+            # pylint: disable=unsubscriptable-object
+            self.assertEqual(child.text, ErrorCodes.ACCESS_DENIED.value[0])
