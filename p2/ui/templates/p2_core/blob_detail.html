@@ -1,6 +1,18 @@
 {% extends 'base/base.html' %}
 
 {% load i18n %}
+{% load static %}
+
+{% load p2_ui %}
+
+{% block head %}
+{{ block.super }}
+{{ form.media }}
+<script src="{% static 'codemirror/codemirror.js' %}"></script>
+<link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
+<link rel="stylesheet" href="{% static 'codemirror/theme/monokai.css' %}">
+<script src="{% static 'codemirror/mode/javascript.js' %}"></script>
+{% endblock %}
 
 {% block container %}
 <div class="container">
@@ -16,7 +28,7 @@
             {% if not forloop.first %}
               <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=object.volume.pk %}?prefix={{ crumb.prefix }}">{{ crumb.title }}</a></li>
             {% endif %}
-            {% endfor %}
+          {% endfor %}
           <li class="breadcrumb-item active" aria-current="page">{{ object.filename }}</li>
         </ol>
       </nav>
@@ -26,6 +38,11 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-6">
+      {% with object|get_attribute:"blob.p2.io/is_text" as is_text %}
+      {% if is_text %}
+        {% include 'p2_core/blob_detail_text.html' with object=object only %}
+      {% endif %}
+      {% endwith %}
     </div>
     <div class="col-md-6">
       <div class="accordion" id="accordionExample">

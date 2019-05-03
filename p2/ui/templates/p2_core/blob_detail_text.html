@@ -1,0 +1,17 @@
+<style>
+.CodeMirror {
+  height: auto;
+}
+</style>
+<textarea name="payload">{{ object.payload_string }}</textarea>
+<script>
+  let payload = document.getElementsByName('payload');
+  if (payload.length > 0) {
+    let myCodeMirror = CodeMirror.fromTextArea(payload[0], {
+      mode: 'javascript',
+      theme: 'monokai',
+      lineNumbers: true,
+      viewportMargin: Infinity,
+    });
+  }
+</script>
