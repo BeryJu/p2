@@ -47,7 +47,8 @@ CORS_ORIGIN_ALLOW_ALL = DEBUG
 ALLOWED_HOSTS = set([
     urlparse(CONFIG.get('external_url')).netloc,
     socket.getfqdn(),
-    socket.gethostname()
+    socket.gethostname(),
+    'kubernetes-healthcheck-host',
 ] + CONFIG.get('domains', []))
 
 INTERNAL_IPS = ['127.0.0.1']
