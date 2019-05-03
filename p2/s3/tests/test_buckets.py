@@ -32,7 +32,7 @@ class BucketTests(LiveServerTestCase):
             service_name='s3',
             aws_access_key_id=self.access_key.access_key,
             aws_secret_access_key=self.access_key.secret_key,
-            endpoint_url=self.live_server_url+'/s3',
+            endpoint_url=self.live_server_url,
         )
 
     def test_list_buckets(self):
