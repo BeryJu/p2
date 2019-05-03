@@ -28,6 +28,8 @@ urlpatterns = [
     # Blob creation disabled for now
     # path('core/blob/create/',
     #      blob.BlobCreateView.as_view(), name='core-blob-create'),
+    path('core/blob/<uuid:pk>/',
+         blob.BlobDetailView.as_view(), name='core-blob-detail'),
     path('core/blob/<uuid:pk>/update/',
          blob.BlobUpdateView.as_view(), name='core-blob-update'),
     path('core/blob/<uuid:pk>/delete/',

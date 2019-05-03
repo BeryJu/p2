@@ -1,8 +1,6 @@
 """Blob Views"""
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.mixins import \
-    PermissionRequiredMixin as DjangoPermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, reverse
@@ -14,7 +12,6 @@ from guardian.shortcuts import get_objects_for_user
 
 from p2.core.forms import BlobForm
 from p2.core.models import Blob
-from p2.lib.views import CreateAssignPermView
 
 
 class FileBrowserView(LoginRequiredMixin, TemplateView):
@@ -53,9 +50,8 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
                 })
         return relative_prefix_list
 
-    def build_breadcrumb_list(self):
+    def build_breadcrumb_list(self, prefix):
         """Build list for breadcrumbs"""
-        prefix = self.request.GET.get('prefix', '/')
         until_here = []
         crumbs = []
         for part in prefix.split('/'):
@@ -77,33 +73,20 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
             self.request.user, 'p2_core.view_blob').filter(prefix=prefix, volume=context['volume'])
 
         context['prefixes'] = self.build_prefix_list(context['volume'])
-        context['breadcrumbs'] = self.build_breadcrumb_list()
+        context['breadcrumbs'] = self.build_breadcrumb_list(prefix)
 
         return context
 
-
-class BlobCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateAssignPermView):
-    """Create new blob"""
+class BlobDetailView(PermissionRequiredMixin, DetailView):
+    """View Blob Details"""
 
     model = Blob
-    form_class = BlobForm
-    permission_required = 'p2_core.add_blob'
-    template_name = 'generic/form.html'
-    success_message = _('Successfully created Blob')
-    permissions = [
-        'p2_core.view_blob',
-        'p2_core.change_blob',
-        'p2_core.delete_blob',
-    ]
+    permission_required = 'p2_core.view_blob'
 
-    def get_success_url(self):
-        return reverse('p2_ui:core-blob-list', kwargs={'pk': self.object.volume.pk})
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        self.object.payload = form.cleaned_data.get('payload').read()
-        self.object.save()
-        return response
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumbs'] = FileBrowserView().build_breadcrumb_list(self.object.prefix)
+        return context
 
 class BlobUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView):
     """Update blob"""

@@ -88,6 +88,7 @@
   <div class="w-25 alert-container">
   </div>
 </div>
+{% block container %}
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-10 py-md-3">
@@ -97,6 +98,7 @@
     </dio>
   </div>
 </div>
+{% endblock %}
 {% if user.is_authenticated %}
 <a href="javascript:feedbackMessage()" class="btn btn-primary btn-float">
   <i class="fa fa-question fa-2x" aria-hidden="true"></i>
