@@ -2,7 +2,7 @@
 from django.http.response import HttpResponse
 from guardian.shortcuts import get_objects_for_user
 
-from p2.core.constants import ATTR_BLOB_MINE, ATTR_BLOB_SIZE_BYTES
+from p2.core.constants import ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES
 from p2.core.models import Blob, Volume
 from p2.s3.auth import S3Authentication
 from p2.s3.constants import ErrorCodes
@@ -21,7 +21,7 @@ class ObjectView(S3Authentication):
         blob = blobs.first()
         response = HttpResponse(status=200)
         response['Content-Length'] = blob.attributes.get(ATTR_BLOB_SIZE_BYTES)
-        response['Content-Type'] = blob.attributes.get(ATTR_BLOB_MINE, 'text/plain')
+        response['Content-Type'] = blob.attributes.get(ATTR_BLOB_MIME, 'text/plain')
         return response
 
     def get(self, request, bucket, path):
@@ -34,7 +34,7 @@ class ObjectView(S3Authentication):
         blob = blobs.first()
         response = HttpResponse(blob.payload)
         response['Content-Length'] = blob.attributes.get(ATTR_BLOB_SIZE_BYTES)
-        response['Content-Type'] = blob.attributes.get(ATTR_BLOB_MINE, 'text/plain')
+        response['Content-Type'] = blob.attributes.get(ATTR_BLOB_MIME, 'text/plain')
         return response
 
     def put(self, request, bucket, path):

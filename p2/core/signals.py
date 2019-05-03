@@ -8,7 +8,7 @@ from django.db.models.signals import post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
 from p2.core import constants
-from p2.core.constants import ATTR_BLOB_MINE, ATTR_BLOB_SIZE_BYTES
+from p2.core.constants import ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES
 from p2.core.models import Blob
 
 LOGGER = getLogger(__name__)
@@ -79,6 +79,6 @@ def blob_payload_size(sender, blob, **kwargs):
 def blob_payload_mime(sender, blob, **kwargs):
     """Add mime type as attribute"""
     mime_type = magic.from_buffer(blob.payload, mime=True)
-    blob.attributes[ATTR_BLOB_MINE] = mime_type
+    blob.attributes[ATTR_BLOB_MIME] = mime_type
     LOGGER.debug('Updated MIME to %s for %s', mime_type, blob.uuid.hex)
     blob.save()
