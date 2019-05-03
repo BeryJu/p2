@@ -39,10 +39,6 @@ spec:
           image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
           command: ["./manage.py", "worker"]
-          ports:
-            - name: http
-              containerPort: 8000
-              protocol: TCP
           volumeMounts:
             - mountPath: /etc/p2
               name: config-volume
