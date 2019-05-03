@@ -18,9 +18,9 @@ class RecordListView(PermissionListMixin, LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         adaptor = get_object_for_user_or_404(
-            self.request.user, 'view_adaptor', pk=self.kwargs.get('pk'))
+            self.request.user, 'p2_log.view_logadaptor', pk=self.kwargs.get('pk'))
         self.extra_context = {
             'adaptor': adaptor
         }
         return get_list_for_user_or_404(
-            self.request.user, 'view_record', adaptor=adaptor).order_by(self.ordering)
+            self.request.user, 'p2_log.view_record', adaptor=adaptor).order_by(self.ordering)
