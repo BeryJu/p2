@@ -1,0 +1,29 @@
+{% load i18n %}
+
+<div class="card">
+  <div class="card-body text-white {% if component.enabled %}bg-primary{% else %}bg-dark{% endif %}">
+    <h5 class="card-title">{% trans 'Public Access' %}</h5>
+    <h6 class="card-subtitle mb-2">
+      {% if component.enabled %}
+        {% blocktrans %}
+        Public Access is enabled for this volume. New Blobs will be accessible for un-authenticated users.
+        {% endblocktrans %}
+      {% elif not component.configured %}
+        {% blocktrans %}
+        Public Access is not configured.
+        {% endblocktrans %}
+      {% else %}
+        {% blocktrans %}
+        Public Access is disabled.
+        {% endblocktrans %}
+      {% endif %}
+    </h6>
+    {% if component.configured %}
+    <a href="{% url 'p2_ui:core-component-delete' pk=component.pk %}" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Remove' %}</a>
+    <a href="{% url 'p2_ui:core-component-update' pk=component.pk %}" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Configure...' %}</a>
+    {% else %}
+    <a href="{% url 'p2_ui:core-component-create' pk=component.volume.pk %}?controller={{ component.controller_path }}" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Configure...' %}</a>
+    {% endif %}
+  </div>
+</div>
+

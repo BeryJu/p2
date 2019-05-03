@@ -150,6 +150,7 @@ INSTALLED_APPS = [
     # p2 - Components
     'p2.components.quota.apps.P2QuotaComponentConfig',
     'p2.components.image.apps.P2ImageComponentConfig',
+    'p2.components.public_access.apps.P2PublicAccessComponentConfig',
     # p2 - Storage
     'p2.storage.local.apps.P2LocalStorageConfig',
     # API Frameworks

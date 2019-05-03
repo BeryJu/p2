@@ -50,6 +50,7 @@ component:
   controllers:
     - p2.components.image.controller.ImageController
     - p2.components.quota.controller.QuotaController
+    - p2.components.public_access.controller.PublicAccessController
 
 # LDAP Authentication
 ldap:
