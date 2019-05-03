@@ -54,6 +54,8 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
         until_here = []
         crumbs = []
         for part in prefix.split('/'):
+            if part == '':
+                continue
             until_here.append(part)
             crumbs.append({
                 'title': part,
@@ -84,7 +86,7 @@ class BlobDetailView(PermissionRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['breadcrumbs'] = FileBrowserView().build_breadcrumb_list(self.object.prefix[1:])
+        context['breadcrumbs'] = FileBrowserView().build_breadcrumb_list(self.object.prefix)
         return context
 
 class BlobUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView):

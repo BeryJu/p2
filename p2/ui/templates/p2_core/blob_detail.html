@@ -25,9 +25,7 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=object.volume.pk %}?prefix=/">{{ object.volume.name }}</a></li>
           {% for crumb in breadcrumbs %}
-            {% if not forloop.first %}
-              <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=object.volume.pk %}?prefix={{ crumb.prefix }}">{{ crumb.title }}</a></li>
-            {% endif %}
+            <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=object.volume.pk %}?prefix={{ crumb.prefix }}">{{ crumb.title }}</a></li>
           {% endfor %}
           <li class="breadcrumb-item active" aria-current="page">{{ object.filename }}</li>
         </ol>

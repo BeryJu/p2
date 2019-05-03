@@ -14,7 +14,7 @@
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}?prefix=/">{{ volume.name }}</a></li>
     {% for crumb in breadcrumbs %}
-      {% if not forloop.first and not forloop.last %}
+      {% if not forloop.last %}
         <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}?prefix={{ crumb.prefix }}">{{ crumb.title }}</a></li>
       {% endif %}
       {% if forloop.last %}
