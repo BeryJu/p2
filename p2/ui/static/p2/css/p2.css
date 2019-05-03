@@ -1,3 +1,8 @@
+body {
+    /* Margin so navbar doesn't block content */
+    margin-bottom: 40px;
+}
+
 .btn-float {
   position: fixed;
   width: 60px;
