@@ -14,12 +14,12 @@ handler500 = ServerErrorView.as_view()
 
 # S3 URLs get routed via middleware
 urlpatterns = [
-    path('', include('p2.serve.urls', namespace='p2_serve')),
     path('', RedirectView.as_view(pattern_name='p2_ui:index')),
     path('_/admin/', admin.site.urls),
     path('_/api/', include('p2.api.urls', namespace='p2_api')),
     path('_/ui/', include('p2.ui.urls', namespace='p2_ui')),
     path('_/accounts/', include('allauth.urls')),
+    path('', include('p2.serve.urls', namespace='p2_serve')),
 ]
 
 if CONFIG.get('legacy_upload_enabled'):
