@@ -40,7 +40,7 @@ if [[ ! -f "$P2_PASSWORD_FILE" ]]; then
 fi
 # Make sure Password file can only be read by root
 chown root: "$P2_PASSWORD_FILE"
-chmod 600: "$P2_PASSWORD_FILE"
+chmod 600 "$P2_PASSWORD_FILE"
 
 PASSWORD=$(cat $P2_PASSWORD_FILE)
 
