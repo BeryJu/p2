@@ -116,3 +116,6 @@ debian/p2/**
 debian/files
 debian/*.substvars
 /storage
+
+p2.crt
+p2.key
