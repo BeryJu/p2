@@ -65,7 +65,8 @@ class VolumeViewSet(ModelViewSet):
             try:
                 blob = Blob.from_uploaded_file(file, volume, prefix=prefix)
                 # assign permission to blob
-                assign_perm('p2_core.view_blob', request.user, blob)
+                for permission in ['view_blob', 'update_blob', 'delete_blob']:
+                    assign_perm('p2_core.%s' % permission, request.user, blob)
                 count += 1
             except BlobException as exc:
                 raise APIException(detail=repr(exc))
