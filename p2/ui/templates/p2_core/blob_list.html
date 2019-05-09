@@ -28,9 +28,7 @@
             <tr>
               <th>{% trans 'Path' %}</th>
               <th>{% trans 'Size' %}</th>
-              <th>{% trans 'Download' %}</th>
-              <th>{% trans 'Edit' %}</th>
-              <th>{% trans 'Delete' %}</th>
+              <th>{% trans 'Actions' %}</th>
             </tr>
           </thead>
           <tbody>
@@ -44,8 +42,6 @@
                 </a>
               </td>
               <td>-</td>
-              <td></td>
-              <td></td>
               <td></td>
             </tr>
             {% endfor %}
@@ -63,13 +59,9 @@
                 <a class="btn btn-sm btn-primary" href="{% url 'p2_ui:core-blob-download' pk=object.pk %}">
                   <i class="fa fa-download text-light" aria-hidden="true"></i>
                 </a>
-              </td>
-              <td>
                 <a class="btn btn-sm btn-primary" href="{% url 'p2_ui:core-blob-update' pk=object.pk %}">
                   <i class="fa fa-pencil text-light" aria-hidden="true"></i>
                 </a>
-              </td>
-              <td>
                 <a class="btn btn-sm btn-danger" href="{% url 'p2_ui:core-blob-delete' pk=object.pk %}">
                   <i class="fa fa-trash text-light" aria-hidden="true"></i>
                 </a>
