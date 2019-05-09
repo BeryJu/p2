@@ -107,6 +107,7 @@
           </div>
           <div id="collapseActions" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
             <div class="card-body">
+              <a href="{% url 'p2_ui:core-blob-download' pk=object.pk %}" class="btn btn-primary" >{% trans 'Download' %}</a>
               <a href="{% url 'p2_ui:core-blob-update' pk=object.pk %}" class="btn btn-primary">{% trans 'Edit' %}</a>
               <a href="{% url 'p2_ui:core-blob-delete' pk=object.pk %}" class="btn btn-danger">{% trans 'Delete' %}</a>
             </div>
