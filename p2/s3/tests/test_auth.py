@@ -51,4 +51,4 @@ class AuthenticationTests(LiveServerTestCase):
             'x-amz-date': 'test'}).content)
         for child in tree:
             # pylint: disable=unsubscriptable-object
-            self.assertEqual(child.text, ErrorCodes.ACCESS_DENIED.value[0])
+            self.assertEqual(child.text, ErrorCodes.SIGNATURE_DOES_NOT_MATCH.value[0])
