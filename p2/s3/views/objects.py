@@ -7,6 +7,8 @@ from p2.core.models import Blob, Volume
 from p2.s3.auth import S3Authentication
 from p2.s3.constants import ErrorCodes
 
+from guardian.shortcuts import assign_perm
+
 
 class ObjectView(S3Authentication):
     """Object related views"""
@@ -48,6 +50,9 @@ class ObjectView(S3Authentication):
             path=path, volume__name=bucket)
         if not blobs.exists():
             blob = Blob(path=path, volume=volume)
+            # We're creating a new blob, hence assign all default permissions
+            for permission in ['view_blob', 'update_blob', 'delete_blob']:
+                assign_perm('p2_core.%s' % permission, request.user, blob)
         else:
             blob = blobs.first()
         blob.payload = request.body
