@@ -13,8 +13,9 @@ from django.db.models.functions import Cast
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
-from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
-                               ATTR_BLOB_STAT_MTIME, TAG_VOLUME_LEGACY_DEFAULT, ATTR_BLOB_MIME)
+from p2.core.constants import (ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES,
+                               ATTR_BLOB_STAT_CTIME, ATTR_BLOB_STAT_MTIME,
+                               TAG_VOLUME_LEGACY_DEFAULT)
 from p2.core.tasks import signal_marshall
 from p2.lib.models import TagModel, UUIDModel
 from p2.lib.reflection import class_to_path, path_to_class

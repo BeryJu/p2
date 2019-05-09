@@ -2,6 +2,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import reverse
 from django.utils.translation import gettext as _
@@ -71,11 +72,20 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
 
         # Get list of blobs with matching prefix
         prefix = self.request.GET.get('prefix', '/')
-        context['objects'] = get_objects_for_user(
-            self.request.user, 'p2_core.view_blob').filter(prefix=prefix, volume=context['volume'])
+        blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
+            prefix=prefix,
+            volume=context['volume']).order_by('path')
 
         context['prefixes'] = self.build_prefix_list(prefix, context['volume'])
         context['breadcrumbs'] = self.build_breadcrumb_list(prefix)
+
+        page = self.request.GET.get('page', 1)
+        objects_per_page = 20
+        if page == 1:
+            objects_per_page = 20 - len(context['prefixes'])
+
+        paginator = Paginator(blobs, objects_per_page)
+        context['objects'] = paginator.get_page(page)
 
         return context
 

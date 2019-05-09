@@ -15,25 +15,21 @@
 {% endblock %}
 
 {% block container %}
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-10 py-md-3">
-      <h2>
-        {% blocktrans with path=object.path %}Blob {{ path }}{% endblocktrans %}
-      </h2>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12 py-md-3">
+      {% include 'blocks/messages.html' %}
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=object.volume.pk %}?prefix=/">{{ object.volume.name }}</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=object.volume.pk %}?prefix=/">{{ object.volume.name|truncatechars:160 }}</a></li>
           {% for crumb in breadcrumbs %}
-            <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=object.volume.pk %}?prefix={{ crumb.prefix }}">{{ crumb.title }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=object.volume.pk %}?prefix={{ crumb.prefix }}">{{ crumb.title|truncatechars:160 }}</a></li>
           {% endfor %}
-          <li class="breadcrumb-item active" aria-current="page">{{ object.filename }}</li>
+          <li class="breadcrumb-item active" aria-current="page">{{ object.filename|truncatechars:160 }}</li>
         </ol>
       </nav>
     </div>
   </div>
-</div>
-<div class="container-fluid">
   <div class="row">
     <div class="col-md-6">
       {% with object|get_attribute:"p2.core.constants.ATTR_BLOB_IS_TEXT" as is_text %}
