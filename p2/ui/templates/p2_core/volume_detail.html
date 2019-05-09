@@ -7,21 +7,34 @@
   {% blocktrans with volume=object.name %}Volume {{ volume }}{% endblocktrans %}
 </h2>
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-4 py-md-1">
     <div class="card">
       <div class="card-body text-white bg-primary">
         <h5 class="card-title">{% trans 'Blob Browser' %}</h5>
         <h6 class="card-subtitle mb-2">
           {% blocktrans %}
-          Image attribute scanning is enabled for this volume.
+          Browse blobs saved in this Volume.
           {% endblocktrans %}
         </h6>
         <a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Browse' %}</a>
       </div>
     </div>
   </div>
+  <div class="col-md-4 py-md-1">
+    <div class="card">
+      <div class="card-body text-white bg-primary">
+        <h5 class="card-title">{% trans 'Re-Index' %}</h5>
+        <h6 class="card-subtitle mb-2">
+          {% blocktrans %}
+          Re-Index all blobs in this Volume. Use this after you've changed a component which updates new blobs to apply changes to existing blobs.
+          {% endblocktrans %}
+        </h6>
+        <button data-api-url="{% url 'p2_api:volume-re-index' pk=volume.pk %}" class="card-link btn btn-outline btn-sm btn-primary">{% trans 'Re-Index' %}</button>
+      </div>
+    </div>
+  </div>
   {% for component in components %}
-  <div class="col-md-4">
+  <div class="col-md-4 py-md-1">
     {% include component.controller.template_name with component=component %}
   </div>
   {% endfor %}
