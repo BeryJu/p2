@@ -127,9 +127,6 @@ class S3Authentication(View):
 
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
-        authenticated = self.authenticate()
-        if not authenticated:
-            return self.error_response(ErrorCodes.ACCESS_DENIED)
-        if 'redundant_slash' in kwargs:
-            kwargs.pop('redundant_slash')
+        if not self.authenticate():
+            return self.error_response(ErrorCodes.SIGNATURE_DOES_NOT_MATCH)
         return super().dispatch(request, *args, **kwargs)
