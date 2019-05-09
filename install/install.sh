@@ -13,7 +13,12 @@ export INSTALL_K3S_EXEC="--cluster-cidr 10.121.0.0/16 --cluster-domain p2.baked 
 
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
-    exit
+    exit 1
+fi
+
+if ! [ -x "$(command -v curl)" ]; then
+    echo 'Error: curl is not installed. Please make sure curl is installed and executable.' >&2
+    exit 2
 fi
 
 # Create temporary folder and cd to it
