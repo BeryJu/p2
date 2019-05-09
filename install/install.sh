@@ -49,7 +49,7 @@ PASSWORD=$(cat $P2_PASSWORD_FILE)
 curl -fsSL -o p2_k3s_helm.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-helm.yaml"
 curl -fsSL -o p2_k3s_storage.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-storage.yaml"
 curl -fsSL -o p2_k3s_nginx.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-nginx-ingress.yaml"
-curl -fsSL -o p2_k3s_cert.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-cert-manager.yaml"
+# curl -fsSL -o p2_k3s_cert.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-cert-manager.yaml"
 
 # Replace variable in Helm CRD
 sed -i "s|%INGRESS_HOST%|${INGRESS_HOST}|g" p2_k3s_helm.yaml
@@ -60,16 +60,16 @@ sed -i "s|%P2_STORAGE_PATH%|${P2_STORAGE_PATH}|g" p2_k3s_storage.yaml
 sed -i "s|%P2_DATABASE_PATH%|${P2_DATABASE_PATH}|g" p2_k3s_storage.yaml
 
 # Replace variable in cert-manager
-sed -i "s|%LE_MAIL%|${LE_MAIL}|g" p2_k3s_cert.yaml
+# sed -i "s|%LE_MAIL%|${LE_MAIL}|g" p2_k3s_cert.yaml
 
 mv p2_k3s_nginx.yaml /var/lib/rancher/k3s/server/manifests/p2-10-nginx.yaml
 mv p2_k3s_storage.yaml /var/lib/rancher/k3s/server/manifests/p2-20-storage.yaml
 mv p2_k3s_helm.yaml /var/lib/rancher/k3s/server/manifests/p2-30-helm.yaml
 
 # Only deploy cert-manager if LE_MAIL set
-if [ -n "$LE_MAIL" ]; then
-    mv p2_k3s_cert.yaml /var/lib/rancher/k3s/server/manifests/p2-40-cert.yaml
-fi
+# if [ -n "$LE_MAIL" ]; then
+#     mv p2_k3s_cert.yaml /var/lib/rancher/k3s/server/manifests/p2-40-cert.yaml
+# fi
 
 echo " * Your p2 instanace will be available at $INGRESS_HOST in a few minutes."
 echo " * You can use the username admin with password admin to login."
