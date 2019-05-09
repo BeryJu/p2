@@ -1,13 +1,11 @@
 """p2 S3 Object views"""
 from django.http.response import HttpResponse
-from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.core.constants import ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES
 from p2.core.models import Blob, Volume
 from p2.s3.auth import S3Authentication
 from p2.s3.constants import ErrorCodes
-
-from guardian.shortcuts import assign_perm
 
 
 class ObjectView(S3Authentication):
