@@ -14,6 +14,7 @@ def before_send(event, hint):
         ConnectionInterrupted,
         APIException,
         InternalError,
+        ConnectionResetError,
     )
     if 'exc_info' in hint:
         _exc_type, exc_value, _ = hint['exc_info']
