@@ -10,7 +10,6 @@ class ServeRule(models.Model):
     name = models.TextField()
     match = models.TextField()
     blob_query = models.TextField()
-    default = models.BooleanField(default=False, unique=True)
 
     _compiled_regex = None
 
