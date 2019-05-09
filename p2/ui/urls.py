@@ -48,6 +48,8 @@ urlpatterns = [
          storage.StorageListView.as_view(), name='core-storage-list'),
     path('core/storage/create/',
          storage.StorageCreateView.as_view(), name='core-storage-create'),
+    path('core/storage/<uuid:pk>/',
+         storage.StorageDetailView.as_view(), name='core-storage-detail'),
     path('core/storage/<uuid:pk>/update/',
          storage.StorageUpdateView.as_view(), name='core-storage-update'),
     path('core/storage/<uuid:pk>/delete/',

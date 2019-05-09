@@ -1,4 +1,6 @@
 """p2 ui templatetags"""
+import json
+
 from django import template
 from django.db.models import Model
 
@@ -35,3 +37,8 @@ def startswith(text, starts):
     if isinstance(text, str):
         return text.startswith(starts)
     return False
+
+@register.filter('json')
+def json_pretty(obj):
+    """Convert obj into pretty-printed JSON"""
+    return json.dumps(obj, indent=4, sort_keys=True)

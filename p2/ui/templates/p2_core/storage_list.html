@@ -22,7 +22,9 @@
     {% for object in object_list %}
     <tr>
       <td>
-          {{ object.name }}
+          <a href="{% url 'p2_ui:core-storage-detail' pk=object.pk %}">
+            {{ object.name }}
+          </a>
       </td>
       <td>{{ object.controller_path }}</td>
       <td>
