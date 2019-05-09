@@ -2,12 +2,12 @@
 from django.dispatch import receiver
 
 from p2.components.quota.controller import QuotaController
-from p2.core.signals import BLOB_BEFORE_SAVE
+from p2.core.signals import BLOB_PRE_SAVE
 
 
-@receiver(BLOB_BEFORE_SAVE)
+@receiver(BLOB_PRE_SAVE)
 # pylint: disable=unused-argument
-def blob_before_save_quota(sender, blob, **kwargs):
+def BLOB_PRE_SAVE_quota(sender, blob, **kwargs):
     """Check quota before saving blob"""
     quota_component = blob.volume.component(QuotaController)
     if quota_component:

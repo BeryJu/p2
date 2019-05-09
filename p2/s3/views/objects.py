@@ -62,7 +62,7 @@ class ObjectView(S3Authentication):
                 blob.payload = request.body
                 blob.save()
         except BlobException as exc:
-            return XMLResponse()
+            return XMLResponse(exc)
         return HttpResponse(status=200)
 
     def delete(self, request, bucket, path):

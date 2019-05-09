@@ -16,7 +16,7 @@ LOGGER = getLogger(__name__)
 
 BLOB_PAYLOAD_UPDATED = Signal(providing_args=['blob'])
 BLOB_ACCESS = Signal(providing_args=['status_code', ''])
-BLOB_BEFORE_SAVE = Signal(providing_args=['blob'])
+BLOB_PRE_SAVE = Signal(providing_args=['blob'])
 BLOB_POST_SAVE = Signal(providing_args=['blob'])
 
 TEXT_CHARACTERS = str.encode("".join(list(map(chr, range(32, 127))) + list("\n\r\t\b")))
@@ -43,8 +43,8 @@ def is_text(payload):
 @receiver(pre_save, sender=Blob)
 # pylint: disable=unused-argument
 def blob_pre_save(sender, instance, **kwargs):
-    """Trigger BLOB_BEFORE_SAVE"""
-    BLOB_BEFORE_SAVE.send(sender=sender, blob=instance)
+    """Trigger BLOB_PRE_SAVE"""
+    BLOB_PRE_SAVE.send(sender=sender, blob=instance)
 
 
 @receiver(post_save, sender=Blob)
