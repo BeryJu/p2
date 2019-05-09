@@ -3,9 +3,11 @@ from django.http.response import HttpResponse
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.core.constants import ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES
+from p2.core.exceptions import BlobException
 from p2.core.models import Blob, Volume
 from p2.s3.auth import S3Authentication
 from p2.s3.constants import ErrorCodes
+from p2.s3.http import XMLResponse
 
 
 class ObjectView(S3Authentication):
@@ -46,15 +48,21 @@ class ObjectView(S3Authentication):
         path = '/' + path
         blobs = get_objects_for_user(request.user, 'change_blob', Blob).filter(
             path=path, volume__name=bucket)
-        if not blobs.exists():
-            blob = Blob(path=path, volume=volume)
-            # We're creating a new blob, hence assign all default permissions
-            for permission in ['view_blob', 'update_blob', 'delete_blob']:
-                assign_perm('p2_core.%s' % permission, request.user, blob)
-        else:
-            blob = blobs.first()
-        blob.payload = request.body
-        blob.save()
+        try:
+            if not blobs.exists():
+                blob = Blob.objects.create(
+                    path=path,
+                    volume=volume,
+                    payload=request.body)
+                # We're creating a new blob, hence assign all default permissions
+                for permission in ['view_blob', 'update_blob', 'delete_blob']:
+                    assign_perm('p2_core.%s' % permission, request.user, blob)
+            else:
+                blob = blobs.first()
+                blob.payload = request.body
+                blob.save()
+        except BlobException as exc:
+            return XMLResponse()
         return HttpResponse(status=200)
 
     def delete(self, request, bucket, path):
@@ -65,5 +73,4 @@ class ObjectView(S3Authentication):
             return self.error_response(ErrorCodes.NO_SUCH_KEY)
         blob = blobs.first()
         blob.delete()
-        response = HttpResponse(status=204)
-        return response
+        return HttpResponse(status=204)
