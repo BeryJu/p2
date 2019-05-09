@@ -101,6 +101,11 @@ class Blob(UUIDModel, TagModel):
         return self.path.split('/')[-1]
 
     @property
+    def payload_string(self) -> str:
+        """Get payload as string"""
+        return self.payload.decode('utf-8')
+
+    @property
     def payload(self) -> bytes:
         """Retrieve binary payload from storage and cache in class instance"""
         if not self._payload:

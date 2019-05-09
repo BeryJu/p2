@@ -32,10 +32,10 @@
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle {% model_app 'p2_s3' %}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {% trans 'S3' %}
+            {% trans 'API' %}
           </a>
           <div class="dropdown-menu">
-            <a class="dropdown-item" href="{% url 'p2_ui:s3-access-key-list' %}">{% trans "Access Keys" %}</a>
+            <a class="dropdown-item" href="{% url 'p2_ui:api-key-list' %}">{% trans "API Keys" %}</a>
           </div>
         </li>
         <li class="nav-item dropdown">
@@ -88,6 +88,7 @@
   <div class="w-25 alert-container">
   </div>
 </div>
+{% block container %}
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-10 py-md-3">
@@ -97,6 +98,7 @@
     </dio>
   </div>
 </div>
+{% endblock %}
 {% if user.is_authenticated %}
 <a href="javascript:feedbackMessage()" class="btn btn-primary btn-float">
   <i class="fa fa-question fa-2x" aria-hidden="true"></i>

@@ -47,7 +47,8 @@ CORS_ORIGIN_ALLOW_ALL = DEBUG
 ALLOWED_HOSTS = set([
     urlparse(CONFIG.get('external_url')).netloc,
     socket.getfqdn(),
-    socket.gethostname()
+    socket.gethostname(),
+    'kubernetes-healthcheck-host',
 ] + CONFIG.get('domains', []))
 
 INTERNAL_IPS = ['127.0.0.1']
@@ -389,6 +390,11 @@ with CONFIG.cd('log'):
                 'level': 'DEBUG',
                 'propagate': True,
             },
+            'werkzeug': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
         }
     }
 
@@ -409,5 +415,8 @@ if TEST:
     CELERY_TASK_ALWAYS_EAGER = True
 
 if DEBUG is True:
-    INSTALLED_APPS.append('debug_toolbar')
+    INSTALLED_APPS += [
+        'debug_toolbar',
+        'django_extensions',
+    ]
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')

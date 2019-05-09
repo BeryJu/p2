@@ -1,8 +1,6 @@
 """Blob Views"""
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.mixins import \
-    PermissionRequiredMixin as DjangoPermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponse
 from django.shortcuts import reverse
@@ -15,7 +13,6 @@ from guardian.shortcuts import get_objects_for_user
 from p2.core.forms import BlobForm
 from p2.core.models import Blob
 from p2.lib.shortcuts import get_object_for_user_or_404
-from p2.lib.views import CreateAssignPermView
 
 
 class FileBrowserView(LoginRequiredMixin, TemplateView):
@@ -24,13 +21,12 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
     template_name = 'p2_core/blob_list.html'
     model = Blob
 
-    def build_prefix_list(self, volume):
+    def build_prefix_list(self, prefix, volume, add_up_prefix=True):
         """Create list of all prefixes"""
-        prefix = self.request.GET.get('prefix', '/')
         # Create separate list of all prefixes which should be displayed
         relative_prefix_list = []
         # If prefix is deeper than /, we add a .. prefix to go up
-        if prefix != '/':
+        if prefix != '/' and add_up_prefix:
             parent_prefix = '/'.join(prefix.split('/')[:-1])
             # parent_prefix can't be blank, so we fall back to slash
             if parent_prefix == '':
@@ -54,12 +50,13 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
                 })
         return relative_prefix_list
 
-    def build_breadcrumb_list(self):
+    def build_breadcrumb_list(self, prefix):
         """Build list for breadcrumbs"""
-        prefix = self.request.GET.get('prefix', '/')
         until_here = []
         crumbs = []
         for part in prefix.split('/'):
+            if part == '':
+                continue
             until_here.append(part)
             crumbs.append({
                 'title': part,
@@ -77,34 +74,21 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
         context['objects'] = get_objects_for_user(
             self.request.user, 'p2_core.view_blob').filter(prefix=prefix, volume=context['volume'])
 
-        context['prefixes'] = self.build_prefix_list(context['volume'])
-        context['breadcrumbs'] = self.build_breadcrumb_list()
+        context['prefixes'] = self.build_prefix_list(prefix, context['volume'])
+        context['breadcrumbs'] = self.build_breadcrumb_list(prefix)
 
         return context
 
-
-class BlobCreateView(SuccessMessageMixin, DjangoPermissionRequiredMixin, CreateAssignPermView):
-    """Create new blob"""
+class BlobDetailView(PermissionRequiredMixin, DetailView):
+    """View Blob Details"""
 
     model = Blob
-    form_class = BlobForm
-    permission_required = 'p2_core.add_blob'
-    template_name = 'generic/form.html'
-    success_message = _('Successfully created Blob')
-    permissions = [
-        'p2_core.view_blob',
-        'p2_core.change_blob',
-        'p2_core.delete_blob',
-    ]
+    permission_required = 'p2_core.view_blob'
 
-    def get_success_url(self):
-        return reverse('p2_ui:core-blob-list', kwargs={'pk': self.object.volume.pk})
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        self.object.payload = form.cleaned_data.get('payload').read()
-        self.object.save()
-        return response
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['breadcrumbs'] = FileBrowserView().build_breadcrumb_list(self.object.prefix)
+        return context
 
 class BlobUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView):
     """Update blob"""

@@ -4,8 +4,8 @@
 
 {% block content %}
 <h2>
-  {% trans "S3 Access Keys" %}
-  <a class="btn btn-success" href="{% url 'p2_ui:s3-access-key-create' %}">
+  {% trans "API Keys" %}
+  <a class="btn btn-success" href="{% url 'p2_ui:api-key-create' %}">
     <i class="fa fa-plus text-light" aria-hidden="true"></i>
   </a>
 </h2>
@@ -24,12 +24,12 @@
       <td>{{ object.name }}</td>
       <td>{{ object.user }}</td>
       <td>
-        <a class="btn btn-primary" href="{% url 'p2_ui:s3-access-key-update' pk=object.pk %}">
+        <a class="btn btn-primary" href="{% url 'p2_ui:api-key-update' pk=object.pk %}">
           <i class="fa fa-pencil text-light" aria-hidden="true"></i>
         </a>
       </td>
       <td>
-        <a class="btn btn-danger" href="{% url 'p2_ui:s3-access-key-delete' pk=object.pk %}">
+        <a class="btn btn-danger" href="{% url 'p2_ui:api-key-delete' pk=object.pk %}">
           <i class="fa fa-trash text-light" aria-hidden="true"></i>
         </a>
       </td>

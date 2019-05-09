@@ -1,0 +1,133 @@
+{% extends 'base/base.html' %}
+
+{% load i18n %}
+{% load static %}
+
+{% load p2_ui %}
+
+{% block head %}
+{{ block.super }}
+{{ form.media }}
+<script src="{% static 'codemirror/codemirror.js' %}"></script>
+<link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
+<link rel="stylesheet" href="{% static 'codemirror/theme/monokai.css' %}">
+<script src="{% static 'codemirror/mode/javascript.js' %}"></script>
+{% endblock %}
+
+{% block container %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-10 py-md-3">
+      <h2>
+        {% blocktrans with path=object.path %}Blob {{ path }}{% endblocktrans %}
+      </h2>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=object.volume.pk %}?prefix=/">{{ object.volume.name }}</a></li>
+          {% for crumb in breadcrumbs %}
+            <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=object.volume.pk %}?prefix={{ crumb.prefix }}">{{ crumb.title }}</a></li>
+          {% endfor %}
+          <li class="breadcrumb-item active" aria-current="page">{{ object.filename }}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-6">
+      {% with object|get_attribute:"p2.core.constants.ATTR_BLOB_IS_TEXT" as is_text %}
+      {% if is_text %}
+        {% include 'p2_core/blob_detail_text.html' with object=object only %}
+      {% endif %}
+      {% endwith %}
+    </div>
+    <div class="col-md-6">
+      <div class="accordion" id="accordionExample">
+        <div class="card border-0">
+          <div class="card-header" id="headingOne">
+            <h2 class="mb-0">
+              <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseInfo" aria-expanded="true" aria-controls="collapseInfo">
+                {% trans 'Blob Information' %}
+              </button>
+            </h2>
+          </div>
+          <div id="collapseInfo" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+            <table class="table table-striped table-bordered table-hover table-sm mb-0">
+              <tbody>
+                <tr>
+                  <th>{% trans 'Path' %}</th>
+                  <td>{{ object.path }}</td>
+                </tr>
+                <tr>
+                  <th>{% trans 'Volume' %}</th>
+                  <td>{{ object.volume }}</td>
+                </tr>
+                <tr>
+                  <th>{% trans 'Attributes' %}</th>
+                  <td>
+                    <table class="table table-striped table-bordered table-hover table-sm">
+                      <tbody>
+                        {% for key, value in object.attributes.items %}
+                        <tr>
+                          <th>{{ key }}</th>
+                          <td>{{ value }}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <th>{% trans 'Tags' %}</th>
+                  <td>
+                    <table class="table table-striped table-bordered table-hover table-sm">
+                      <tbody>
+                        {% for key, value in object.tags.items %}
+                        <tr>
+                          <th>{{ key }}</th>
+                          <td>{{ value }}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" id="headingTwo">
+            <h2 class="mb-0">
+              <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseActions" aria-expanded="false" aria-controls="collapseActions">
+                {% trans 'Actions' %}
+              </button>
+            </h2>
+          </div>
+          <div id="collapseActions" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+            <div class="card-body">
+              <a href="{% url 'p2_ui:core-blob-update' pk=object.pk %}" class="btn btn-primary">{% trans 'Edit' %}</a>
+              <a href="{% url 'p2_ui:core-blob-delete' pk=object.pk %}" class="btn btn-danger">{% trans 'Delete' %}</a>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header" id="headingThree">
+            <h2 class="mb-0">
+              <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapsePermissions" aria-expanded="false" aria-controls="collapsePermissions">
+                {% trans 'Permissions' %}
+              </button>
+            </h2>
+          </div>
+          <div id="collapsePermissions" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+            <div class="card-body">
+              Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

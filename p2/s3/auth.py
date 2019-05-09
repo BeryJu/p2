@@ -8,9 +8,9 @@ from xml.etree import ElementTree
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
+from p2.api.models import APIKey
 from p2.s3.constants import ErrorCodes
 from p2.s3.http import XMLResponse
-from p2.s3.models import S3AccessKey
 
 LOGGER = getLogger(__name__)
 
@@ -81,7 +81,7 @@ class S3Authentication(View):
 
     def _lookup_access_key(self, access_key):
         """Lookup access_key in database, return secret if found otherwise None"""
-        keys = S3AccessKey.objects.filter(access_key=access_key)
+        keys = APIKey.objects.filter(access_key=access_key)
         if keys.exists():
             return keys.first()
         return None

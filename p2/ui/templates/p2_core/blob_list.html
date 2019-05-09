@@ -12,10 +12,10 @@
 </h2>
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="?prefix=/">{{ volume.name }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}?prefix=/">{{ volume.name }}</a></li>
     {% for crumb in breadcrumbs %}
-      {% if not forloop.first and not forloop.last %}
-        <li class="breadcrumb-item"><a href="?prefix={{ crumb.prefix }}">{{ crumb.title }}</a></li>
+      {% if not forloop.last %}
+        <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}?prefix={{ crumb.prefix }}">{{ crumb.title }}</a></li>
       {% endif %}
       {% if forloop.last %}
         <li class="breadcrumb-item active" aria-current="page">{{ crumb.title }}</li>
@@ -53,11 +53,13 @@
       {% for object in objects %}
       <tr>
         <td>
-          <i class="fa fa-file" aria-hidden="true"></i>
-          {{ object.filename }}
+          <a href="{% url 'p2_ui:core-blob-detail' pk=object.pk %}">
+            <i class="fa fa-file" aria-hidden="true"></i>
+            {{ object.filename }}
+          </a>
         </td>
         {# TODO: Find a way to reference p2.core.constants here #}
-        <td>{{ object|get_attribute:"blob.p2.io/size/bytes"|filesizeformat }}</td>
+        <td>{{ object|get_attribute:"p2.core.constants.ATTR_BLOB_SIZE_BYTES"|filesizeformat }}</td>
         <td>
           <a class="btn btn-sm btn-primary" href="{% url 'p2_ui:core-blob-download' pk=object.pk %}">
             <i class="fa fa-download text-light" aria-hidden="true"></i>
