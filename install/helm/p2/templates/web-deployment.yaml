@@ -1,7 +1,7 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ include "p2.fullname" . }}-worker
+  name: {{ include "p2.fullname" . }}-web
   labels:
     app.kubernetes.io/name: {{ include "p2.name" . }}
     helm.sh/chart: {{ include "p2.chart" . }}
@@ -18,7 +18,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "p2.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
-        k8s.p2.io/component: worker
+        k8s.p2.io/component: web
     spec:
       volumes:
         - name: config-volume
@@ -26,7 +26,7 @@ spec:
             name: {{ include "p2.fullname" . }}-config
         - name: media-storage
           persistentVolumeClaim:
-            claimName: p2-pvc-app-storage
+            claimName: {{ include "p2.fullname" . }}-pvc-app-storage
       initContainers:
         - name: fix-volume-permissions
           image: busybox
@@ -38,12 +38,31 @@ spec:
         - name: {{ .Chart.Name }}
           image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
-          command: ["./manage.py", "worker"]
+          command: ["/bin/sh","-c"]
+          args: ["./manage.py migrate && ./manage.py web"]
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
           volumeMounts:
             - mountPath: /etc/p2
               name: config-volume
             - mountPath: /storage
               name: media-storage
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: kubernetes-healthcheck-host
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+              httpHeaders:
+                - name: Host
+                  value: kubernetes-healthcheck-host
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
