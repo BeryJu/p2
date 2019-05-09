@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 
 image:
-  tag: 0.1.17
+  tag: 0.1.18
 
 config:
   # Optionally specify fixed secret_key, otherwise generated automatically
