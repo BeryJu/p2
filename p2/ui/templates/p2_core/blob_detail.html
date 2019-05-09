@@ -37,9 +37,13 @@
   <div class="row">
     <div class="col-md-6">
       {% with object|get_attribute:"p2.core.constants.ATTR_BLOB_IS_TEXT" as is_text %}
+      {% with object|get_attribute:"p2.core.constants.ATTR_BLOB_MIME" as mime %}
       {% if is_text %}
         {% include 'p2_core/blob_detail_text.html' with object=object only %}
+      {% elif mime|startswith:'image/' %}
+        {% include 'p2_core/blob_detail_image.html' with object=object only %}
       {% endif %}
+      {% endwith %}
       {% endwith %}
     </div>
     <div class="col-md-6">

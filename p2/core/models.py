@@ -1,4 +1,5 @@
 """p2 Core models"""
+from base64 import b64encode
 from copy import deepcopy
 from logging import getLogger
 
@@ -13,7 +14,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
-                               ATTR_BLOB_STAT_MTIME, TAG_VOLUME_LEGACY_DEFAULT)
+                               ATTR_BLOB_STAT_MTIME, TAG_VOLUME_LEGACY_DEFAULT, ATTR_BLOB_MIME)
 from p2.core.tasks import signal_marshall
 from p2.lib.models import TagModel, UUIDModel
 from p2.lib.reflection import class_to_path, path_to_class
@@ -104,6 +105,12 @@ class Blob(UUIDModel, TagModel):
     def payload_string(self) -> str:
         """Get payload as string"""
         return self.payload.decode('utf-8')
+
+    @property
+    def payload_data_uri(self) -> str:
+        """Get payload ase Data URI"""
+        return 'data:%s;base64,%s' % (self.attributes.get(ATTR_BLOB_MIME),
+                                      b64encode(self.payload).decode())
 
     @property
     def payload(self) -> bytes:

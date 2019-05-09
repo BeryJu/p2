@@ -27,3 +27,10 @@ def model_verbose_name(model):
 def get_attribute(blob, path):
     """Access blob.attributes but allow keys like 'site:bytes"""
     return blob.attributes.get(path_to_class(path))
+
+
+@register.filter('startswith')
+def startswith(text, starts):
+    if isinstance(text, str):
+        return text.startswith(starts)
+    return False
