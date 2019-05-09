@@ -13,8 +13,8 @@ metadata:
 {{- with .Values.ingress.annotations }}
   annotations:
     kubernetes.io/ingress.class: nginx
-    ingress.kubernetes.io/proxy-body-size: 1000G
-    nginx.ingress.kubernetes.io/proxy-body-size: 1000G
+    ingress.kubernetes.io/proxy-body-size: 5000m
+    nginx.ingress.kubernetes.io/proxy-body-size: 5000m
 {{ toYaml . | indent 4 }}
 {{- end }}
 spec:
