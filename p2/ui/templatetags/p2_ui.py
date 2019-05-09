@@ -31,6 +31,7 @@ def get_attribute(blob, path):
 
 @register.filter('startswith')
 def startswith(text, starts):
+    """Simple wrapper for str.startswith"""
     if isinstance(text, str):
         return text.startswith(starts)
     return False

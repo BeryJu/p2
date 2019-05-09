@@ -1,4 +1,6 @@
 """Blob Views"""
+from collections import OrderedDict
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -9,7 +11,8 @@ from django.utils.translation import gettext as _
 from django.views.generic import (DeleteView, DetailView, TemplateView,
                                   UpdateView)
 from guardian.mixins import PermissionRequiredMixin
-from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import (get_objects_for_user, get_perms_for_model,
+                                get_users_with_perms)
 
 from p2.core.forms import BlobForm
 from p2.core.models import Blob
@@ -98,6 +101,14 @@ class BlobDetailView(PermissionRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['breadcrumbs'] = FileBrowserView().build_breadcrumb_list(self.object.prefix)
+        context['users_perms'] = OrderedDict(
+            sorted(
+                get_users_with_perms(self.object, attach_perms=True,
+                                     with_group_users=False).items(),
+                key=lambda user: user[0].username
+            )
+        )
+        context['model_perms'] = get_perms_for_model(self.object.__class__)
         return context
 
 class BlobUpdateView(SuccessMessageMixin, PermissionRequiredMixin, UpdateView):
