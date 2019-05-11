@@ -19,9 +19,9 @@ class BlobForm(TagModelForm):
         instance = super().save(**kwargs)
         # If payload key still exists, a file has been selected
         # Hence we read the file and update the payload
-        if 'payload' in self.cleaned_data:
-            instance.payload = self.cleaned_data.get('payload').read()
-            instance.save()
+        # if 'payload' in self.cleaned_data:
+        #     instance.payload = self.cleaned_data.get('payload').read()
+        #     instance.save()
         return instance
 
     class Meta:

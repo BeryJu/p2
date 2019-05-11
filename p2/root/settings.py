@@ -408,10 +408,10 @@ TEST_OUTPUT_FILE_NAME = 'unittest.xml'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 if TEST:
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': True,
-    }
+    # LOGGING = {
+    #     'version': 1,
+    #     'disable_existing_loggers': True,
+    # }
     CELERY_TASK_ALWAYS_EAGER = True
 
 if DEBUG is True:

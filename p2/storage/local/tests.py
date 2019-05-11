@@ -30,32 +30,35 @@ class LocalFileStorageTests(TestCase):
     def test_simple_create_retrieve(self):
         """Test simple creation of blob and retrival of data"""
         test_content = b'test'
-        Blob.objects.create(
+        blob = Blob(
             path='/test1',
-            payload=test_content,
             volume=self.volume)
+        blob.write(test_content)
+        blob.save()
         new_blob = Blob.objects.filter(path='/test1').first()
-        self.assertEqual(new_blob.payload, test_content)
+        self.assertEqual(new_blob.read(), test_content)
 
     def test_update(self):
         """Test Update of blob"""
         test_content = b'test'
         updated_content = b'test2'
-        Blob.objects.create(
+        blob = Blob(
             path='/test1',
-            payload=test_content,
             volume=self.volume)
+        blob.write(test_content)
+        blob.save()
         new_blob = Blob.objects.filter(path='/test1').first()
-        self.assertEqual(new_blob.payload, test_content)
-        new_blob.payload = updated_content
+        self.assertEqual(new_blob.read(), test_content)
+        new_blob.write(updated_content)
         new_blob.save()
-        self.assertEqual(Blob.objects.filter(path='/test1').first().payload, updated_content)
+        self.assertEqual(Blob.objects.filter(path='/test1').first().read(), updated_content)
 
     def test_delete(self):
         """Test deletion of blob"""
         test_content = b'test'
-        Blob.objects.create(
+        blob = Blob(
             path='/test1',
-            payload=test_content,
             volume=self.volume)
+        blob.write(test_content)
+        blob.save()
         Blob.objects.filter(path='/test1').delete()

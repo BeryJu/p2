@@ -1,21 +1,19 @@
 """p2 Core models"""
-from base64 import b64encode
 from copy import deepcopy
 from logging import getLogger
+from tempfile import SpooledTemporaryFile
 
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.fields.jsonb import KeyTextTransform
-from django.core.cache import cache
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import DatabaseError, models, transaction
-from django.db.models import IntegerField, Sum
+from django.db.models import BigIntegerField, Sum
 from django.db.models.functions import Cast
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
-from p2.core.constants import (ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES,
-                               ATTR_BLOB_STAT_CTIME, ATTR_BLOB_STAT_MTIME,
-                               TAG_VOLUME_LEGACY_DEFAULT)
+from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
+                               ATTR_BLOB_STAT_MTIME, TAG_VOLUME_LEGACY_DEFAULT)
 from p2.core.tasks import signal_marshall
 from p2.lib.models import TagModel, UUIDModel
 from p2.lib.reflection import class_to_path, path_to_class
@@ -35,7 +33,8 @@ class Volume(UUIDModel, TagModel):
     def space_used(self):
         """Return summed up size of all blobs in this volume."""
         used = self.blob_set.all().annotate(
-            size_value=Cast(KeyTextTransform(ATTR_BLOB_SIZE_BYTES, 'attributes'), IntegerField())
+            size_value=Cast(KeyTextTransform(
+                ATTR_BLOB_SIZE_BYTES, 'attributes'), BigIntegerField())
         ).aggregate(sum=Sum('size_value')).get('sum', 0)
         return used if used else 0
 
@@ -80,6 +79,7 @@ class Blob(UUIDModel, TagModel):
     attributes = JSONField(default=dict, blank=True, encoder=DjangoJSONEncoder)
 
     _payload = None
+    _reading_handle = None
     _payload_dirty = False
 
     class Meta:
@@ -91,47 +91,44 @@ class Blob(UUIDModel, TagModel):
     @staticmethod
     def from_uploaded_file(file, volume, prefix=''):
         """Create Blob instance from Django's UploadedFile"""
-        return Blob.objects.create(
+        blob = Blob(
             path=prefix + '/' + file.name,
-            volume=volume,
-            payload=file.read()
-        )
+            volume=volume)
+        for chunk in file.chunks():
+            blob.write(chunk)
+        blob.save()
+        return blob
 
     @property
     def filename(self):
         """Return only the filename part of self.path"""
         return self.path.split('/')[-1]
 
-    @property
-    def payload_string(self) -> str:
-        """Get payload as string"""
-        return self.payload.decode('utf-8')
+    def read(self, *args, **kwargs):
+        """Retrieve file from storage controller and call read method. Accepts same
+        arguments as file's read."""
+        if not self._reading_handle:
+            self._reading_handle = self.volume.storage.controller.retrieve_payload(self)
+        return self._reading_handle.read(*args, **kwargs)
 
-    @property
-    def payload_data_uri(self) -> str:
-        """Get payload ase Data URI"""
-        return 'data:%s;base64,%s' % (self.attributes.get(ATTR_BLOB_MIME),
-                                      b64encode(self.payload).decode())
-
-    @property
-    def payload(self) -> bytes:
-        """Retrieve binary payload from storage and cache in class instance"""
+    def write(self, *args, **kwargs):
+        """Open TemporaryFile for writing, method arguments are the same as file's write.
+        File is not committed until Blob.save() is called."""
         if not self._payload:
-            # Check if UUID payload is in cache
-            cached_payload = cache.get(self.uuid)
-            if cached_payload:
-                self._payload = cached_payload
-            self._payload = self.volume.storage.controller.retrieve_payload(self)
-            # Initialize a new Payload if backend has nothing saved
-            if not self._payload:
-                self._payload = b''
-            cache.set(self.uuid, self._payload)
-        return self._payload
-
-    @payload.setter
-    def payload(self, new_payload: bytes):
+            self._payload = SpooledTemporaryFile(max_size=500, encoding='utf-8')
         self._payload_dirty = True
-        self._payload = new_payload
+        return self._payload.write(*args, **kwargs)
+
+    # @property
+    # def payload_string(self) -> str:
+    #     """Get payload as string"""
+    #     return self.payload.decode('utf-8')
+
+    # @property
+    # def payload_data_uri(self) -> str:
+    #     """Get payload ase Data URI"""
+    #     return 'data:%s;base64,%s' % (self.attributes.get(ATTR_BLOB_MIME),
+    #                                   b64encode(self.payload).decode())
 
     def __update_prefix(self):
         path_parts = self.path.split('/')
@@ -140,6 +137,7 @@ class Blob(UUIDModel, TagModel):
             self.prefix = '/'
 
     def __failsafe_path(self):
+        """Make sure no path collisions can happen"""
         same_path = Blob.objects.filter(path=self.path, volume=self.volume)
         if same_path.exists() and same_path.first() != self:
             self.path = self.path + '.1'
@@ -151,7 +149,6 @@ class Blob(UUIDModel, TagModel):
         # a failed transaction.atomic() doesn't revert object values
         _old_tags = deepcopy(self.tags)
         _old_attributes = deepcopy(self.attributes)
-        _old_payload = deepcopy(self._payload)
         try:
             # Run update code in transaction in case
             # Storage.controller.update_payload fails and we need to revert
@@ -163,12 +160,14 @@ class Blob(UUIDModel, TagModel):
                 # Create/update `date_updated` attribute
                 self.attributes[ATTR_BLOB_STAT_MTIME] = now()
                 # Only save payload if it changed
-                if self._payload_dirty:
-                    self.volume.storage.controller.update_payload(self, self.payload)
+                if self._payload:
+                    self._payload.seek(0)
+                    self.volume.storage.controller.update_payload(self, self._payload)
                 # Check if path exists already
                 self.__failsafe_path()
                 # Update prefix
                 self.__update_prefix()
+                self.volume.storage.controller.collect_attributes(self)
                 super().save(*args, **kwargs)
                 if self._payload_dirty:
                     signal_marshall.delay('p2.core.signals.BLOB_PAYLOAD_UPDATED', kwargs={
@@ -177,17 +176,9 @@ class Blob(UUIDModel, TagModel):
                             'pk': self.uuid.hex,
                         }
                     })
-                # Only reset _payload_dirty after save so it can still be accessed in signals
-                self._payload_dirty = False
         except DatabaseError:
-            self._payload = _old_payload
             self.tags = _old_tags
             self.attributes = _old_attributes
-            # Roll-back saved payload
-            if self._payload_dirty:
-                # self._payload_dirty hasn't been reset yet, so exception was thrown
-                # in super().save() -> call update with old storage
-                self.volume.storage.controller.update_payload(self, self.payload)
             raise
 
     def __str__(self):

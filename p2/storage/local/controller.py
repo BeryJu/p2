@@ -1,13 +1,19 @@
 """p2 local store controller"""
 import os
+from io import RawIOBase
 from logging import getLogger
-from typing import Union
+from shutil import copyfileobj
 
+import magic
+
+from p2.core.constants import (ATTR_BLOB_IS_TEXT, ATTR_BLOB_MIME,
+                               ATTR_BLOB_SIZE_BYTES)
 from p2.core.models import Blob
 from p2.core.storages.base import StorageController
 from p2.storage.local.constants import TAG_ROOT_PATH
 
 LOGGER = getLogger(__name__)
+TEXT_CHARACTERS = str.encode("".join(list(map(chr, range(32, 127))) + list("\n\r\t\b")))
 
 class LocalStorageController(StorageController):
     """Local storage controller, save blobs as files"""
@@ -24,26 +30,54 @@ class LocalStorageController(StorageController):
             blob.uuid.hex[2:4]
         ])
 
-    def retrieve_payload(self, blob: Blob) -> Union[None, bytes]:
+    def _build_path(self, blob: Blob) -> str:
         root = self.tags.get(TAG_ROOT_PATH)
-        fs_path = os.path.join(root, self._build_subdir(blob), blob.uuid.hex)
+        return os.path.join(root, self._build_subdir(blob), blob.uuid.hex)
+
+    def is_text(self, filename):
+        """Return True if file is text, else False"""
+        payload = open(filename, 'rb').read(512)
+        _null_trans = bytes.maketrans(b"", b"")
+        if not payload:
+            # Empty files are considered text
+            return True
+        if b"\0" in payload:
+            # Files with null bytes are likely binary
+            return False
+        # Get the non-text characters (maps a character to itself then
+        # use the 'remove' option to get rid of the text characters.)
+        translation = payload.translate(_null_trans, TEXT_CHARACTERS)
+        # If more than 30% non-text characters, then
+        # this is considered a binary file
+        if float(len(translation)) / float(len(payload)) > 0.30:
+            return False
+        return True
+
+    def collect_attributes(self, blob: Blob):
+        """Collect attributes such as size and mime type"""
+        if os.path.exists(self._build_path(blob)):
+            mime_type = magic.from_file(self._build_path(blob), mime=True)
+            size = os.stat(self._build_path(blob)).st_size
+            blob.attributes[ATTR_BLOB_MIME] = mime_type
+            blob.attributes[ATTR_BLOB_IS_TEXT] = self.is_text(self._build_path(blob))
+            blob.attributes[ATTR_BLOB_SIZE_BYTES] = str(size)
+            LOGGER.debug('Updated size to %d for %s', size, blob.uuid.hex)
+
+    def retrieve_payload(self, blob: Blob) -> RawIOBase:
+        fs_path = self._build_path(blob)
         LOGGER.debug('RETR "%s"', blob.uuid)
         if os.path.exists(fs_path) and os.path.isfile(fs_path):
             LOGGER.debug("  -> Opening '%s' for retrival.", fs_path)
-            with open(fs_path, 'rb') as _file:
-                return _file.read()
-        else:
-            LOGGER.warning(
-                "File '%s' does not exist or is not a file.", fs_path)
+            return open(fs_path, 'rb')
+        LOGGER.warning("File '%s' does not exist or is not a file.", fs_path)
         return None
 
-    def update_payload(self, blob: Blob, payload: Union[None, bytes]):
-        root = self.tags.get(TAG_ROOT_PATH)
-        fs_path = os.path.join(root, self._build_subdir(blob), blob.uuid.hex)
+    def update_payload(self, blob: Blob, file_like: RawIOBase):
+        fs_path = self._build_path(blob)
         os.makedirs(os.path.dirname(fs_path), exist_ok=True)
-        LOGGER.debug('UPDT "%s" "%.5s"', blob.uuid, payload)
-        if not payload:
-            # Not payload, delete file if it exists
+        LOGGER.debug('UPDT "%s" "%.5s"', blob.uuid, file_like)
+        if not file_like:
+            # Not file_like, delete file if it exists
             if os.path.exists(fs_path) and os.path.isfile(fs_path):
                 os.unlink(fs_path)
                 LOGGER.debug("  -> Deleted '%s'.", fs_path)
@@ -52,5 +86,6 @@ class LocalStorageController(StorageController):
                     "File '%s' does not exist during deletion attempt.", fs_path)
         else:
             LOGGER.debug("  -> Opening '%s' for updating.", fs_path)
-            with open(fs_path, 'wb') as _file:
-                _file.write(payload)
+            with open(fs_path, 'wb') as _dest_file:
+                file_like.seek(0)
+                copyfileobj(file_like, _dest_file)

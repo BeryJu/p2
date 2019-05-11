@@ -34,7 +34,7 @@ class ObjectView(S3Authentication):
         if not blobs.exists():
             return self.error_response(ErrorCodes.NO_SUCH_KEY)
         blob = blobs.first()
-        response = HttpResponse(blob.payload)
+        response = HttpResponse(blob)
         response['Content-Length'] = blob.attributes.get(ATTR_BLOB_SIZE_BYTES)
         response['Content-Type'] = blob.attributes.get(ATTR_BLOB_MIME, 'text/plain')
         return response
@@ -50,16 +50,18 @@ class ObjectView(S3Authentication):
             path=path, volume__name=bucket)
         try:
             if not blobs.exists():
-                blob = Blob.objects.create(
+                blob = Blob(
                     path=path,
-                    volume=volume,
-                    payload=request.body)
+                    volume=volume)
+                blob.write(request.body)
+                blob.save()
+                # TODO: Implement chunked saving
                 # We're creating a new blob, hence assign all default permissions
-                for permission in ['view_blob', 'update_blob', 'delete_blob']:
+                for permission in ['view_blob', 'change_blob', 'delete_blob']:
                     assign_perm('p2_core.%s' % permission, request.user, blob)
             else:
                 blob = blobs.first()
-                blob.payload = request.body
+                blob.write(request.body)
                 blob.save()
         except BlobException as exc:
             return XMLResponse(exc)
