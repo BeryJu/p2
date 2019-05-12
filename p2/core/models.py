@@ -88,10 +88,12 @@ class Blob(UUIDModel, TagModel):
         unique_together = (('path', 'volume',),)
 
     @staticmethod
-    def from_uploaded_file(file, volume, prefix=''):
+    def from_uploaded_file(file, volume, prefix='/'):
         """Create Blob instance from Django's UploadedFile"""
+        if not prefix.endswith('/'):
+            prefix += '/'
         blob = Blob(
-            path=prefix + '/' + file.name,
+            path=prefix + file.name,
             volume=volume)
         for chunk in file.chunks():
             blob.write(chunk)

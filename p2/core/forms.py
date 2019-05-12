@@ -4,6 +4,7 @@ from django import forms
 from p2.core.models import Blob, Storage, Volume
 from p2.lib.forms import TagModelForm
 from p2.lib.reflection import path_to_class
+from p2.core.constants import ATTR_BLOB_SIZE_BYTES
 
 
 class BlobForm(TagModelForm):
@@ -19,15 +20,16 @@ class BlobForm(TagModelForm):
         instance = super().save(**kwargs)
         # If payload key still exists, a file has been selected
         # Hence we read the file and update the payload
-        # if 'payload' in self.cleaned_data:
-        #     instance.payload = self.cleaned_data.get('payload').read()
-        #     instance.save()
+        if 'payload' in self.cleaned_data:
+            for chunk in self.cleaned_data.get('payload').chunks():
+                instance.write(chunk)
+            instance.attributes[ATTR_BLOB_SIZE_BYTES] = str(file.size)
         return instance
 
     class Meta:
 
         model = Blob
-        fields = ['path', 'payload', 'volume', 'tags']
+        fields = ['path', 'payload', 'tags']
         widgets = {
             'path': forms.TextInput
         }
