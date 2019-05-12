@@ -10,6 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from p2.core.api.filters import BlobFilter
 from p2.core.api.serializers import (BlobPayloadSerializer, BlobSerializer,
                                      StorageSerializer, VolumeSerializer)
+from p2.core.constants import ATTR_BLOB_MIME
 from p2.core.exceptions import BlobException
 from p2.core.models import Blob, Storage, Volume
 from p2.core.tasks import signal_marshall
@@ -37,8 +38,8 @@ class BlobViewSet(ModelViewSet):
         """Return payload data as base64 string"""
         blob = self.get_object()
         return Response({
-            'payload': 'data:%s;base64,%s' % (blob.attributes.get('mime', 'text/plain'),
-                                              b64encode(blob.payload).decode('utf-8'))
+            'payload': 'data:%s;base64,%s' % (blob.attributes.get(ATTR_BLOB_MIME, 'text/plain'),
+                                              b64encode(blob.read()).decode('utf-8'))
         })
 
 
@@ -62,7 +63,7 @@ class VolumeViewSet(ModelViewSet):
             try:
                 blob = Blob.from_uploaded_file(file, volume, prefix=prefix)
                 # assign permission to blob
-                for permission in ['view_blob', 'update_blob', 'delete_blob']:
+                for permission in ['view_blob', 'change_blob', 'delete_blob']:
                     assign_perm('p2_core.%s' % permission, request.user, blob)
                 count += 1
             except BlobException as exc:

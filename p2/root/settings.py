@@ -124,6 +124,10 @@ with CONFIG.cd('web'):
         'log.screen': False,
         'log.access_file': '',
         'log.error_file': '',
+        # remove any limit on the request body size; cherrypy's default is 100MB
+        'server.max_request_body_size': 0,
+        # increase server socket timeout to 60s; cherrypy's defult is 10s
+        'server.socket_timeout': 600
     }
 
 INSTALLED_APPS = [
@@ -408,10 +412,10 @@ TEST_OUTPUT_FILE_NAME = 'unittest.xml'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 if TEST:
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': True,
-    }
+    # LOGGING = {
+    #     'version': 1,
+    #     'disable_existing_loggers': True,
+    # }
     CELERY_TASK_ALWAYS_EAGER = True
 
 if DEBUG is True:

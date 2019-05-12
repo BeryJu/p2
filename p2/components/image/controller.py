@@ -1,5 +1,4 @@
 """p2 import controller"""
-from io import BytesIO
 from logging import getLogger
 
 from PIL import ExifTags, Image
@@ -18,7 +17,7 @@ class ImageController(ComponentController):
     def handle(self, blob):
         """extract EXIF data from image and save as attributes"""
         try:
-            img = Image.open(BytesIO(blob.payload))
+            img = Image.open(blob)
             # Remove all keys starting with EXIF: to prevent stale keys
             for key in list(blob.attributes.keys()):
                 if key.startswith('exif:'):

@@ -11,7 +11,7 @@ app_name = 'p2_s3'
 urlpatterns = [
     path('<s3:bucket>', buckets.BucketView.as_view(), name='bucket'),
     path('<s3:bucket>/', buckets.BucketView.as_view(), name='bucket'),
-    path('<s3:bucket>/<everything:path>', objects.ObjectView.as_view(), name='bucket'),
+    path('<s3:bucket>/<everything:path>', objects.ObjectView.as_view(), name='bucket-object'),
     path('', get.ListView.as_view(), name='list'),
     # url(r'.*', debug.DebugView.as_view(), name='debug')
 ]

@@ -2,14 +2,11 @@
 import hashlib
 from logging import getLogger
 
-import magic
 from django.core.signals import Signal
 from django.db.models.signals import post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
 from p2.core import constants
-from p2.core.constants import (ATTR_BLOB_IS_TEXT, ATTR_BLOB_MIME,
-                               ATTR_BLOB_SIZE_BYTES)
 from p2.core.models import Blob
 
 LOGGER = getLogger(__name__)
@@ -19,25 +16,7 @@ BLOB_ACCESS = Signal(providing_args=['status_code', ''])
 BLOB_PRE_SAVE = Signal(providing_args=['blob'])
 BLOB_POST_SAVE = Signal(providing_args=['blob'])
 
-TEXT_CHARACTERS = str.encode("".join(list(map(chr, range(32, 127))) + list("\n\r\t\b")))
-
-def is_text(payload):
-    """Return True if file is text, else False"""
-    _null_trans = bytes.maketrans(b"", b"")
-    if not payload:
-        # Empty files are considered text
-        return True
-    if b"\0" in payload:
-        # Files with null bytes are likely binary
-        return False
-    # Get the non-text characters (maps a character to itself then
-    # use the 'remove' option to get rid of the text characters.)
-    translation = payload.translate(_null_trans, TEXT_CHARACTERS)
-    # If more than 30% non-text characters, then
-    # this is considered a binary file
-    if float(len(translation)) / float(len(payload)) > 0.30:
-        return False
-    return True
+BUF_SIZE = 65536
 
 
 @receiver(pre_save, sender=Blob)
@@ -64,43 +43,24 @@ def blob_pre_delete(sender, instance, **kwargs):
 # pylint: disable=unused-argument
 def blob_payload_hash(sender, blob, **kwargs):
     """Add common hashes as attributes"""
-    hashes = [
-        'md5',
-        'sha1',
-        'sha256',
-        'sha384',
-        'sha512',
-    ]
+    hashes = {
+        'md5': hashlib.md5(),
+        'sha1': hashlib.sha1(),
+        'sha256': hashlib.sha256(),
+        'sha384': hashlib.sha384(),
+        'sha512': hashlib.sha512(),
+    }
     # Check if any values were updated to prevent recursive saving
-    _payload = blob.payload
+    while True:
+        data = blob.read(BUF_SIZE)
+        if not data:
+            break
+        for hash_name in hashes:
+            hashes[hash_name].update(data)
     for hash_name in hashes:
-        hasher = getattr(hashlib, hash_name)()
-        hasher.update(_payload)
-        _hash = hasher.hexdigest()
-        if hash_name not in blob.attributes or blob.attributes[hash_name] != _hash:
-            attr_name = getattr(constants, 'ATTR_BLOB_HASH_%s' % hash_name.upper())
+        _hash = hashes[hash_name].hexdigest()
+        attr_name = getattr(constants, 'ATTR_BLOB_HASH_%s' % hash_name.upper())
+        if attr_name not in blob.attributes or blob.attributes[attr_name] != _hash:
             blob.attributes[attr_name] = _hash
             LOGGER.debug('Updated %s for %s to %s',
                          hash_name, blob.uuid.hex, _hash)
-    blob.save()
-
-
-@receiver(BLOB_PAYLOAD_UPDATED)
-# pylint: disable=unused-argument
-def blob_payload_size(sender, blob, **kwargs):
-    """Add size in bytes as attribute"""
-    size = len(blob.payload)
-    blob.attributes[ATTR_BLOB_SIZE_BYTES] = str(size)
-    LOGGER.debug('Updated size to %d for %s', size, blob.uuid.hex)
-    blob.save()
-
-
-@receiver(BLOB_PAYLOAD_UPDATED)
-# pylint: disable=unused-argument
-def blob_payload_mime(sender, blob, **kwargs):
-    """Add mime type as attribute"""
-    mime_type = magic.from_buffer(blob.payload, mime=True)
-    blob.attributes[ATTR_BLOB_MIME] = mime_type
-    blob.attributes[ATTR_BLOB_IS_TEXT] = is_text(blob.payload)
-    LOGGER.debug('Updated MIME to %s for %s', mime_type, blob.uuid.hex)
-    blob.save()

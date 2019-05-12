@@ -25,7 +25,7 @@ class ServeView(View):
                     rule_pk=rule.pk)
                 mime_type = blob.attributes.get(ATTR_BLOB_MIME, 'text/plain')
                 headers = blob.attributes.get(ATTR_BLOB_HEADERS, {})
-                response = HttpResponse(blob.payload,
+                response = HttpResponse(blob,
                                         content_type=mime_type)
                 for header_key, header_value in headers.items():
                     if header_key == 'Location':

@@ -3,6 +3,7 @@ import hashlib
 import hmac
 from collections import OrderedDict
 from logging import getLogger
+from urllib.parse import quote
 from xml.etree import ElementTree
 
 from django.views import View
@@ -41,15 +42,15 @@ class S3Authentication(View):
 
     def _make_query_string(self):
         """Parse existing Querystring, URI-encode them and sort them and put them back together"""
-        paris = []
+        pairs = []
         if self.request.META['QUERY_STRING'] == '':
             return self.request.META['QUERY_STRING']
         for kv_pair in self.request.META['QUERY_STRING'].split('&'):
             if '=' not in kv_pair:
                 kv_pair = kv_pair + '='
-            paris.append(kv_pair)
-        paris.sort()
-        return '&'.join(paris)
+            pairs.append(kv_pair)
+        pairs.sort()
+        return '&'.join(pairs)
 
     def _fix_header_keys(self):
         """Fix header keys from HTTP_X to x"""
@@ -71,7 +72,7 @@ class S3Authentication(View):
                 canonical_headers += '%s:%s\n' % (header_key, header_value)
         canonical_request = [
             self.request.META['REQUEST_METHOD'],
-            self.request.META['PATH_INFO'],
+            quote(self.request.META['PATH_INFO']),
             self._make_query_string(), # self.request.META['QUERY_STRING'],
             canonical_headers,
             signed_headers,
@@ -92,7 +93,8 @@ class S3Authentication(View):
         raw = self.request.META.get('HTTP_AUTHORIZATION')
         # LOGGER.debug("Raw Header: %r", raw)
         if not raw:
-            return False
+            # No authentication header present, hence continue as AnonymousUser
+            return None
         algorithm, credential_container = raw.split(' ', 1)
         credential, signed_headers, signature = credential_container.split(',')
         # Remove "Credentail=" from string
@@ -105,7 +107,7 @@ class S3Authentication(View):
         # Build our own signature to compare
         secret_key = self._lookup_access_key(access_key)
         if not secret_key:
-            return False
+            return ErrorCodes.ACCESS_DENIED
         signing_key = self._get_signautre_key(secret_key.secret_key, date, region, service)
         canonical_request = self._get_canonical_request(signed_headers)
         # LOGGER.debug("Canonical Request: '%s'", canonical_request)
@@ -122,11 +124,12 @@ class S3Authentication(View):
         LOGGER.debug("We got %s", our_signature)
         if signature == our_signature:
             self.request.user = secret_key.user
-            return True
-        return False
+            return None
+        return ErrorCodes.SIGNATURE_DOES_NOT_MATCH
 
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
-        if not self.authenticate():
-            return self.error_response(ErrorCodes.SIGNATURE_DOES_NOT_MATCH)
+        auth_error_code = self.authenticate()
+        if auth_error_code:
+            return self.error_response(auth_error_code)
         return super().dispatch(request, *args, **kwargs)

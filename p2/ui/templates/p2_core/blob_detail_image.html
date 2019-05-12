@@ -3,4 +3,4 @@
     max-width: 100%;
   }
 </style>
-<img class="blob-payload" src="{{ object.payload_data_uri }}" alt="">
+<img class="blob-payload" src="{% 'p2_s3:bucket-object' bucket=object.volume.name path=object.path %}" alt="">

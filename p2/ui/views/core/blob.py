@@ -150,6 +150,6 @@ class BlobDownloadView(PermissionRequiredMixin, DetailView):
     def get(self, *args, **kwargs):
         super().get(*args, **kwargs)
         response = HttpResponse(
-            self.object.payload, content_type=self.object.attributes.get('mime', 'text/plain'))
+            self.object, content_type=self.object.attributes.get('mime', 'text/plain'))
         response['Content-Disposition'] = 'attachment; filename=' + self.object.path
         return response

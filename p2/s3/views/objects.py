@@ -4,6 +4,7 @@ from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.core.constants import ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES
 from p2.core.exceptions import BlobException
+from p2.core.http import BlobResponse
 from p2.core.models import Blob, Volume
 from p2.s3.auth import S3Authentication
 from p2.s3.constants import ErrorCodes
@@ -34,10 +35,7 @@ class ObjectView(S3Authentication):
         if not blobs.exists():
             return self.error_response(ErrorCodes.NO_SUCH_KEY)
         blob = blobs.first()
-        response = HttpResponse(blob.payload)
-        response['Content-Length'] = blob.attributes.get(ATTR_BLOB_SIZE_BYTES)
-        response['Content-Type'] = blob.attributes.get(ATTR_BLOB_MIME, 'text/plain')
-        return response
+        return BlobResponse(blob)
 
     def put(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectPUT.html"""
@@ -52,14 +50,16 @@ class ObjectView(S3Authentication):
             if not blobs.exists():
                 blob = Blob.objects.create(
                     path=path,
-                    volume=volume,
-                    payload=request.body)
+                    volume=volume)
+                blob.write(request.body)
+                blob.save()
+                # TODO: Implement chunked saving
                 # We're creating a new blob, hence assign all default permissions
-                for permission in ['view_blob', 'update_blob', 'delete_blob']:
+                for permission in ['view_blob', 'change_blob', 'delete_blob']:
                     assign_perm('p2_core.%s' % permission, request.user, blob)
             else:
                 blob = blobs.first()
-                blob.payload = request.body
+                blob.write(request.body)
                 blob.save()
         except BlobException as exc:
             return XMLResponse(exc)
