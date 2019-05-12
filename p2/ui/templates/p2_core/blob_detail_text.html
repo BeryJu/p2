@@ -1,9 +1,11 @@
+{% load p2_ui %}
+
 <style>
   .CodeMirror {
     height: auto;
   }
 </style>
-<textarea name="payload">{{ object.read }}</textarea>
+<textarea name="payload">{{ object|blob_string }}</textarea>
 <script>
   let payload = document.getElementsByName('payload');
   if (payload.length > 0) {

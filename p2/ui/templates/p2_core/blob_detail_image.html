@@ -1,6 +1,8 @@
+{% load p2_ui %}
+
 <style>
   img.blob-payload {
     max-width: 100%;
   }
 </style>
-<img class="blob-payload" src="{% 'p2_s3:bucket-object' bucket=object.volume.name path=object.path %}" alt="">
+<img class="blob-payload" src="{{ object|blob_url }}" alt="">

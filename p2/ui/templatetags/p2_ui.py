@@ -3,6 +3,7 @@ import json
 
 from django import template
 from django.db.models import Model
+from django.shortcuts import reverse
 
 from p2.lib.reflection import path_to_class
 
@@ -42,3 +43,18 @@ def startswith(text, starts):
 def json_pretty(obj):
     """Convert obj into pretty-printed JSON"""
     return json.dumps(obj, indent=4, sort_keys=True)
+
+
+@register.filter('blob_url')
+def blob_url(blob):
+    """Return URL to blob"""
+    return reverse('p2_s3:bucket-object', kwargs={
+        'bucket': blob.volume.name,
+        'path': blob.path[1:]
+    })
+
+
+@register.filter('blob_string')
+def blob_string(blob):
+    """Read blob's content and return as string"""
+    return blob.read().decode('utf-8')
