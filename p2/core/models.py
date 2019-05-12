@@ -78,9 +78,8 @@ class Blob(UUIDModel, TagModel):
     volume = models.ForeignKey('Volume', on_delete=models.CASCADE)
     attributes = JSONField(default=dict, blank=True, encoder=DjangoJSONEncoder)
 
-    _payload = None
+    _writing_handle = None
     _reading_handle = None
-    _payload_dirty = False
 
     class Meta:
 
@@ -96,6 +95,7 @@ class Blob(UUIDModel, TagModel):
             volume=volume)
         for chunk in file.chunks():
             blob.write(chunk)
+        blob.attributes[ATTR_BLOB_SIZE_BYTES] = str(file.size)
         blob.save()
         return blob
 
@@ -104,20 +104,24 @@ class Blob(UUIDModel, TagModel):
         """Return only the filename part of self.path"""
         return self.path.split('/')[-1]
 
+    def _open_read_handle(self):
+        if not self._reading_handle:
+            self._reading_handle = self.volume.storage.controller.retrieve_payload(self)
+
+    ### File-like methods
+
     def read(self, *args, **kwargs):
         """Retrieve file from storage controller and call read method. Accepts same
         arguments as file's read."""
-        if not self._reading_handle:
-            self._reading_handle = self.volume.storage.controller.retrieve_payload(self)
+        self._open_read_handle()
         return self._reading_handle.read(*args, **kwargs)
 
     def write(self, *args, **kwargs):
         """Open TemporaryFile for writing, method arguments are the same as file's write.
         File is not committed until Blob.save() is called."""
-        if not self._payload:
-            self._payload = SpooledTemporaryFile(max_size=500, encoding='utf-8')
-        self._payload_dirty = True
-        return self._payload.write(*args, **kwargs)
+        if not self._writing_handle:
+            self._writing_handle = SpooledTemporaryFile(max_size=500)
+        return self._writing_handle.write(*args, **kwargs)
 
     # @property
     # def payload_string(self) -> str:
@@ -160,16 +164,16 @@ class Blob(UUIDModel, TagModel):
                 # Create/update `date_updated` attribute
                 self.attributes[ATTR_BLOB_STAT_MTIME] = now()
                 # Only save payload if it changed
-                if self._payload:
-                    self._payload.seek(0)
-                    self.volume.storage.controller.update_payload(self, self._payload)
+                if self._writing_handle:
+                    self._writing_handle.seek(0)
+                    self.volume.storage.controller.update_payload(self, self._writing_handle)
                 # Check if path exists already
                 self.__failsafe_path()
                 # Update prefix
                 self.__update_prefix()
                 self.volume.storage.controller.collect_attributes(self)
                 super().save(*args, **kwargs)
-                if self._payload_dirty:
+                if self._writing_handle:
                     signal_marshall.delay('p2.core.signals.BLOB_PAYLOAD_UPDATED', kwargs={
                         'blob': {
                             'class': class_to_path(self.__class__),

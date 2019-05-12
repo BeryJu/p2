@@ -124,6 +124,10 @@ with CONFIG.cd('web'):
         'log.screen': False,
         'log.access_file': '',
         'log.error_file': '',
+        # remove any limit on the request body size; cherrypy's default is 100MB
+        'server.max_request_body_size': 0,
+        # increase server socket timeout to 60s; cherrypy's defult is 10s
+        'server.socket_timeout': 600
     }
 
 INSTALLED_APPS = [

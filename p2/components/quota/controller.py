@@ -6,6 +6,7 @@ from p2.components.quota.constants import (ACTION_BLOCK, ACTION_EMAIL,
                                            TAG_QUOTA_THRESHOLD)
 from p2.components.quota.exceptions import QuotaExceededException
 from p2.core.components.base import ComponentController
+from p2.core.constants import ATTR_BLOB_SIZE_BYTES
 
 LOGGER = getLogger(__name__)
 
@@ -18,7 +19,7 @@ class QuotaController(ComponentController):
 
     def before_save(self, blob):
         """Check if new blob would be over threshold"""
-        new_blob_size = len(blob.payload)
+        new_blob_size = int(blob.attributes[ATTR_BLOB_SIZE_BYTES])
         if (self.volume.space_used + new_blob_size) > self.threshold:
             # We'd be over, so execute our action and raise an Exception to prevent saving.
             self.do_action(blob)
