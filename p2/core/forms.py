@@ -1,10 +1,10 @@
 """p2 core forms"""
 from django import forms
 
+from p2.core.constants import ATTR_BLOB_SIZE_BYTES
 from p2.core.models import Blob, Storage, Volume
 from p2.lib.forms import TagModelForm
 from p2.lib.reflection import path_to_class
-from p2.core.constants import ATTR_BLOB_SIZE_BYTES
 
 
 class BlobForm(TagModelForm):
@@ -23,7 +23,7 @@ class BlobForm(TagModelForm):
         if 'payload' in self.cleaned_data:
             for chunk in self.cleaned_data.get('payload').chunks():
                 instance.write(chunk)
-            instance.attributes[ATTR_BLOB_SIZE_BYTES] = str(file.size)
+            instance.attributes[ATTR_BLOB_SIZE_BYTES] = str(self.cleaned_data.get('payload').size)
         return instance
 
     class Meta:
