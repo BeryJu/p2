@@ -9,6 +9,6 @@ class S3RoutingMiddleware:
 
     def __call__(self, request):
         if 'HTTP_X_AMZ_DATE' in request.META:
-            request.urlconf = 'p2.s3.urls'
+            request.urlconf = 'p2.s3.explicit_urls'
         response = self.get_response(request)
         return response
