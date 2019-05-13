@@ -9,12 +9,16 @@ def before_send(event, hint):
     from django_redis.exceptions import ConnectionInterrupted
     from django.db import OperationalError, InternalError
     from rest_framework.exceptions import APIException
+    from billiard.exceptions import WorkerLostError
+    from django.core.exceptions import DisallowedHost
     ignored_classes = (
         OperationalError,
         ConnectionInterrupted,
         APIException,
         InternalError,
         ConnectionResetError,
+        WorkerLostError,
+        DisallowedHost,
     )
     if 'exc_info' in hint:
         _exc_type, exc_value, _ = hint['exc_info']
