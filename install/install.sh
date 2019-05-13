@@ -32,8 +32,6 @@ bash install.docker.sh > /dev/null 2>&1
 curl -fsSL "https://raw.githubusercontent.com/rancher/k3s/v${K3S_VERSION}/install.sh" -o install.k3s.sh
 bash install.k3s.sh > /dev/null 2>&1
 
-P2_STORAGE_PATH="${STORAGE_BASE:-/srv/p2}/storage/"
-P2_DATABASE_PATH="${STORAGE_BASE:-/srv/p2}/database/"
 P2_PASSWORD_FILE="${STORAGE_BASE:-/srv/p2}/password"
 
 # Make sure storage directories exist
@@ -61,8 +59,7 @@ sed -i "s|%INGRESS_HOST%|${INGRESS_HOST}|g" p2_k3s_helm.yaml
 sed -i "s|%PASSWORD%|${PASSWORD}|g" p2_k3s_helm.yaml
 
 # Replace variable in Storage
-sed -i "s|%P2_STORAGE_PATH%|${P2_STORAGE_PATH}|g" p2_k3s_storage.yaml
-sed -i "s|%P2_DATABASE_PATH%|${P2_DATABASE_PATH}|g" p2_k3s_storage.yaml
+sed -i "s|%STORAGE_BASE%|${STORAGE_BASE}|g" p2_k3s_storage.yaml
 
 # Replace variable in cert-manager
 # sed -i "s|%LE_MAIL%|${LE_MAIL}|g" p2_k3s_cert.yaml

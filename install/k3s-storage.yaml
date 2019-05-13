@@ -1,49 +1,107 @@
+# From https://github.com/rancher/local-path-provisioner
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: p2
+  name: local-path-storage
 ---
 apiVersion: v1
-kind: PersistentVolume
+kind: ServiceAccount
 metadata:
-  name: p2-pv-app-storage
-spec:
-  capacity:
-    storage: 100Gi
-  accessModes:
-  - ReadWriteOnce
-  claimRef:
-    namespace: p2
-    name: p2-pvc-app-storage
-  storageClassName: standard
-  hostPath:
-    path: %P2_STORAGE_PATH%
+  name: local-path-provisioner-service-account
+  namespace: local-path-storage
 ---
-apiVersion: v1
-kind: PersistentVolume
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
 metadata:
-  name: p2-pv-postgresql
-spec:
-  capacity:
-    storage: 100Gi
-  accessModes:
-  - ReadWriteOnce
-  claimRef:
-    namespace: p2
-    name: p2-pvc-postgresql
-  storageClassName: standard
-  hostPath:
-    path: %P2_DATABASE_PATH%
+  name: local-path-provisioner-role
+  namespace: local-path-storage
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "persistentvolumeclaims"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["endpoints", "persistentvolumes", "pods"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+- apiGroups: ["storage.k8s.io"]
+  resources: ["storageclasses"]
+  verbs: ["get", "list", "watch"]
 ---
-kind: PersistentVolumeClaim
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: local-path-provisioner-bind
+  namespace: local-path-storage
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: local-path-provisioner-role
+subjects:
+- kind: ServiceAccount
+  name: local-path-provisioner-service-account
+  namespace: local-path-storage
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: local-path-provisioner
+  namespace: local-path-storage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: local-path-provisioner
+  template:
+    metadata:
+      labels:
+        app: local-path-provisioner
+    spec:
+      serviceAccountName: local-path-provisioner-service-account
+      containers:
+      - name: local-path-provisioner
+        image: rancher/local-path-provisioner:v0.0.8
+        imagePullPolicy: Always
+        command:
+        - local-path-provisioner
+        - --debug
+        - start
+        - --config
+        - /etc/config/config.json
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config/
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+      volumes:
+        - name: config-volume
+          configMap:
+            name: local-path-config
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-path
+provisioner: rancher.io/local-path
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+---
+kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: p2-pvc-postgresql
-  namespace: p2
-spec:
-  storageClassName: standard
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 100Gi
+  name: local-path-config
+  namespace: local-path-storage
+data:
+  config.json: |-
+        {
+                "nodePathMap":[
+                {
+                        "node":"DEFAULT_PATH_FOR_NON_LISTED_NODES",
+                        "paths":["%STORAGE_BASE%"]
+                }
+                ]
+        }

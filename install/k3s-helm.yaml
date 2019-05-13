@@ -16,8 +16,6 @@ spec:
       postgresqlDatabase: p2
       postgresqlUsername: p2
       postgresqlPassword: '%PASSWORD%'
-      persistence:
-        existingClaim: p2-pvc-postgresql
       initdbScripts:
         enable_hstore.sql: |
           \connect p2
