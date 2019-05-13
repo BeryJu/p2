@@ -18,7 +18,9 @@
 {% block content %}
 <h3>
 {% if object %}
-Editing {{ object }}
+Editing '{{ object }}''
+{% elif title %}
+{{ title }}
 {% else %}
 Creating {{ view.model|model_verbose_name }}
 {% endif %}

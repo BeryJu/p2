@@ -20,3 +20,10 @@ class ServeRuleForm(forms.ModelForm):
         help_texts = {
             'blob_query': _("The placeholder '%(path)s' will be replaced with the request path.")
         }
+
+
+class ServeRuleDebugForm(forms.Form):
+    """Debug ServeRule's blob_query"""
+
+    path = forms.CharField()
+    result = forms.CharField(widget=forms.Textarea(attrs={'readonly':True}), required=False)

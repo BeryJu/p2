@@ -13,17 +13,22 @@ class ServeView(View):
     def rule_lookup(self, rule, path):
         """Build blob lookup from rule"""
         lookups = {}
+        debug_messages = []
         for lookup_token in rule.blob_query.split('&'):
+            debug_messages.append("Found new token '%s'" % lookup_token)
             lookup_key, lookup_value = lookup_token.split('=')
             lookups[lookup_key] = lookup_value % {
                 'path': path
             }
-        return get_object_for_user_or_404(self.request.user, 'p2_core.view_blob', **lookups)
+            debug_messages.append("Formatted to '%s'" % lookups[lookup_key])
+        debug_messages.append("Final lookup %r" % lookups)
+        return lookups, debug_messages
 
     def dispatch(self, request, path):
         for rule in ServeRule.objects.all():
             if rule.regex.match(path):
-                blob = self.rule_lookup(rule, path)
+                lookups, _ = self.rule_lookup(rule, path)
+                blob = get_object_for_user_or_404(self.request.user, 'p2_core.view_blob', **lookups)
                 request.log(
                     blob_pk=blob.pk,
                     rule_pk=rule.pk)

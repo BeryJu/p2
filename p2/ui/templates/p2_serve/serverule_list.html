@@ -15,8 +15,7 @@
       <th>{% trans 'Name' %}</th>
       <th>{% trans 'Match' %}</th>
       <th>{% trans 'Query' %}</th>
-      <th>{% trans 'Edit' %}</th>
-      <th>{% trans 'Delete' %}</th>
+      <th>{% trans 'Actions' %}</th>
       </td>
   </thead>
   <tbody>
@@ -33,8 +32,9 @@
         <a class="btn btn-primary" href="{% url 'p2_ui:serve-rule-update' pk=object.pk %}">
           <i class="fa fa-pencil text-light" aria-hidden="true"></i>
         </a>
-      </td>
-      <td>
+        <a class="btn btn-primary" href="{% url 'p2_ui:serve-rule-debug' pk=object.pk %}">
+          <i class="fa fa-play text-light" aria-hidden="true"></i>
+        </a>
         <a class="btn btn-danger" href="{% url 'p2_ui:serve-rule-delete' pk=object.pk %}">
           <i class="fa fa-trash text-light" aria-hidden="true"></i>
         </a>

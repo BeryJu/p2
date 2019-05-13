@@ -80,6 +80,8 @@ urlpatterns = [
          rule.ServeRuleListView.as_view(), name='serve-rule-list'),
     path('serve/rule/create/',
          rule.ServeRuleCreateView.as_view(), name='serve-rule-create'),
+    path('serve/rule/<int:pk>/debug/',
+         rule.ServeRuleDebugView.as_view(), name='serve-rule-debug'),
     path('serve/rule/<int:pk>/update/',
          rule.ServeRuleUpdateView.as_view(), name='serve-rule-update'),
     path('serve/rule/<int:pk>/delete/',
