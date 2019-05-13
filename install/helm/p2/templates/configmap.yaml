@@ -35,27 +35,16 @@ data:
     rabbitmq: "p2:{{ .Values.rabbitmq.rabbitmq.password }}@{{ .Release.Name }}-rabbitmq"
     redis: ":{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/0"
 
-    # Error reporting, disabled by default
     error_report_enabled: {{ .Values.config.error_reporting }}
 
     # Set this to this server's hostname or the external domain if behind a reverse proxy
-    domains: {{ .Values.ingress.hosts }}
+    domains:
+    {{- range .Values.ingress.hosts }}
+      - {{ . | quote }}
+    {{- end }}
 
     # Set this to true if you only want to use external authentication
     external_auth_only: false
-
-    # LDAP Authentication
-    # ldap:
-    #     enabled: false
-    #     server:
-    #         uri: 'ldap://dc1.example.com'
-    #         tls: false
-    #     bind:
-    #         dn: ''
-    #         password: ''
-    #     search_base: ''
-    #     filter: '(sAMAccountName=%(user)s)'
-    #     require_group: ''
 
     {{- if .Values.config.secret_key }}
     secret_key: {{ .Values.config.secret_key }}
