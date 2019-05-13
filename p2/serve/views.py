@@ -1,8 +1,9 @@
 """p2 Serve Views"""
-from django.http import Http404, HttpResponse
+from django.http import Http404
 from django.views import View
 
-from p2.core.constants import ATTR_BLOB_HEADERS, ATTR_BLOB_MIME
+from p2.core.constants import ATTR_BLOB_HEADERS
+from p2.core.http import BlobResponse
 from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.serve.models import ServeRule
 
@@ -32,10 +33,8 @@ class ServeView(View):
                 request.log(
                     blob_pk=blob.pk,
                     rule_pk=rule.pk)
-                mime_type = blob.attributes.get(ATTR_BLOB_MIME, 'text/plain')
                 headers = blob.attributes.get(ATTR_BLOB_HEADERS, {})
-                response = HttpResponse(blob,
-                                        content_type=mime_type)
+                response = BlobResponse(blob)
                 for header_key, header_value in headers.items():
                     if header_key == 'Location':
                         response.status_code = 302
