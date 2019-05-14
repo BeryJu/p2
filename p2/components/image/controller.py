@@ -18,22 +18,27 @@ class ImageController(ComponentController):
         """extract EXIF data from image and save as attributes"""
         try:
             img = Image.open(blob)
+            LOGGER.debug("Removing stale EXIF keys")
             # Remove all keys starting with EXIF: to prevent stale keys
             for key in list(blob.attributes.keys()):
-                if key.startswith('exif:'):
+                if key.startswith('blob.p2.io/exif/'):
                     del blob.attributes[key]
-            # Read out EXIF attributes, lookup numerical EXIF name and save as key exif:x
+            # Read out EXIF attributes, lookup numerical EXIF name and save as key blob.p2.io/exif/x
             # pylint: disable=protected-access
             if hasattr(img, '_getexif'):
+                LOGGER.debug("Adding exif from file")
                 # pylint: disable=protected-access
                 exif_data = img._getexif()
+                # TODO: Filter tags that are enabled in component
                 if exif_data:
                     exif = {
-                        'exif:%s' % ExifTags.TAGS[k]: v
+                        'blob.p2.io/exif/%s' % ExifTags.TAGS[k]: v
                         for k, v in img._getexif().items()
                         if k in ExifTags.TAGS and isinstance(v, str)
                     }
                     blob.attributes.update(exif)
                     LOGGER.debug("Updated EXIF data")
-        except IOError:
+            blob.save()
+        except IOError as exc:
+            LOGGER.debug(exc)
             LOGGER.debug("Blob '%s' is not an image, skipping EXIF.", blob.uuid)

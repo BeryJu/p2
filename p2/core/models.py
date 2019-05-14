@@ -125,6 +125,20 @@ class Blob(UUIDModel, TagModel):
             self._writing_handle = SpooledTemporaryFile(max_size=500)
         return self._writing_handle.write(*args, **kwargs)
 
+    def seek(self, pos):
+        """Seek open handles to position"""
+        self._open_read_handle()
+        self._reading_handle.seek(pos)
+        if self._writing_handle:
+            self._writing_handle.seek(pos)
+
+    def tell(self):
+        """Return current position of write handle if open, otherwise read handle"""
+        self._open_read_handle()
+        if self._writing_handle:
+            return self._writing_handle.tell()
+        return self._reading_handle.tell()
+
     # @property
     # def payload_string(self) -> str:
     #     """Get payload as string"""
