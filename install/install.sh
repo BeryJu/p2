@@ -35,8 +35,7 @@ bash install.k3s.sh > /dev/null 2>&1
 P2_PASSWORD_FILE="${STORAGE_BASE:-/srv/p2}/password"
 
 # Make sure storage directories exist
-mkdir -p $P2_STORAGE_PATH
-mkdir -p $P2_DATABASE_PATH
+mkdir -p "${STORAGE_BASE}"
 
 # Check if password has been generated, generate if not
 if [[ ! -f "$P2_PASSWORD_FILE" ]]; then
