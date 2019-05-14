@@ -32,7 +32,8 @@ bash install.docker.sh > /dev/null 2>&1
 curl -fsSL "https://raw.githubusercontent.com/rancher/k3s/v${K3S_VERSION}/install.sh" -o install.k3s.sh
 bash install.k3s.sh > /dev/null 2>&1
 
-P2_PASSWORD_FILE="${STORAGE_BASE:-/srv/p2}/password"
+STORAGE_BASE="${STORAGE_BASE:-/srv/p2}"
+P2_PASSWORD_FILE="${STORAGE_BASE}/password"
 
 # Make sure storage directories exist
 mkdir -p "${STORAGE_BASE}"
