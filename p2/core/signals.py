@@ -64,3 +64,4 @@ def blob_payload_hash(sender, blob, **kwargs):
             blob.attributes[attr_name] = _hash
             LOGGER.debug('Updated %s for %s to %s',
                          hash_name, blob.uuid.hex, _hash)
+    blob.save()
