@@ -1,11 +1,15 @@
 """p2 Serve Views"""
+from logging import getLogger
+
 from django.http import Http404
 from django.views import View
+from guardian.shortcuts import get_objects_for_user
 
 from p2.core.constants import ATTR_BLOB_HEADERS
 from p2.core.http import BlobResponse
-from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.serve.models import ServeRule
+
+LOGGER = getLogger(__name__)
 
 
 class ServeView(View):
@@ -28,8 +32,17 @@ class ServeView(View):
     def dispatch(self, request, path):
         for rule in ServeRule.objects.all():
             if rule.regex.match(path):
-                lookups, _ = self.rule_lookup(rule, path)
-                blob = get_object_for_user_or_404(self.request.user, 'p2_core.view_blob', **lookups)
+                LOGGER.debug("Rule %s matched", rule)
+                lookups, messages = self.rule_lookup(rule, path)
+                # Output debug messages on log
+                for msg in messages:
+                    LOGGER.debug(msg)
+                blobs = get_objects_for_user(
+                    self.request.user, 'p2_core.view_blob').filter(**lookups)
+                if not blobs.exists():
+                    LOGGER.debug("No blob found matching ")
+                    continue
+                blob = blobs.first()
                 request.log(
                     blob_pk=blob.pk,
                     rule_pk=rule.pk)
