@@ -30,7 +30,7 @@ spec:
       initContainers:
         - name: fix-volume-permissions
           image: busybox
-          command: ["sh", "-c", "chown -R 100: /storage"]
+          command: ["sh", "-c", "mkdir /storage/tmp && chown -R 100: /storage"]
           volumeMounts:
             - mountPath: /storage
               name: media-storage
