@@ -4,7 +4,7 @@ from xml.etree import ElementTree
 from django.http import HttpResponse
 from guardian.shortcuts import get_objects_for_user
 
-from p2.core.constants import (ATTR_BLOB_HASH_SHA512, ATTR_BLOB_SIZE_BYTES,
+from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_SIZE_BYTES,
                                ATTR_BLOB_STAT_MTIME)
 from p2.core.models import Volume
 from p2.lib.shortcuts import get_object_for_user_or_404
@@ -72,7 +72,7 @@ class BucketView(S3Authentication):
             ElementTree.SubElement(
                 content, "LastModified").text = blob.attributes.get(ATTR_BLOB_STAT_MTIME)
             ElementTree.SubElement(
-                content, "ETag").text = blob.attributes.get(ATTR_BLOB_HASH_SHA512)
+                content, "ETag").text = blob.attributes.get(ATTR_BLOB_HASH_MD5)
             ElementTree.SubElement(content, "Size").text = str(
                 blob.attributes.get(ATTR_BLOB_SIZE_BYTES, 0))
             ElementTree.SubElement(content, "StorageClass").text = \

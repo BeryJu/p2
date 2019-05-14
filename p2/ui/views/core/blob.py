@@ -83,11 +83,11 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
         context['breadcrumbs'] = self.build_breadcrumb_list(prefix)
 
         # If we have more than 20 prefixes, we don't need to lookup objects
-        if len(context['prefixes']) > 20 or not context['prefixes']:
+        if len(context['prefixes']) < 20 or not context['prefixes']:
             page = self.request.GET.get('page', 1)
             objects_per_page = 20
-            if page == 1:
-                objects_per_page = 20 - len(context['prefixes'])
+            # if page == 1:
+            #     objects_per_page = 20 - len(context['prefixes'])
 
             paginator = Paginator(blobs, objects_per_page)
             context['objects'] = paginator.get_page(page)
