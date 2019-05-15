@@ -25,6 +25,37 @@ fi
 TEMP_DIR=$(mktemp -d --suffix _p2)
 cd "${TEMP_DIR}"
 
+# kubectl helper functions, from https://github.com/zlabjp/kubernetes-scripts
+function __is_pod_ready() {
+  [[ "$(kubectl get po "$1" -o 'jsonpath={.status.conditions[?(@.type=="Ready")].status}')" == 'True' ]]
+}
+
+function __pods_ready() {
+  local pod
+
+  [[ "$#" == 0 ]] && return 0
+
+  for pod in $pods; do
+    __is_pod_ready "$pod" || return 1
+  done
+
+  return 0
+}
+
+function __wait_until_pods_ready() {
+  local i pods
+
+  while true; do
+    pods="$(kubectl get pods -n p2 -o 'jsonpath={.items[*].metadata.name}')"
+    if __pods_ready $pods; then
+      return 0
+    fi
+
+    echo " * Waiting for pods to be ready..."
+    sleep 5
+  done
+}
+
 # Make sure docker is installed
 curl -fsSL https://get.docker.com -o install.docker.sh
 bash install.docker.sh > /dev/null 2>&1
@@ -64,8 +95,6 @@ sed -i "s|%STORAGE_BASE%|${STORAGE_BASE}|g" p2_k3s_storage.yaml
 # Replace variable in cert-manager
 # sed -i "s|%LE_MAIL%|${LE_MAIL}|g" p2_k3s_cert.yaml
 
-# TODO: Check if kubectl exists and if existing pods are running
-
 mv p2_k3s_nginx.yaml /var/lib/rancher/k3s/server/manifests/p2-10-nginx.yaml
 mv p2_k3s_storage.yaml /var/lib/rancher/k3s/server/manifests/p2-20-storage.yaml
 mv p2_k3s_helm.yaml /var/lib/rancher/k3s/server/manifests/p2-30-helm.yaml
@@ -75,11 +104,9 @@ mv p2_k3s_helm.yaml /var/lib/rancher/k3s/server/manifests/p2-30-helm.yaml
 #     mv p2_k3s_cert.yaml /var/lib/rancher/k3s/server/manifests/p2-40-cert.yaml
 # fi
 
-# TODO: If existing pods were running, delete them
-
 echo " * Your p2 instanace will be available at $INGRESS_HOST in a few minutes."
 echo " * You can use the username admin with password admin to login."
 
-# TODO: Wait for webinterface to become available
+__wait_until_pods_ready
 
 rm -r "${TEMP_DIR}"
