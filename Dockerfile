@@ -26,10 +26,7 @@ RUN apk update && \
     pip install -U pip --no-cache-dir && \
     pip install -r /app/requirements.txt  --no-cache-dir && \
     adduser -S p2 && \
-    rm -rf /tmp && \
-    ln -s /storage/tmp /tmp && \
-    chown -R p2 /app && \
-    chown -R p2 /tmp
+    chown -R p2 /app
 
 USER p2
 

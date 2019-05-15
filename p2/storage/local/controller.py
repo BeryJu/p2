@@ -75,7 +75,7 @@ class LocalStorageController(StorageController):
     def update_payload(self, blob: Blob, file_like: RawIOBase):
         fs_path = self._build_path(blob)
         os.makedirs(os.path.dirname(fs_path), exist_ok=True)
-        LOGGER.debug('UPDT "%s" "%.5s"', blob.uuid, file_like)
+        LOGGER.debug('UPDT "%s" %r', blob.uuid, file_like)
         if not file_like:
             # Not file_like, delete file if it exists
             if os.path.exists(fs_path) and os.path.isfile(fs_path):
