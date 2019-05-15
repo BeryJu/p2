@@ -16,10 +16,6 @@ spec:
       postgresqlDatabase: p2
       postgresqlUsername: p2
       postgresqlPassword: '%PASSWORD%'
-      initdbScripts:
-        enable_hstore.sql: |
-          \connect p2
-          create extension hstore;
     redis:
       password: '%PASSWORD%'
       master:

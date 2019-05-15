@@ -2,7 +2,7 @@
 
 import uuid
 
-import django.contrib.postgres.fields.hstore
+import django.contrib.postgres.fields.jsonb
 import django.db.models.deletion
 from django.db import migrations, models
 
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
             name='Component',
             fields=[
                 ('uuid', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
-                ('tags', django.contrib.postgres.fields.hstore.HStoreField(blank=True, default=dict)),
+                ('tags', django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict)),
                 ('controller_path', models.TextField(choices=[('p2.components.image.controller.ImageController', 'ImageController'), ('p2.components.quota.controller.QuotaController', 'QuotaController')])),
                 ('volume', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='p2_core.Volume')),
             ],
