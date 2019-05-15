@@ -116,19 +116,6 @@ with CONFIG.cd('ldap'):
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-with CONFIG.cd('web'):
-    CHERRYPY_SERVER = {
-        'server.socket_host': CONFIG.get('listen', '0.0.0.0'),  # nosec
-        'server.socket_port': CONFIG.get('port', 8000),
-        'server.thread_pool': CONFIG.get('threads', 30),
-        'log.screen': False,
-        'log.access_file': '',
-        'log.error_file': '',
-        # remove any limit on the request body size; cherrypy's default is 100MB
-        'server.max_request_body_size': 0,
-        # increase server socket timeout to 60s; cherrypy's defult is 10s
-        'server.socket_timeout': 600
-    }
 
 INSTALLED_APPS = [
     'django.contrib.admin',
