@@ -3,7 +3,7 @@ from django import forms
 
 from p2.core.constants import ATTR_BLOB_SIZE_BYTES
 from p2.core.models import Blob, Storage, Volume
-from p2.lib.forms import TagModelForm
+from p2.lib.forms import TagModelForm, TagModelFormMeta
 from p2.lib.reflection import path_to_class
 
 
@@ -26,7 +26,7 @@ class BlobForm(TagModelForm):
             instance.attributes[ATTR_BLOB_SIZE_BYTES] = str(self.cleaned_data.get('payload').size)
         return instance
 
-    class Meta:
+    class Meta(TagModelFormMeta):
 
         model = Blob
         fields = ['path', 'payload', 'tags']
@@ -46,7 +46,7 @@ class StorageForm(TagModelForm):
                 raise forms.ValidationError("Tag '%s' missing." % key)
         return self.cleaned_data.get('tags')
 
-    class Meta:
+    class Meta(TagModelFormMeta):
 
         model = Storage
         fields = ['name', 'controller_path', 'tags']
@@ -58,7 +58,7 @@ class StorageForm(TagModelForm):
 class VolumeForm(TagModelForm):
     """volume form"""
 
-    class Meta:
+    class Meta(TagModelFormMeta):
 
         model = Volume
         fields = ['name', 'storage', 'tags']

@@ -2,6 +2,14 @@
 import json
 
 from django import forms
+from django.contrib.postgres.forms import JSONField
+
+
+class JSONBeautifyField(JSONField):
+    """Same as django's JSONField but indent and sort keys"""
+
+    def prepare_value(self, value):
+        return json.dumps(value, indent=4, sort_keys=True)
 
 
 class TagModelForm(forms.ModelForm):
@@ -17,7 +25,7 @@ class TagModelForm(forms.ModelForm):
             if key not in tags:
                 tags[key] = value
         # Format JSON
-        kwargs['initial']['tags'] = json.dumps(tags, indent=4, sort_keys=True)
+        kwargs['initial']['tags'] = tags
         super().__init__(*args, **kwargs)
 
     def clean_tags(self):
@@ -27,3 +35,10 @@ class TagModelForm(forms.ModelForm):
                 if key not in self.cleaned_data.get('tags'):
                     raise forms.ValidationError("Tag %s missing." % key)
         return self.cleaned_data.get('tags')
+
+class TagModelFormMeta:
+    """Base Meta class that uses the JSONBeautifyField"""
+
+    field_classes = {
+        'tags': JSONBeautifyField
+    }

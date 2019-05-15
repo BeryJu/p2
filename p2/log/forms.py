@@ -1,7 +1,7 @@
 """p2 log forms"""
 from django import forms
 
-from p2.lib.forms import TagModelForm
+from p2.lib.forms import TagModelForm, TagModelFormMeta
 from p2.lib.reflection import path_to_class
 from p2.log.models import LogAdaptor
 
@@ -17,7 +17,7 @@ class LogAdaptorForm(TagModelForm):
                 raise forms.ValidationError("Tag '%s' missing." % key)
         return self.cleaned_data.get('tags')
 
-    class Meta:
+    class Meta(TagModelFormMeta):
 
         model = LogAdaptor
         fields = ['name', 'controller_path', 'tags']
