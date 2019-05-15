@@ -119,3 +119,4 @@ debian/*.substvars
 
 p2.crt
 p2.key
+static/**
