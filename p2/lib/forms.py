@@ -36,6 +36,7 @@ class TagModelForm(forms.ModelForm):
                     raise forms.ValidationError("Tag %s missing." % key)
         return self.cleaned_data.get('tags')
 
+# pylint: disable=too-few-public-methods
 class TagModelFormMeta:
     """Base Meta class that uses the JSONBeautifyField"""
 

@@ -83,7 +83,8 @@ class MultipartUploadView(S3Authentication):
         ElementTree.SubElement(root, "Location").text = "http://nope"
         ElementTree.SubElement(root, "Bucket").text = volume.name
         ElementTree.SubElement(root, "Key").text = path
-        ElementTree.SubElement(root, "ETag").text = destination_blob.attributes.get(ATTR_BLOB_HASH_MD5)
+        ElementTree.SubElement(root, "ETag").text = \
+            destination_blob.attributes.get(ATTR_BLOB_HASH_MD5)
         return XMLResponse(root)
 
     def post_handle_mp_initiate(self, request, volume, path):
