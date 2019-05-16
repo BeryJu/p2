@@ -49,6 +49,9 @@ error_report_enabled: false
 # Set this to true if you only want to use external authentication
 external_auth_only: false
 
+s3:
+  base_domain: localhost
+
 storage:
   controllers:
     - p2.core.storages.null.NullStorageController
