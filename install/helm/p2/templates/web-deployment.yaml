@@ -50,6 +50,8 @@ spec:
             - mountPath: /storage
               name: media-storage
           livenessProbe:
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
             httpGet:
               path: /
               port: http
@@ -57,6 +59,8 @@ spec:
                 - name: Host
                   value: kubernetes-healthcheck-host
           readinessProbe:
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
             httpGet:
               path: /
               port: http

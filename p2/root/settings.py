@@ -46,7 +46,6 @@ CORS_ORIGIN_ALLOW_ALL = DEBUG
 ALLOWED_HOSTS = set([
     socket.getfqdn(),
     socket.gethostname(),
-    'kubernetes-healthcheck-host',
 ] + CONFIG.get('domains', []))
 
 INTERNAL_IPS = ['127.0.0.1']
@@ -157,6 +156,7 @@ LOGIN_REDIRECT_URL = 'p2_ui:index'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
+    'p2.core.middleware.HealthCheckMiddleware',
     'p2.log.middleware.StartRequestMiddleware',
     'p2.s3.middleware.S3RoutingMiddleware',
     'django.middleware.security.SecurityMiddleware',
