@@ -10,11 +10,11 @@ metadata:
     helm.sh/chart: {{ include "p2.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- with .Values.ingress.annotations }}
   annotations:
     kubernetes.io/ingress.class: nginx
     ingress.kubernetes.io/proxy-body-size: 5000m
     nginx.ingress.kubernetes.io/proxy-body-size: 5000m
+{{- with .Values.ingress.annotations }}
 {{ toYaml . | indent 4 }}
 {{- end }}
 spec:

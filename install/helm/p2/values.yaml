@@ -16,8 +16,7 @@ postgresql:
   # postgresqlPassword: 'todo: autogenerate this password somehow'
 
 ingress:
-  enabled: false
-  annotations: {}
+  enabled: true
   path: /
   hosts:
     - p2.k8s.local
