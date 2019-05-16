@@ -9,6 +9,10 @@ config:
   # secret_key: _k*@6h2u2@q-dku57hhgzb7tnx*ba9wodcb^s9g0j59@=y(@_o
   # Enable error reporting
   error_reporting: true
+  # Base S3 URL, used for virtual host addressing.
+  # Requires star DNS Record
+  # If you want to use s3.domain.tld, set this to s3.domain.tld
+  s3_base_domain: ""
 
 postgresql:
   postgresqlUsername: p2

@@ -15,7 +15,6 @@ import logging
 import os
 import socket
 import sys
-from urllib.parse import urlparse
 
 import ldap
 from django_auth_ldap.config import LDAPSearch
@@ -45,7 +44,6 @@ CORS_ORIGIN_ALLOW_ALL = DEBUG
 # config's external_url is a full URL, so we have to parse it to get the host
 # Also allow server's hostname and server's fqdn
 ALLOWED_HOSTS = set([
-    urlparse(CONFIG.get('external_url')).netloc,
     socket.getfqdn(),
     socket.gethostname(),
     'kubernetes-healthcheck-host',

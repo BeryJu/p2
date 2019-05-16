@@ -1,5 +1,6 @@
 """p2 S3 URLs"""
-from django.urls import path, register_converter
+from django.conf import settings
+from django.urls import include, path, register_converter
 
 from p2.s3.converters import EverythingConverter, S3BucketConverter
 from p2.s3.views import buckets, get, objects
@@ -17,3 +18,9 @@ urlpatterns = [
     path('<s3:bucket>/<everything:path>', objects.ObjectView.as_view(), name='bucket-object'),
     path('', get.ListView.as_view(), name='list'),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('_/debug/', include(debug_toolbar.urls)),
+    ] + urlpatterns

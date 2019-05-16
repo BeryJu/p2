@@ -50,6 +50,9 @@ data:
       - {{ . | quote }}
     {{- end }}
 
+    s3:
+      base_domain: {{ .Values.config.s3_base_domain }}
+
     # Set this to true if you only want to use external authentication
     external_auth_only: false
 
