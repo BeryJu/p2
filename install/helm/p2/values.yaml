@@ -12,7 +12,8 @@ config:
   # Base S3 URL, used for virtual host addressing.
   # Requires star DNS Record
   # If you want to use s3.domain.tld, set this to s3.domain.tld
-  s3_base_domain: ""
+  # By default uses the first ingresss host
+  # s3_base_domain: ""
 
 postgresql:
   postgresqlUsername: p2
