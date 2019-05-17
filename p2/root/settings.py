@@ -301,7 +301,7 @@ with CONFIG.cd('log'):
         'loggers': {
         }
     }
-    for handler_name, level in LOGGING_HANDLER_MAP:
+    for handler_name, level in LOGGING_HANDLER_MAP.items():
         LOGGING['loggers'][handler_name] = {
             'handlers': ['console'],
             'level': level,

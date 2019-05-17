@@ -1,4 +1,4 @@
-FROM python:3.6-slim-stretch as build
+FROM docker.beryju.org/p2/build-base:latest as static-build
 
 COPY ./p2/ /app/p2
 COPY ./manage.py /app/
@@ -6,23 +6,17 @@ COPY ./requirements.txt /app/
 
 WORKDIR /app/
 
-RUN apt-get update && apt-get install build-essential libffi-dev libsasl2-dev python-dev libldap2-dev libssl-dev libpq-dev -y && \
-    mkdir /app/static/ && \
-    pip install -U pip && \
-    pip install -r requirements.txt && \
-    ./manage.py collectstatic --no-input && \
-    apt-get remove --purge -y build-essential && \
-    apt-get autoremove --purge -y
+RUN ./manage.py collectstatic --no-input
 
 FROM python:3.6-alpine
 
 COPY ./p2/ /app/p2
-COPY --from=build /app/static /app/static/
+COPY --from=static-build /app/static /app/static/
 COPY ./manage.py /app/
 COPY ./requirements.txt /app/
 
 RUN apk update && \
-    apk add --no-cache openssl-dev libffi-dev libmagic libffi-dev build-base jpeg libxml2-dev libxslt-dev libffi-dev gcc musl-dev libgcc openssl-dev curl jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev openldap-dev postgresql-dev && \
+    apk add --no-cache openssl-dev libmagic build-base jpeg libffi-dev gcc musl-dev libgcc openssl-dev jpeg-dev zlib-dev freetype-dev lcms2-dev openjpeg-dev tiff-dev tk-dev tcl-dev postgresql-dev && \
     pip install -U pip --no-cache-dir && \
     pip install -r /app/requirements.txt  --no-cache-dir && \
     adduser -S p2 && \
