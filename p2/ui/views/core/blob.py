@@ -14,6 +14,7 @@ from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import (get_objects_for_user, get_perms_for_model,
                                 get_users_with_perms)
 
+from p2.core.http import BlobResponse
 from p2.core.forms import BlobForm
 from p2.core.models import Blob
 from p2.lib.shortcuts import get_object_for_user_or_404
@@ -149,7 +150,4 @@ class BlobDownloadView(PermissionRequiredMixin, DetailView):
 
     def get(self, *args, **kwargs):
         super().get(*args, **kwargs)
-        response = HttpResponse(
-            self.object, content_type=self.object.attributes.get('mime', 'text/plain'))
-        response['Content-Disposition'] = 'attachment; filename=' + self.object.path
-        return response
+        return BlobResponse(self.object)
