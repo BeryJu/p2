@@ -9,19 +9,9 @@ databases:
 log:
   level:
     console: DEBUG
-    file: DEBUG
-  file: /dev/null
   controllers:
     - p2.log.controllers.database.DatabaseLogController
 
-email:
-  host: localhost
-  port: 25
-  user: ""
-  password: ""
-  use_tls: false
-  use_ssl: false
-  from: p2 <p2@domain.tld>
 web:
   server.socket_host: 0.0.0.0
   server.socket_port: 8000

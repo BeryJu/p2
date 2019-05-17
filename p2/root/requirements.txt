@@ -5,7 +5,6 @@ django-allauth-passbook
 requests
 celery
 cherrypy
-django-auth-ldap
 django-redis
 python-magic
 pytz

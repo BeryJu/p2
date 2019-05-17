@@ -16,8 +16,6 @@ import os
 import socket
 import sys
 
-import ldap
-from django_auth_ldap.config import LDAPSearch
 from sentry_sdk import init as sentry_init
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -50,8 +48,52 @@ ALLOWED_HOSTS = set([
 
 INTERNAL_IPS = ['127.0.0.1']
 
+# API -JWT Configurations
+JWT_AUTH = {
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
+}
+
+# API - Swagger
+SWAGGER_SETTINGS = {
+    'DEFAULT_INFO': 'p2.api.urls.INFO',
+    'SECURITY_DEFINITIONS': {
+        'JWT': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
+
+# API - REST
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100,
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework_guardian.filters.DjangoObjectPermissionsFilter',
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': (
+        'p2.api.permissions.CustomObjectPermissions',
+    ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    # ),
+}
+
+
 # Allauth settings
 ACCOUNT_ADAPTER = 'p2.root.accounts.NoNewUsersAccountAdapter'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+    'guardian.backends.ObjectPermissionBackend',
+]
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 # Redis settings
 CACHES = {
@@ -79,43 +121,6 @@ CELERY_IMPORTS = (
     'p2.core.tasks',
     'p2.log.tasks',
 )
-
-# Influxdb settings
-# with CONFIG.cd('influx'):
-#     INFLUXDB_DISABLED = not CONFIG.get('enabled')
-#     INFLUXDB_HOST = CONFIG.get('host')
-#     INFLUXDB_PORT = CONFIG.get('port')
-#     INFLUXDB_USER = CONFIG.get('user')
-#     INFLUXDB_PASSWORD = CONFIG.get('password')
-#     INFLUXDB_DATABASE = CONFIG.get('database')
-#     INFLUXDB_TIMEOUT = 5
-#     INFLUXDB_USE_CELERY = True
-
-
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-]
-
-
-# LDAP Settings
-with CONFIG.cd('ldap'):
-    if CONFIG.get('enabled'):
-        AUTH_LDAP_SERVER_URI = CONFIG.get('server').get('uri')
-        AUTH_LDAP_START_TLS = CONFIG.get('server').get('tls')
-        AUTH_LDAP_BIND_DN = CONFIG.get('bind').get('dn')
-        AUTH_LDAP_BIND_PASSWORD = CONFIG.get('bind').get('password')
-        # pylint: disable=no-member
-        AUTH_LDAP_USER_SEARCH = LDAPSearch(CONFIG.get('search_base'),
-                                           ldap.SCOPE_SUBTREE, CONFIG.get('filter'))
-        AUTHENTICATION_BACKENDS += [
-            'django_auth_ldap.backend.LDAPBackend',
-        ]
-        if CONFIG.get('require_group'):
-            AUTH_LDAP_REQUIRE_GROUP = CONFIG.get('require_group')
-
-ACCOUNT_EMAIL_VERIFICATION = 'none'
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -172,11 +177,6 @@ MIDDLEWARE = [
     'p2.log.middleware.EndRequestMiddleware',
 ]
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend', # default
-    'guardian.backends.ObjectPermissionBackend',
-)
-
 ROOT_URLCONF = 'p2.root.urls'
 
 TEMPLATES = [
@@ -218,16 +218,6 @@ for db_alias, db_config in CONFIG.get('databases').items():
         'PASSWORD': db_config.get('password'),
         'OPTIONS': db_config.get('options', {}),
     }
-
-with CONFIG.cd('email'):
-    EMAIL_HOST = CONFIG.get('host', default='localhost')
-    EMAIL_PORT = CONFIG.get('port', default=25)
-    EMAIL_HOST_USER = CONFIG.get('user', default='')
-    EMAIL_HOST_PASSWORD = CONFIG.get('password', default='')
-    EMAIL_USE_TLS = CONFIG.get('use_tls', default=False)
-    EMAIL_USE_SSL = CONFIG.get('use_ssl', default=False)
-    EMAIL_FROM = CONFIG.get('from')
-    SERVER_EMAIL = CONFIG.get('from')
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -277,44 +267,16 @@ if not DEBUG:
 
 STATIC_URL = '/static/'
 
-# API Configurations
-
-JWT_AUTH = {
-    'JWT_ALLOW_REFRESH': True,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
-}
-
-SWAGGER_SETTINGS = {
-    'DEFAULT_INFO': 'p2.api.urls.INFO',
-    'SECURITY_DEFINITIONS': {
-        'JWT': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-        }
-    }
-}
-
-REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 100,
-    'DEFAULT_FILTER_BACKENDS': [
-        'rest_framework_guardian.filters.DjangoObjectPermissionsFilter',
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.OrderingFilter',
-        'rest_framework.filters.SearchFilter',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': (
-        'p2.api.permissions.CustomObjectPermissions',
-    ),
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-    # ),
-}
-
-
 with CONFIG.cd('log'):
+    LOGGING_HANDLER_MAP = {
+        'p2': 'DEBUG',
+        'allauth': 'DEBUG',
+        'cherrypy': 'DEBUG',
+        'django': 'INFO',
+        'celery': 'WARNING',
+        'botocore': 'DEBUG',
+        'werkzeug': 'DEBUG',
+    }
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': True,
@@ -335,60 +297,16 @@ with CONFIG.cd('log'):
                 'class': 'logging.StreamHandler',
                 'formatter': 'colored',
             },
-            'mail_admins': {
-                'level': 'ERROR',
-                'class': 'django.utils.log.AdminEmailHandler',
-            },
-            'file': {
-                'level': CONFIG.get('level').get('file'),
-                'class': 'logging.FileHandler',
-                'formatter': 'default',
-                'filename': CONFIG.get('file'),
-            },
         },
         'loggers': {
-            'p2': {
-                'handlers': ['console', 'file'],
-                'level': 'DEBUG',
-                'propagate': True,
-            },
-            'allauth': {
-                'handlers': ['console', 'file'],
-                'level': 'DEBUG',
-                'propagate': True,
-            },
-            'cherrypy': {
-                'handlers': ['console', 'file'],
-                'level': 'DEBUG',
-                'propagate': True,
-            },
-            'django': {
-                'handlers': ['console', 'file'],
-                'level': 'INFO',
-                'propagate': True,
-            },
-            'celery': {
-                'handlers': ['console', 'file'],
-                'level': 'WARNING',
-                'propagate': True,
-            },
-            'django_auth_ldap': {
-                'handlers': ['console', 'file'],
-                'level': 'DEBUG',
-                'propagate': True,
-            },
-            'botocore': {
-                'handlers': ['console', 'file'],
-                'level': 'DEBUG',
-                'propagate': True,
-            },
-            'werkzeug': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': True,
-            },
         }
     }
+    for handler_name, level in LOGGING_HANDLER_MAP:
+        LOGGING['loggers'][handler_name] = {
+            'handlers': ['console'],
+            'level': level,
+            'propagate': True,
+        }
 
 
 TEST = any('test' in arg for arg in sys.argv)
