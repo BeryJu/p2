@@ -50,6 +50,9 @@ ALLOWED_HOSTS = set([
 
 INTERNAL_IPS = ['127.0.0.1']
 
+# Allauth settings
+ACCOUNT_ADAPTER = 'p2.root.accounts.NoNewUsersAccountAdapter'
+
 # Redis settings
 CACHES = {
     "default": {
