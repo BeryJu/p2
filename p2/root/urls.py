@@ -9,6 +9,8 @@ from p2.ui.views.errors import ServerErrorView
 
 admin.site.index_title = 'p2 Admin'
 admin.site.site_title = 'p2'
+admin.site.login = RedirectView.as_view(
+    pattern_name='p2_ui:index', permanent=True, query_string=True)
 
 handler500 = ServerErrorView.as_view()
 
