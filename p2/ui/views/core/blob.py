@@ -48,10 +48,12 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
             relative = blob.prefix.replace(prefix, '', 1)
             if '/' in relative and relative != '' and relative != '/':
                 next_part = relative.split('/')[1]
-                relative_prefix_list.append({
+                prefix_object ={
                     'absolute_prefix': '/'.join([prefix, next_part]),
                     'relative_prefix': next_part
-                })
+                }
+                if prefix_object not in relative_prefix_list:
+                    relative_prefix_list.append(prefix_object)
         return relative_prefix_list
 
     def build_breadcrumb_list(self, prefix):
