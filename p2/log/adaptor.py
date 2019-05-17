@@ -3,7 +3,7 @@ from collections import ChainMap
 from time import time
 from uuid import uuid4
 
-from p2.log.tasks import write_log_record
+# from p2.log.tasks import write_log_record
 
 
 class LogAdaptor:
@@ -33,6 +33,6 @@ class LogAdaptor:
         flattened['request_path'] = request.path
         if request.resolver_match:
             flattened['app'] = request.resolver_match.app_name
-        write_log_record.delay(dict(flattened))
+        # write_log_record.delay(dict(flattened))
 
 LOG_ADAPTOR = LogAdaptor()
