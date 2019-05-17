@@ -27,7 +27,7 @@ cd "${TEMP_DIR}"
 
 # kubectl helper functions, from https://github.com/zlabjp/kubernetes-scripts
 function __is_pod_ready() {
-  [[ "$(kubectl get po "$1" -o 'jsonpath={.status.conditions[?(@.type=="Ready")].status}')" == 'True' ]]
+  [[ "$(kubectl get po "$1" -o 'jsonpath={.status.conditions[?(@.type=="Ready")].status}') 2>/dev/null" == 'True' ]]
 }
 
 function __pods_ready() {
