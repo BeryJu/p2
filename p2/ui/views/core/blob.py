@@ -48,7 +48,7 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
             relative = blob.prefix.replace(prefix, '', 1)
             if '/' in relative and relative != '' and relative != '/':
                 next_part = relative.split('/')[1]
-                prefix_object ={
+                prefix_object = {
                     'absolute_prefix': '/'.join([prefix, next_part]),
                     'relative_prefix': next_part
                 }

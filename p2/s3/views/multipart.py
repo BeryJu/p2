@@ -52,6 +52,7 @@ class MultipartUploadView(S3Authentication):
             'tags__%s' % TAG_S3_MULTIPART_BLOB_TARGET_BLOB: path,
             'volume': volume
         })
+
         def generator():
             """Generator to merge all part-blobs together. Yields spaces while merging
             is running to keep request from timing out"""
