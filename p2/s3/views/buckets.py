@@ -52,7 +52,7 @@ class BucketView(S3Authentication):
         """Bucket List API Method"""
         # https://docs.aws.amazon.com/AmazonS3/latest/API/v2-RESTBucketGET.html
         root = ElementTree.Element("{%s}ListBucketResult" % XML_NAMESPACE)
-        volume = get_object_for_user_or_404(self.request.user, 'p2_core.list_contents', name=bucket)
+        volume = get_object_for_user_or_404(self.request.user, 'p2_core.list_volume_contents', name=bucket)
         prefix = '/' + request.GET.get('prefix', '')[:-1]
         blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
             prefix=prefix
