@@ -73,7 +73,18 @@ package-helm:
     - helm package install/helm/p2
   artifacts:
     paths:
-    - p2-*.tgz
+      - p2-*.tgz
+    expire_in: 1 week
+  only:
+    - tags
+    - /^version/.*$/
+package-installer:
+  stage: build
+  script:
+    - echo Hello World
+  artifacts:
+    paths:
+      - install/install.sh
     expire_in: 1 week
   only:
     - tags
