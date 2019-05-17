@@ -5,7 +5,6 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.paginator import Paginator
-from django.http import HttpResponse
 from django.shortcuts import reverse
 from django.utils.translation import gettext as _
 from django.views.generic import (DeleteView, DetailView, TemplateView,
@@ -14,8 +13,8 @@ from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import (get_objects_for_user, get_perms_for_model,
                                 get_users_with_perms)
 
-from p2.core.http import BlobResponse
 from p2.core.forms import BlobForm
+from p2.core.http import BlobResponse
 from p2.core.models import Blob
 from p2.lib.shortcuts import get_object_for_user_or_404
 
