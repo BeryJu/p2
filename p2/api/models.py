@@ -6,8 +6,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext as _
 
-from p2.core.models import Volume
-
 
 def get_access_key():
     """Generate random string to use as access key"""
@@ -27,8 +25,6 @@ class APIKey(models.Model):
     name = models.TextField()
     access_key = models.CharField(max_length=20, default=get_access_key)
     secret_key = models.CharField(max_length=40, default=get_secret_key)
-    volume = models.ForeignKey(Volume, default=None, null=True,
-                               blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return "API Key %s for user %s" % (self.name, self.user.username)
