@@ -22,9 +22,17 @@ class S3RoutingMiddleware:
             return bucket
         return False
 
+    def is_aws_request(self, request):
+        """Return true if AWS-s3-style request"""
+        if 'HTTP_X_AMZ_DATE' in request.META:
+            return True
+        if 'HTTP_AUTHORIZATION' in request.META:
+            return request.META['HTTP_AUTHORIZATION'].startswith('AWS')
+        return False
+
     def __call__(self, request):
         bucket = self.extract_host_header(request)
-        if 'HTTP_X_AMZ_DATE' in request.META or bucket:
+        if self.is_aws_request(request) or bucket:
             # Check if Host header ends with s3.base_domain, if so extract bucket from Host
             request.urlconf = 'p2.s3.explicit_urls'
             if bucket:

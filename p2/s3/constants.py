@@ -10,6 +10,7 @@ class ErrorCodes(Enum):
     NO_SUCH_KEY = "NoSuchKey", 404
     NO_SUCH_BUCKET = "NoSuchBucket", 404
     SIGNATURE_DOES_NOT_MATCH = "SignatureDoesNotMatch", 403
+    INVALID_HMAC = "InvalidRequest", 400
 
 XML_NAMESPACE = "http://s3.amazonaws.com/doc/2006-03-01/"
 

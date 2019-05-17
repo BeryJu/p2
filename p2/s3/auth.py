@@ -129,7 +129,10 @@ class S3Authentication(View):
 
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
-        auth_error_code = self.authenticate()
+        try:
+            auth_error_code = self.authenticate()
+        except ValueError:
+            return self.error_response(ErrorCodes.INVALID_HMAC)
         if auth_error_code:
             return self.error_response(auth_error_code)
         return super().dispatch(request, *args, **kwargs)
