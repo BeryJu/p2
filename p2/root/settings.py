@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import datetime
 import logging
 import os
-import socket
 import sys
 
 from sentry_sdk import init as sentry_init
@@ -288,7 +287,7 @@ with CONFIG.cd('log'):
         },
         'handlers': {
             'console': {
-                'level': CONFIG.get('level').get('console'),
+                'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
                 'formatter': 'colored',
             },
