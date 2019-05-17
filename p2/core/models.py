@@ -63,8 +63,8 @@ class Volume(UUIDModel, TagModel):
         verbose_name = _('Volume')
         verbose_name_plural = _('Volumes')
         permissions = (
-            ('list_contents', 'List contents'),
-            ('use_volume', 'Use Volume')
+            ('list_volume_contents', 'Can List contents'),
+            ('use_volume', 'Can Use Volume')
         )
 
 
