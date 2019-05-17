@@ -26,7 +26,7 @@ COMPONENT_MANAGER = ControllerManager('component.controllers', lazy=True)
 class Volume(UUIDModel, TagModel):
     """Folder-like object, holding a collection of blobs"""
 
-    name = models.SlugField()
+    name = models.SlugField(unique=True)
     storage = models.ForeignKey('Storage', on_delete=models.CASCADE)
 
     @property
