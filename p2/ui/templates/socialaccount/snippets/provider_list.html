@@ -1,0 +1,12 @@
+{% load p2_ui %}
+{% load socialaccount %}
+
+{% configured_providers as socialaccount_providers %}
+
+{% for provider in socialaccount_providers %}
+  <a class="btn btn-primary btn-lg btn-block text-uppercase socialaccount_provider {{provider.id}}" href="{% provider_login_url provider.id process=process scope=scope auth_params=auth_params %}">
+    <img style="max-height: 24px" src="https://id.beryju.org/static/img/logo.png" alt="">
+    <!-- <i class="fab fa-google mr-2"></i> -->
+    {{ provider.name }}
+  </a>
+{% endfor %}

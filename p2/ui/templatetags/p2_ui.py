@@ -1,10 +1,13 @@
 """p2 ui templatetags"""
 import json
 
+from allauth.socialaccount.models import SocialApp
+from allauth.socialaccount.providers import registry
 from django import template
 from django.db.models import Model
 from django.shortcuts import reverse
 
+from p2.lib.config import CONFIG
 from p2.lib.reflection import path_to_class
 
 register = template.Library()
@@ -18,6 +21,21 @@ def model_app(context, expected=None):
     if hasattr(view, 'model'):
         app = view.model._meta.app_label
     return "active" if app == expected else ""
+
+@register.simple_tag
+def config(key, default=None):
+    """Get config value"""
+    return CONFIG.y(key, default=default)
+
+@register.simple_tag
+def configured_providers():
+    """Get list of providers which are actually configured"""
+    providers = registry.get_list()
+    configured = []
+    for provider in providers:
+        if SocialApp.objects.filter(provider=provider.id).exists():
+            configured.append(provider)
+    return configured
 
 @register.filter
 def model_verbose_name(model):
