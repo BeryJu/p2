@@ -13,10 +13,18 @@ class StorageController(Controller):
     def collect_attributes(self, blob: Blob):
         """Collect stats like size and mime type. This is being called during Blob's save"""
 
-    def retrieve_payload(self, blob: Blob) -> RawIOBase:
+    def get_read_handle(self, blob: Blob) -> RawIOBase:
         """Return file-like object which can be used to manipulate payload."""
         raise NotImplementedError
 
-    def update_payload(self, blob: Blob, file_like: RawIOBase):
-        """Write data from file-like object."""
+    def get_write_handle(self, blob: Blob) -> RawIOBase:
+        """Return file-like object to write data into."""
+        raise NotImplementedError
+
+    def commit(self, blob: Blob, handle: RawIOBase):
+        """Called when blob is saved and data can be flushed to disk/remote"""
+        raise NotImplementedError
+
+    def delete(self, blob: Blob):
+        """Delete Blob"""
         raise NotImplementedError

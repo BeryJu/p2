@@ -2,7 +2,6 @@
 import os
 from io import RawIOBase
 from logging import getLogger
-from shutil import copyfileobj
 
 import magic
 
@@ -63,7 +62,7 @@ class LocalStorageController(StorageController):
             blob.attributes[ATTR_BLOB_SIZE_BYTES] = str(size)
             LOGGER.debug('Updated size to %d for %s', size, blob.uuid.hex)
 
-    def retrieve_payload(self, blob: Blob) -> RawIOBase:
+    def get_read_handle(self, blob: Blob) -> RawIOBase:
         fs_path = self._build_path(blob)
         LOGGER.debug('RETR "%s"', blob.uuid)
         if os.path.exists(fs_path) and os.path.isfile(fs_path):
@@ -72,20 +71,24 @@ class LocalStorageController(StorageController):
         LOGGER.warning("File '%s' does not exist or is not a file.", fs_path)
         return None
 
-    def update_payload(self, blob: Blob, file_like: RawIOBase):
+    def get_write_handle(self, blob: Blob) -> RawIOBase:
         fs_path = self._build_path(blob)
         os.makedirs(os.path.dirname(fs_path), exist_ok=True)
-        LOGGER.debug('UPDT "%s" %r', blob.uuid, file_like)
-        if not file_like:
-            # Not file_like, delete file if it exists
-            if os.path.exists(fs_path) and os.path.isfile(fs_path):
-                os.unlink(fs_path)
-                LOGGER.debug("  -> Deleted '%s'.", fs_path)
-            else:
-                LOGGER.warning(
-                    "File '%s' does not exist during deletion attempt.", fs_path)
+        LOGGER.debug('UPDT "%s"', blob.uuid)
+        LOGGER.debug("  -> Opening '%s' for updating.", fs_path)
+        return open(fs_path, 'wb')
+
+    def commit(self, blob: Blob, handle: RawIOBase):
+        handle.flush()
+        handle.close()
+
+    def delete(self, blob: Blob):
+        fs_path = self._build_path(blob)
+        os.makedirs(os.path.dirname(fs_path), exist_ok=True)
+        # Not file_like, delete file if it exists
+        if os.path.exists(fs_path) and os.path.isfile(fs_path):
+            os.unlink(fs_path)
+            LOGGER.debug("  -> Deleted '%s'.", fs_path)
         else:
-            LOGGER.debug("  -> Opening '%s' for updating.", fs_path)
-            with open(fs_path, 'wb') as _dest_file:
-                file_like.seek(0)
-                copyfileobj(file_like, _dest_file)
+            LOGGER.warning(
+                "File '%s' does not exist during deletion attempt.", fs_path)

@@ -8,8 +8,14 @@ from p2.core.storages.base import StorageController
 class NullStorageController(StorageController):
     """Null Storage controller, doesn't save anything, useful for debugging"""
 
-    def retrieve_payload(self, blob: Blob) -> RawIOBase:
+    def get_read_handle(self, blob: Blob) -> RawIOBase:
         return None
 
-    def update_payload(self, blob: Blob, file_like: RawIOBase):
+    def get_write_handle(self, blob: Blob) -> RawIOBase:
+        return None
+
+    def commit(self, blob: Blob, handle: RawIOBase):
+        return None
+
+    def delete(self, blob: Blob):
         return None

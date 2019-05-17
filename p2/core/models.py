@@ -1,7 +1,6 @@
 """p2 Core models"""
 from copy import deepcopy
 from logging import getLogger
-from tempfile import SpooledTemporaryFile
 
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.fields.jsonb import KeyTextTransform
@@ -108,7 +107,7 @@ class Blob(UUIDModel, TagModel):
 
     def _open_read_handle(self):
         if not self._reading_handle:
-            self._reading_handle = self.volume.storage.controller.retrieve_payload(self)
+            self._reading_handle = self.volume.storage.controller.get_read_handle(self)
 
     ### File-like methods
 
@@ -122,7 +121,7 @@ class Blob(UUIDModel, TagModel):
         """Open TemporaryFile for writing, method arguments are the same as file's write.
         File is not committed until Blob.save() is called."""
         if not self._writing_handle:
-            self._writing_handle = SpooledTemporaryFile(max_size=500)
+            self._writing_handle = self.volume.storage.controller.get_write_handle(self)
         return self._writing_handle.write(*args, **kwargs)
 
     def seek(self, pos):
@@ -138,17 +137,6 @@ class Blob(UUIDModel, TagModel):
         if self._writing_handle:
             return self._writing_handle.tell()
         return self._reading_handle.tell()
-
-    # @property
-    # def payload_string(self) -> str:
-    #     """Get payload as string"""
-    #     return self.payload.decode('utf-8')
-
-    # @property
-    # def payload_data_uri(self) -> str:
-    #     """Get payload ase Data URI"""
-    #     return 'data:%s;base64,%s' % (self.attributes.get(ATTR_BLOB_MIME),
-    #                                   b64encode(self.payload).decode())
 
     def __update_prefix(self):
         path_parts = self.path.split('/')
@@ -171,7 +159,7 @@ class Blob(UUIDModel, TagModel):
         _old_attributes = deepcopy(self.attributes)
         try:
             # Run update code in transaction in case
-            # Storage.controller.update_payload fails and we need to revert
+            # Storage.controller.commit fails and we need to revert
             with transaction.atomic():
                 # Save current time as `created` attribute. This can be changed by users,
                 # but p2.log creates a log entry for new Blob being created
@@ -182,7 +170,7 @@ class Blob(UUIDModel, TagModel):
                 # Only save payload if it changed
                 if self._writing_handle:
                     self._writing_handle.seek(0)
-                    self.volume.storage.controller.update_payload(self, self._writing_handle)
+                    self.volume.storage.controller.commit(self, self._writing_handle)
                 # Check if path exists already
                 self.__failsafe_path()
                 # Update prefix
