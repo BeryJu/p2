@@ -39,12 +39,7 @@ SECRET_KEY = CONFIG.get('secret_key',
 DEBUG = CONFIG.get('debug')
 CORS_ORIGIN_ALLOW_ALL = DEBUG
 
-# config's external_url is a full URL, so we have to parse it to get the host
-# Also allow server's hostname and server's fqdn
-ALLOWED_HOSTS = set([
-    socket.getfqdn(),
-    socket.gethostname(),
-] + CONFIG.get('domains', []))
+ALLOWED_HOSTS = ['*']
 
 INTERNAL_IPS = ['127.0.0.1']
 

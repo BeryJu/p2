@@ -6,11 +6,9 @@ databases:
     user: p2
     password: 'EK-5jnKfjrGRm<77'
     host: localhost
-log:
-  level:
-    console: DEBUG
-  controllers:
-    - p2.log.controllers.database.DatabaseLogController
+
+redis: localhost
+rabbitmq: localhost
 
 web:
   server.socket_host: 0.0.0.0
@@ -23,18 +21,15 @@ web:
   server.max_request_body_size: 0
   # increase server socket timeout to 60s; cherrypys defult is 10s
   server.socket_timeout: 600
-debug: false
-domains: []
 
-redis: localhost
-rabbitmq: localhost
+debug: false
 
 # Enable/disable legacy upload endpoints
 # WARNING: These endpoints are usable without authentication
 legacy_upload_enabled: false
 
-# Error reporting, disabled by default
-error_report_enabled: false
+# Error reporting, enabled by default
+error_report_enabled: true
 
 # Set this to true if you only want to use external authentication
 external_auth_only: false
@@ -42,6 +37,9 @@ external_auth_only: false
 s3:
   base_domain: localhost
 
+log:
+  controllers:
+    - p2.log.controllers.database.DatabaseLogController
 storage:
   controllers:
     - p2.core.storages.null.NullStorageController
@@ -51,16 +49,3 @@ component:
     - p2.components.image.controller.ImageController
     - p2.components.quota.controller.QuotaController
     - p2.components.public_access.controller.PublicAccessController
-
-# LDAP Authentication
-ldap:
-  enabled: false
-  server:
-    uri: ""
-    tls: false
-  bind:
-    dn: ""
-    password: ""
-  search_base: ""
-  filter: "(sAMAccountName=%(user)s)"
-  require_group: ""

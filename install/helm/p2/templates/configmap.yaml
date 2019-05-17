@@ -13,9 +13,10 @@ data:
         password: "{{ .Values.postgresql.postgresqlPassword }}"
         host: "{{ .Release.Name }}-postgresql"
         port: ''
-    log:
-      level:
-        console: DEBUG
+
+    rabbitmq: "p2:{{ .Values.rabbitmq.rabbitmq.password }}@{{ .Release.Name }}-rabbitmq"
+    redis: ":{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/0"
+
     web:
       server.socket_host: 0.0.0.0
       server.socket_port: 8000
@@ -27,18 +28,10 @@ data:
       server.max_request_body_size: 0
       # increase server socket timeout to 60s; cherrypys defult is 10s
       server.socket_timeout: 600
+
     debug: false
 
-    rabbitmq: "p2:{{ .Values.rabbitmq.rabbitmq.password }}@{{ .Release.Name }}-rabbitmq"
-    redis: ":{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/0"
-
     error_report_enabled: {{ .Values.config.error_reporting }}
-
-    # Set this to this server's hostname or the external domain if behind a reverse proxy
-    domains:
-    {{- range .Values.ingress.hosts }}
-      - {{ . | quote }}
-    {{- end }}
 
     s3:
       base_domain: {{ (index .Values.ingress.hosts 0) | quote }}
