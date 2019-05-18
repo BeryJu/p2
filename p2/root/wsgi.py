@@ -37,8 +37,7 @@ class WSGILogger:
             return start_response(status, response_headers, exc_info)
         retval = self.application(environ, custom_start_response)
         runtime = int((time() - start) * 10**6)
-        content_length = content_lengths[0] if content_lengths else len(
-            b''.join(retval))
+        content_length = content_lengths[0] if content_lengths else 0
         self.log(status_codes[0], environ, content_length,
                  ip_header=None, runtime=runtime)
         return retval
@@ -62,10 +61,10 @@ class WSGILogger:
             environ.get('SERVER_PROTOCOL', '')
         )
         val['status'] = status_code
-        val['size'] = content_length / 1000
+        val['size'] = content_length / 1000 if content_length > 0 else '-'
         val['runtime'] = kwargs.get('runtime')
         # see http://docs.python.org/3/library/string.html#format-string-syntax
-        format_string = '%(host)s => "%(request)s" => %(status)d %(size)dkB %(runtime)dms'
+        format_string = '%(host)s => "%(request)s" => %(status)d %(size)skB %(runtime)dms'
         LOGGER.info(format_string, val)
 
 application = WSGILogger(get_wsgi_application())
