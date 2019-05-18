@@ -1,5 +1,6 @@
 """p2 storage base controller"""
 from io import RawIOBase
+from tempfile import SpooledTemporaryFile
 
 from p2.core.controllers import Controller
 from p2.core.models import Blob
@@ -17,9 +18,11 @@ class StorageController(Controller):
         """Return file-like object which can be used to manipulate payload."""
         raise NotImplementedError
 
+    # pylint: disable=unused-argument
     def get_write_handle(self, blob: Blob) -> RawIOBase:
-        """Return file-like object to write data into."""
-        raise NotImplementedError
+        """Return file-like object to write data into. Default implementation opens a temporary
+        file in w+b mode."""
+        return SpooledTemporaryFile(max_size=500)
 
     def commit(self, blob: Blob, handle: RawIOBase):
         """Called when blob is saved and data can be flushed to disk/remote"""

@@ -2,6 +2,7 @@
 import os
 from io import RawIOBase
 from logging import getLogger
+from shutil import copyfileobj
 
 import magic
 
@@ -71,16 +72,13 @@ class LocalStorageController(StorageController):
         LOGGER.warning("File '%s' does not exist or is not a file.", fs_path)
         return None
 
-    def get_write_handle(self, blob: Blob) -> RawIOBase:
+    def commit(self, blob: Blob, handle: RawIOBase):
         fs_path = self._build_path(blob)
         os.makedirs(os.path.dirname(fs_path), exist_ok=True)
-        LOGGER.debug('UPDT "%s"', blob.uuid)
+        LOGGER.debug('COMT "%s"', blob.uuid)
         LOGGER.debug("  -> Opening '%s' for updating.", fs_path)
-        return open(fs_path, 'wb')
-
-    def commit(self, blob: Blob, handle: RawIOBase):
-        handle.flush()
-        handle.close()
+        with open(fs_path, 'rb') as _dest:
+            return copyfileobj(handle, _dest)
 
     def delete(self, blob: Blob):
         fs_path = self._build_path(blob)
