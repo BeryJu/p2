@@ -51,6 +51,7 @@ class MultipartUploadView(S3Authentication):
             'tags__%s' % TAG_S3_MULTIPART_BLOB_TARGET_BLOB: path,
             'volume': volume
         })
+
         def generator():
             """start task, generating spaces to keep connection alive"""
             yield '<?xml version="1.0" encoding="utf8"?>'  # Yield XML Header
