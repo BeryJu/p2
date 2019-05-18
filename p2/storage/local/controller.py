@@ -77,7 +77,7 @@ class LocalStorageController(StorageController):
         os.makedirs(os.path.dirname(fs_path), exist_ok=True)
         LOGGER.debug('COMT "%s"', blob.uuid)
         LOGGER.debug("  -> Opening '%s' for updating.", fs_path)
-        with open(fs_path, 'rb') as _dest:
+        with open(fs_path, 'wb') as _dest:
             return copyfileobj(handle, _dest)
 
     def delete(self, blob: Blob):
