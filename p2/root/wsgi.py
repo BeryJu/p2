@@ -60,6 +60,9 @@ class WSGILogger:
             environ.get('PATH_INFO', ''),
             environ.get('SERVER_PROTOCOL', '')
         )
+        if environ.get('HTTP_HOST').startswith('kubernetes-healthcheck-host'):
+            # Don't log kubernetes health/readiness requests
+            return
         val['status'] = status_code
         val['size'] = content_length / 1000 if content_length > 0 else '-'
         val['runtime'] = kwargs.get('runtime')
