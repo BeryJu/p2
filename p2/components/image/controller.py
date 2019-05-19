@@ -31,19 +31,23 @@ class ImageController(ComponentController):
                 # pylint: disable=protected-access
                 exif_data = img._getexif()
                 if exif_data:
-                    # Allowed tags
-                    allowed_tags = self.instance.tags.get(TAG_IMAGE_EXIF_TAGS, [])
-                    for key, value in img._getexif().items():
-                        tag_name = ExifTags.TAGS[key]
-                        if key not in ExifTags.TAGS:
-                            continue
-                        if not isinstance(value, str):
-                            continue
-                        if tag_name not in allowed_tags:
-                            continue
-                        blob.attributes['blob.p2.io/exif/%s' % ExifTags.TAGS[key]] = value
+                    new_attributes = self.get_attributes(exif_data)
+                    blob.attributes.update(new_attributes)
                     LOGGER.debug("Updated EXIF data")
             blob.save()
         except IOError as exc:
             LOGGER.debug(exc)
             LOGGER.debug("Blob '%s' is not an image, skipping EXIF.", blob.uuid)
+
+    def get_attributes(self, raw_exif):
+        """Convert raw exif data into usable tags"""
+        allowed_tags = self.instance.tags.get(TAG_IMAGE_EXIF_TAGS, [])
+        attributes = {}
+        for key, value in raw_exif.items():
+            tag_name = ExifTags.TAGS[key]
+            if key not in ExifTags.TAGS or \
+                    not isinstance(value, str) or \
+                    tag_name not in allowed_tags:
+                continue
+            attributes['blob.p2.io/exif/%s' % ExifTags.TAGS[key]] = value
+        return attributes
