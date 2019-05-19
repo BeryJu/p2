@@ -96,7 +96,7 @@ class BucketView(S3Authentication):
     def handler_create(self, request, bucket):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketPUT.html"""
         default_storage = get_object_for_user_or_404(request.user, 'p2_core.use_storage', **{
-            'tags_%s' % TAG_S3_DEFAULT_STORAGE: True
+            'tags__%s' % TAG_S3_DEFAULT_STORAGE: True
         })
         bucket, _ = Volume.objects.get_or_create(name=bucket, defaults={
             'storage': default_storage
