@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
 
-from p2.lib.config import CONFIG
 from p2.ui.views.errors import ServerErrorView
 
 admin.site.index_title = 'p2 Admin'
@@ -24,14 +23,6 @@ urlpatterns = [
     path('', include('p2.s3.urls', namespace='p2_s3')),
     path('', include('p2.serve.urls', namespace='p2_serve')),
 ]
-
-if CONFIG.get('legacy_upload_enabled'):
-    from p2.api.legacy import LegacyObjectView
-    urlpatterns = [
-        # Legacy upload URL
-        path('gyazo.php', LegacyObjectView.as_view(), name='upload'),
-        path('upload/', LegacyObjectView.as_view(), name='upload'),
-    ] + urlpatterns
 
 if settings.DEBUG:
     import debug_toolbar

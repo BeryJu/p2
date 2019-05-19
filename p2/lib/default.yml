@@ -24,10 +24,6 @@ web:
 
 debug: false
 
-# Enable/disable legacy upload endpoints
-# WARNING: These endpoints are usable without authentication
-legacy_upload_enabled: false
-
 # Error reporting, enabled by default
 error_report_enabled: true
 

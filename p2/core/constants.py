@@ -1,6 +1,5 @@
 """p2 core constants"""
 
-TAG_VOLUME_LEGACY_DEFAULT = 'volume.p2.io/legacy-default'
 ATTR_BLOB_STAT_MTIME = 'blob.p2.io/stat/mtime'
 ATTR_BLOB_STAT_CTIME = 'blob.p2.io/stat/ctime'
 

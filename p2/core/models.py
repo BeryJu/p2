@@ -12,7 +12,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
-                               ATTR_BLOB_STAT_MTIME, TAG_VOLUME_LEGACY_DEFAULT)
+                               ATTR_BLOB_STAT_MTIME)
 from p2.core.tasks import signal_marshall
 from p2.lib.models import TagModel, UUIDModel
 from p2.lib.reflection import class_to_path, path_to_class
@@ -48,11 +48,6 @@ class Volume(UUIDModel, TagModel):
         if component.exists():
             return component.first()
         return None
-
-    def get_predefined_tags(self):
-        return {
-            TAG_VOLUME_LEGACY_DEFAULT: False
-        }
 
     def __str__(self):
         return "Volume %s on %s" % (self.name, self.storage)
