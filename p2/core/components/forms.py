@@ -10,13 +10,27 @@ class ComponentFormMeta:
 
     model = Component
     fields = ['enabled']
+    field_map = {
+        # Map of field_name: tag_name of instance to load/save
+    }
+    defaults = {
+        # (optional) Map of field_name: default value if tag is not set
+    }
+
 
 class ComponentForm(forms.ModelForm):
     """Base form for all Component forms, adds a load(self, instance) method to fill fields"""
 
     def load(self, instance):
         """Load self.fields[x] from instance.tags"""
-        pass
+        for field_name, tag in self.Meta.field_map.items():
+            default_value = self.Meta.defaults.get(field_name, '')
+            self.fields[field_name].initial = instance.tags.get(tag, default_value)
+
+    def save(self):
+        for field_name, tag in self.Meta.field_map.items():
+            self.instance.tags[tag] = self.cleaned_data.get(field_name)
+        return super().save()
 
     class Meta(ComponentFormMeta):
         pass

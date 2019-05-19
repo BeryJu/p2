@@ -14,17 +14,14 @@ class QuotaForm(ComponentForm):
     threshold = forms.CharField(widget=forms.NumberInput, help_text=_('Capacity in bytes'))
     action = forms.ChoiceField(choices=ACTIONS, initial=ACTION_NOTHING)
 
-    # FIXME: This could be a generic function that is controlled with a dict
-
-    def load(self, instance):
-        self.fields['threshold'].initial = instance.tags.get(TAG_QUOTA_THRESHOLD, 0)
-        self.fields['action'].initial = instance.tags.get(TAG_QUOTA_ACTION, ACTION_NOTHING)
-
-    def save(self):
-        self.instance.tags[TAG_QUOTA_ACTION] = self.cleaned_data.get('action')
-        self.instance.tags[TAG_QUOTA_THRESHOLD] = self.cleaned_data.get('threshold')
-        return super().save()
-
     class Meta(ComponentFormMeta):
 
         fields = ['enabled', 'threshold', 'action']
+        field_map = {
+            'threshold': TAG_QUOTA_THRESHOLD,
+            'action': TAG_QUOTA_ACTION
+        }
+        defaults = {
+            'threshold': 0,
+            'action': ACTION_NOTHING
+        }
