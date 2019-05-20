@@ -9,5 +9,5 @@ class XMLResponse(HttpResponse):
 
     def __init__(self, data, **kwargs):
         kwargs.setdefault('content_type', 'text/xml')
-        data = ElementTree.tostring(data, encoding='utf8', method='xml')
+        data = ElementTree.tostring(data, encoding='utf-8', method='xml')
         super().__init__(content=data, **kwargs)
