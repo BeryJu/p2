@@ -91,7 +91,7 @@ class S3Authentication(View):
     def authenticate(self):
         """Check Authorization Header in AWS Compatible format"""
         raw = self.request.META.get('HTTP_AUTHORIZATION')
-        # LOGGER.debug("Raw Header: %r", raw)
+        LOGGER.debug("Raw Header: %r", raw)
         if not raw:
             # No authentication header present, hence continue as AnonymousUser
             return None
@@ -110,7 +110,7 @@ class S3Authentication(View):
             return ErrorCodes.ACCESS_DENIED
         signing_key = self._get_signautre_key(secret_key.secret_key, date, region, service)
         canonical_request = self._get_canonical_request(signed_headers)
-        # LOGGER.debug("Canonical Request: '%s'", canonical_request)
+        LOGGER.debug("Canonical Request: '%s'", canonical_request)
         canonical_request_hash = hashlib.sha256(canonical_request.encode('utf-8')).hexdigest()
         string_to_sign = '\n'.join([
             algorithm,
@@ -118,7 +118,7 @@ class S3Authentication(View):
             "%s/%s/s3/aws4_request" % (date, region),
             canonical_request_hash
         ])
-        # LOGGER.debug("Signing %s", string_to_sign)
+        LOGGER.debug("Signing %s", string_to_sign)
         our_signature = hmac.new(signing_key, string_to_sign.encode('utf-8'),
                                  hashlib.sha256).hexdigest()
         LOGGER.debug("We got %s", our_signature)
