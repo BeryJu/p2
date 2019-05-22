@@ -15,16 +15,30 @@ from p2.s3.views.multipart import MultipartUploadView
 class ObjectView(S3Authentication):
     """Object related views"""
 
+    volume = None
+
+    def dispatch(self, request, bucket, path):
+        """Preflight checks, lookup volume, etc"""
+        # Preflight volume check
+        volumes = get_objects_for_user(request.user, 'use_volume', Volume).filter(name=bucket)
+        if not volumes.exists():
+            return self.error_response(ErrorCodes.NO_SUCH_KEY)
+        self.volume = volumes.first()
+        # Make sure path is prefixed with /
+        if not path.startswith('/'):
+            path = '/' + path
+        return super().dispatch(request, bucket, path)
+
     ## HTTP Method handlers
 
     def head(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectHEAD.html"""
-        path = '/' + path
         blobs = get_objects_for_user(request.user, 'view_blob', Blob).filter(
             path=path, volume__name=bucket)
         if not blobs.exists():
             return self.error_response(ErrorCodes.NO_SUCH_KEY)
         blob = blobs.first()
+        # We're not using BlobResponse here since we only want the attributes
         response = HttpResponse(status=200)
         response['Content-Length'] = blob.attributes.get(ATTR_BLOB_SIZE_BYTES)
         response['Content-Type'] = blob.attributes.get(ATTR_BLOB_MIME, 'text/plain')
@@ -32,7 +46,6 @@ class ObjectView(S3Authentication):
 
     def get(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectGET.html"""
-        path = '/' + path
         blobs = get_objects_for_user(request.user, 'view_blob', Blob).filter(
             path=path, volume__name=bucket)
         if not blobs.exists():
@@ -42,31 +55,21 @@ class ObjectView(S3Authentication):
 
     def post(self, request, bucket, path):
         """Post handler"""
-        # Preflight check to make sure volume exists
-        volumes = get_objects_for_user(request.user, 'use_volume', Volume).filter(name=bucket)
-        if not volumes.exists():
-            return self.error_response(ErrorCodes.NO_SUCH_KEY)
         # POST is handeled by the MultipartUploadView
         return MultipartUploadView().post(request, bucket, path)
 
     def put(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectPUT.html"""
-        # Preflight volume check
-        volumes = get_objects_for_user(request.user, 'use_volume', Volume).filter(name=bucket)
-        if not volumes.exists():
-            return self.error_response(ErrorCodes.NO_SUCH_KEY)
         # Check if part of a multipart upload
         if 'uploadId' in request.GET:
             return MultipartUploadView().put(request, bucket, path)
-        if not path.startswith('/'):
-            path = '/' + path
         blobs = get_objects_for_user(request.user, 'change_blob', Blob).filter(
             path=path, volume__name=bucket)
         try:
             if not blobs.exists():
                 blob = Blob.objects.create(
                     path=path,
-                    volume=volumes.first())
+                    volume=self.volume)
                 blob.write(request.body)
                 blob.save()
                 # We're creating a new blob, hence assign all default permissions
@@ -83,7 +86,7 @@ class ObjectView(S3Authentication):
     def delete(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectDELETE.html"""
         blobs = get_objects_for_user(request.user, 'delete_blob', Blob).filter(
-            path='/' + path, volume__name=bucket)
+            path=path, volume__name=bucket)
         if not blobs.exists():
             return self.error_response(ErrorCodes.NO_SUCH_KEY)
         blob = blobs.first()
