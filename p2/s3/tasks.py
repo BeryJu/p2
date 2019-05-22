@@ -1,11 +1,11 @@
 """p2 S3 Tasks"""
-from xml.etree import ElementTree
 from logging import getLogger
+from xml.etree import ElementTree
 
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields.jsonb import KeyTextTransform
-from django.db.models.functions import Cast
 from django.db.models import IntegerField
+from django.db.models.functions import Cast
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.core.celery import CELERY_APP

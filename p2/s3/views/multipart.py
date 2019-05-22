@@ -4,6 +4,7 @@ from uuid import uuid4
 from xml.etree import ElementTree
 
 from django.http.response import HttpResponse, StreamingHttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.core.models import Blob, Volume
@@ -22,6 +23,7 @@ class MultipartUploadView(S3Authentication):
 
     volume = None
 
+    @csrf_exempt
     def dispatch(self, request, bucket, path):
         """Preflight checks"""
         # Preflight check to make sure volume exists

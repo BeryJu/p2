@@ -18,6 +18,8 @@ LOGGER = getLogger(__name__)
 class S3Authentication(View):
     """Emulate S3 Authentication"""
 
+    _auth_error_code = None
+
     def error_response(self, code):
         """Return generic S3 Error response"""
         root = ElementTree.Element("Error")
@@ -127,12 +129,16 @@ class S3Authentication(View):
             return None
         return ErrorCodes.SIGNATURE_DOES_NOT_MATCH
 
+    def setup(self, request, *args, **kwargs):
+        """Try to authenticate user"""
+        super().setup(request, *args, **kwargs)
+        try:
+            self._auth_error_code = self.authenticate()
+        except ValueError:
+            self._auth_error_code = ErrorCodes.INVALID_HMAC
+
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
-        try:
-            auth_error_code = self.authenticate()
-        except ValueError:
-            return self.error_response(ErrorCodes.INVALID_HMAC)
-        if auth_error_code:
-            return self.error_response(auth_error_code)
+        if self._auth_error_code:
+            return self.error_response(self._auth_error_code)
         return super().dispatch(request, *args, **kwargs)

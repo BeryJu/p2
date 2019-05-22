@@ -1,11 +1,12 @@
 """p2 S3 Object views"""
 from django.http.response import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.core.constants import ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES
 from p2.core.exceptions import BlobException
 from p2.core.http import BlobResponse
-from p2.core.models import Blob, Volume
+from p2.core.models import Blob
 from p2.s3.auth import S3Authentication
 from p2.s3.constants import ErrorCodes
 from p2.s3.http import XMLResponse
@@ -17,10 +18,11 @@ class ObjectView(S3Authentication):
 
     volume = None
 
+    @csrf_exempt
     def dispatch(self, request, bucket, path):
         """Preflight checks, lookup volume, etc"""
         # Preflight volume check
-        volumes = get_objects_for_user(request.user, 'use_volume', Volume).filter(name=bucket)
+        volumes = get_objects_for_user(request.user, 'p2_core.use_volume').filter(name=bucket)
         if not volumes.exists():
             return self.error_response(ErrorCodes.NO_SUCH_KEY)
         self.volume = volumes.first()
