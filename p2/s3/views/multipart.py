@@ -44,6 +44,8 @@ class MultipartUploadView(S3Authentication):
     # pylint: disable=too-many-branches
     def post_handle_mp_complete(self, request, volume, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/mpUploadComplete.html"""
+        if not path.startswith('/'):
+            path = '/' + path
         upload_id = request.GET.get('uploadId')
         # Ensure Multipart upload has started, otherwise 404
         get_list_for_user_or_404(request.user, 'p2_core.change_blob', **{
@@ -69,6 +71,8 @@ class MultipartUploadView(S3Authentication):
 
     def post_handle_mp_initiate(self, request, volume, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/mpUploadInitiate.html"""
+        if not path.startswith('/'):
+            path = '/' + path
         # Check if an existing Multipart Upload exists
         existing = get_objects_for_user(request.user, 'p2_core.change_blob').filter(**{
             'tags__%s' % TAG_S3_MULTIPART_BLOB_TARGET_BLOB: path,
@@ -94,6 +98,8 @@ class MultipartUploadView(S3Authentication):
 
     def put_handle_mp_part(self, request, volume, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/mpUploadUploadPart.html"""
+        if not path.startswith('/'):
+            path = '/' + path
         upload_id = request.GET.get('uploadId')
         part_number = int(request.GET.get('partNumber'))
         # Ensure Multipart upload has started, otherwise 404

@@ -58,7 +58,8 @@ class ObjectView(S3Authentication):
         # Check if part of a multipart upload
         if 'uploadId' in request.GET:
             return MultipartUploadView().put(request, bucket, path)
-        path = '/' + path
+        if not path.startswith('/'):
+            path = '/' + path
         blobs = get_objects_for_user(request.user, 'change_blob', Blob).filter(
             path=path, volume__name=bucket)
         try:

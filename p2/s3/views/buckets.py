@@ -56,7 +56,8 @@ class BucketView(S3Authentication):
             self.request.user, 'p2_core.list_volume_contents', name=bucket)
         prefix = '/' + request.GET.get('prefix', '')[:-1]
         blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
-            prefix=prefix
+            prefix=prefix,
+            volume=volume,
         )
 
         ElementTree.SubElement(root, "Name").text = volume.name
