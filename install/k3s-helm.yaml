@@ -7,6 +7,8 @@ spec:
   chart: https://docker.beryju.org/chartrepo/p2/charts/p2-0.4.6.tgz
   targetNamespace: p2
   valuesContent: |-
+    deployment:
+      webInstances: %WEB_INSTANCES%
     ingress:
       enabled: true
       hosts:

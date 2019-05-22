@@ -65,6 +65,7 @@ bash install.k3s.sh > /dev/null 2>&1
 
 STORAGE_BASE="${STORAGE_BASE:-/srv/p2}"
 P2_PASSWORD_FILE="${STORAGE_BASE}/password"
+CPU_CORES=$(grep -c ^processor /proc/cpuinfo)
 
 # Make sure storage directories exist
 mkdir -p "${STORAGE_BASE}"
@@ -88,6 +89,8 @@ curl -fsSL -o p2_k3s_nginx.yaml "https://git.beryju.org/BeryJu.org/p2/raw/versio
 # Replace variable in Helm CRD
 sed -i "s|%INGRESS_HOST%|${INGRESS_HOST}|g" p2_k3s_helm.yaml
 sed -i "s|%PASSWORD%|${PASSWORD}|g" p2_k3s_helm.yaml
+# Adjust webserver instances (1 instance per CPU)
+sed -i "s|%WEB_INSTANCES%|${CPU_CORES}|g" p2_k3s_helm.yaml
 
 # Replace variable in Storage
 sed -i "s|%STORAGE_BASE%|${STORAGE_BASE}|g" p2_k3s_storage.yaml

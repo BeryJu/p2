@@ -15,6 +15,10 @@ config:
   # By default uses the first ingresss host
   # s3_base_domain: ""
 
+deployment:
+  webInstances: 2
+  workerInstances: 1
+
 postgresql:
   postgresqlUsername: p2
   postgresqlDatabase: p2
