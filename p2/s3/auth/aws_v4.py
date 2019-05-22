@@ -4,28 +4,16 @@ import hmac
 from collections import OrderedDict
 from logging import getLogger
 from urllib.parse import quote
-from xml.etree import ElementTree
-
-from django.views import View
-from django.views.decorators.csrf import csrf_exempt
 
 from p2.api.models import APIKey
+from p2.s3.auth.base import BaseAuth
 from p2.s3.constants import ErrorCodes
-from p2.s3.http import XMLResponse
 
 LOGGER = getLogger(__name__)
 
-class S3Authentication(View):
-    """Emulate S3 Authentication"""
 
-    _auth_error_code = None
-
-    def error_response(self, code):
-        """Return generic S3 Error response"""
-        root = ElementTree.Element("Error")
-        code_name, response_code = code.value
-        ElementTree.SubElement(root, "Code").text = code_name
-        return XMLResponse(root, status=response_code)
+class AWSV4Authentication(BaseAuth):
+    """AWS v4 Signer"""
 
     # Key derivation functions. See:
     # http://docs.aws.amazon.com/general/latest/gr/signature-v4-examples.html#signature-v4-examples-python
@@ -58,7 +46,8 @@ class S3Authentication(View):
         """Fix header keys from HTTP_X to x"""
         headers = {}
         for header_key, header_value in self.request.META.items():
-            fixed_key = header_key.replace('HTTP_', '', 1).replace('_', '-').lower()
+            fixed_key = header_key.replace(
+                'HTTP_', '', 1).replace('_', '-').lower()
             headers[fixed_key] = header_value
         return OrderedDict(sorted(headers.items()))
 
@@ -75,7 +64,7 @@ class S3Authentication(View):
         canonical_request = [
             self.request.META['REQUEST_METHOD'],
             quote(self.request.META['PATH_INFO']),
-            self._make_query_string(), # self.request.META['QUERY_STRING'],
+            self._make_query_string(),  # self.request.META['QUERY_STRING'],
             canonical_headers,
             signed_headers,
             self.request.META['HTTP_X_AMZ_CONTENT_SHA256']
@@ -89,14 +78,19 @@ class S3Authentication(View):
             return keys.first()
         return None
 
+    @staticmethod
+    def can_handle(request):
+        return 'HTTP_AUTHORIZATION' in request.META and \
+            'AWS4-HMAC-SHA256' in request.META['HTTP_AUTHORIZATION']
+
     # pylint: disable=too-many-locals
-    def authenticate(self):
+    def validate(self):
         """Check Authorization Header in AWS Compatible format"""
         raw = self.request.META.get('HTTP_AUTHORIZATION')
         LOGGER.debug("Raw Header: %r", raw)
         if not raw:
             # No authentication header present, hence continue as AnonymousUser
-            return None
+            return None, None
         algorithm, credential_container = raw.split(' ', 1)
         credential, signed_headers, signature = credential_container.split(',')
         # Remove "Credentail=" from string
@@ -109,7 +103,7 @@ class S3Authentication(View):
         # Build our own signature to compare
         secret_key = self._lookup_access_key(access_key)
         if not secret_key:
-            return ErrorCodes.ACCESS_DENIED
+            return None, ErrorCodes.ACCESS_DENIED
         signing_key = self._get_signautre_key(secret_key.secret_key, date, region, service)
         canonical_request = self._get_canonical_request(signed_headers)
         LOGGER.debug("Canonical Request: '%s'", canonical_request)
@@ -125,20 +119,5 @@ class S3Authentication(View):
                                  hashlib.sha256).hexdigest()
         LOGGER.debug("We got %s", our_signature)
         if signature == our_signature:
-            self.request.user = secret_key.user
-            return None
-        return ErrorCodes.SIGNATURE_DOES_NOT_MATCH
-
-    def setup(self, request, *args, **kwargs):
-        """Try to authenticate user"""
-        super().setup(request, *args, **kwargs)
-        try:
-            self._auth_error_code = self.authenticate()
-        except ValueError:
-            self._auth_error_code = ErrorCodes.INVALID_HMAC
-
-    @csrf_exempt
-    def dispatch(self, request, *args, **kwargs):
-        if self._auth_error_code:
-            return self.error_response(self._auth_error_code)
-        return super().dispatch(request, *args, **kwargs)
+            return secret_key.user, None
+        return None, ErrorCodes.SIGNATURE_DOES_NOT_MATCH

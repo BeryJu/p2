@@ -1,7 +1,11 @@
 """p2 s3 routing middleware"""
+from logging import getLogger
 
 from p2.lib.config import CONFIG
+from p2.s3.auth.aws_v4 import AWSV4Authentication
+from p2.s3.http import AWSError
 
+LOGGER = getLogger(__name__)
 
 # pylint: disable=too-few-public-methods
 class S3RoutingMiddleware:
@@ -39,5 +43,13 @@ class S3RoutingMiddleware:
                 # If bucket was taken from URL, we need to set it as kwarg
                 request.path = '/' + bucket + request.path
                 request.path_info = '/' + bucket + request.path_info
+            # Check AWS Authentication
+            if AWSV4Authentication.can_handle(request):
+                handler = AWSV4Authentication(request)
+                user, error_code = handler.validate()
+                LOGGER.debug("Authenticated user %s", user)
+                if error_code:
+                    return AWSError(error_code)
+                request.user = user
         response = self.get_response(request)
         return response

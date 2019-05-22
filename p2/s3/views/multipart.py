@@ -4,21 +4,21 @@ from uuid import uuid4
 from xml.etree import ElementTree
 
 from django.http.response import HttpResponse, StreamingHttpResponse
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.core.models import Blob, Volume
 from p2.lib.shortcuts import get_list_for_user_or_404
-from p2.s3.auth import S3Authentication
 from p2.s3.constants import (TAG_S3_MULTIPART_BLOB_PART,
                              TAG_S3_MULTIPART_BLOB_TARGET_BLOB,
                              TAG_S3_MULTIPART_BLOB_UPLOAD_ID, XML_NAMESPACE,
                              ErrorCodes)
-from p2.s3.http import XMLResponse
+from p2.s3.http import AWSError, XMLResponse
 from p2.s3.tasks import complete_multipart_upload
 
 
-class MultipartUploadView(S3Authentication):
+class MultipartUploadView(View):
     """Multipart-Object related views"""
 
     volume = None
@@ -29,7 +29,7 @@ class MultipartUploadView(S3Authentication):
         # Preflight check to make sure volume exists
         volumes = get_objects_for_user(request.user, 'use_volume', Volume).filter(name=bucket)
         if not volumes.exists():
-            return self.error_response(ErrorCodes.NO_SUCH_KEY)
+            return AWSError(ErrorCodes.NO_SUCH_KEY)
         self.volume = volumes.first()
         # Make sure path starts with /
         if not path.startswith('/'):

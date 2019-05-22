@@ -29,6 +29,7 @@ class ObjectTests(LiveServerTestCase):
         self.volume = Volume.objects.create(
             name='test-1', storage=self.storage)
         assign_perm('p2_core.use_volume', self.user, self.volume)
+        assign_perm('p2_core.add_blob', self.user)
         session = boto3.session.Session()
         self.boto3 = session.client(
             service_name='s3',

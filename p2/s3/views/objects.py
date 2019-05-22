@@ -1,5 +1,6 @@
 """p2 S3 Object views"""
 from django.http.response import HttpResponse
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
@@ -7,13 +8,12 @@ from p2.core.constants import ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES
 from p2.core.exceptions import BlobException
 from p2.core.http import BlobResponse
 from p2.core.models import Blob
-from p2.s3.auth import S3Authentication
 from p2.s3.constants import ErrorCodes
-from p2.s3.http import XMLResponse
+from p2.s3.http import AWSError, XMLResponse
 from p2.s3.views.multipart import MultipartUploadView
 
 
-class ObjectView(S3Authentication):
+class ObjectView(View):
     """Object related views"""
 
     volume = None
@@ -24,7 +24,7 @@ class ObjectView(S3Authentication):
         # Preflight volume check
         volumes = get_objects_for_user(request.user, 'p2_core.use_volume').filter(name=bucket)
         if not volumes.exists():
-            return self.error_response(ErrorCodes.NO_SUCH_KEY)
+            return AWSError(ErrorCodes.NO_SUCH_KEY)
         self.volume = volumes.first()
         # Make sure path is prefixed with /
         if not path.startswith('/'):
@@ -38,7 +38,7 @@ class ObjectView(S3Authentication):
         blobs = get_objects_for_user(request.user, 'view_blob', Blob).filter(
             path=path, volume__name=bucket)
         if not blobs.exists():
-            return self.error_response(ErrorCodes.NO_SUCH_KEY)
+            return AWSError(ErrorCodes.NO_SUCH_KEY)
         blob = blobs.first()
         # We're not using BlobResponse here since we only want the attributes
         response = HttpResponse(status=200)
@@ -51,7 +51,7 @@ class ObjectView(S3Authentication):
         blobs = get_objects_for_user(request.user, 'view_blob', Blob).filter(
             path=path, volume__name=bucket)
         if not blobs.exists():
-            return self.error_response(ErrorCodes.NO_SUCH_KEY)
+            return AWSError(ErrorCodes.NO_SUCH_KEY)
         blob = blobs.first()
         return BlobResponse(blob)
 
@@ -65,10 +65,10 @@ class ObjectView(S3Authentication):
         # Check if part of a multipart upload
         if 'uploadId' in request.GET:
             return MultipartUploadView().put(request, bucket, path)
-        blobs = get_objects_for_user(request.user, 'change_blob', Blob).filter(
+        blobs = get_objects_for_user(request.user, 'p2_core.change_blob').filter(
             path=path, volume__name=bucket)
         try:
-            if not blobs.exists():
+            if not blobs.exists() and request.user.has_perm('p2_core.add_blob'):
                 blob = Blob.objects.create(
                     path=path,
                     volume=self.volume)
@@ -90,7 +90,7 @@ class ObjectView(S3Authentication):
         blobs = get_objects_for_user(request.user, 'delete_blob', Blob).filter(
             path=path, volume__name=bucket)
         if not blobs.exists():
-            return self.error_response(ErrorCodes.NO_SUCH_KEY)
+            return AWSError(ErrorCodes.NO_SUCH_KEY)
         blob = blobs.first()
         blob.delete()
         return HttpResponse(status=204)

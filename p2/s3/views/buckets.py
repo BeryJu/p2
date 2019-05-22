@@ -2,20 +2,20 @@
 from xml.etree import ElementTree
 
 from django.http import HttpResponse
+from django.views import View
 from guardian.shortcuts import get_objects_for_user
 
 from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_SIZE_BYTES,
                                ATTR_BLOB_STAT_MTIME)
 from p2.core.models import Volume
 from p2.lib.shortcuts import get_object_for_user_or_404
-from p2.s3.auth import S3Authentication
 from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
                              XML_NAMESPACE)
 from p2.s3.http import XMLResponse
 from p2.ui.views.core.blob import FileBrowserView
 
 
-class BucketView(S3Authentication):
+class BucketView(View):
     """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketOps.html"""
 
     def get(self, request, *args, **kwargs):
