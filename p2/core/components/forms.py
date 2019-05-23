@@ -2,6 +2,7 @@
 from django import forms
 
 from p2.core.models import Component
+from p2.lib.models import UUIDModel
 
 
 # pylint: disable=too-few-public-methods
@@ -29,7 +30,11 @@ class ComponentForm(forms.ModelForm):
 
     def save(self):
         for field_name, tag in self.Meta.field_map.items():
-            self.instance.tags[tag] = self.cleaned_data.get(field_name)
+            value = self.cleaned_data.get(field_name)
+            if isinstance(value, UUIDModel):
+                self.instance.tags[tag] = value.uuid.hex
+            else:
+                self.instance.tags[tag] = value
         return super().save()
 
     class Meta(ComponentFormMeta):
