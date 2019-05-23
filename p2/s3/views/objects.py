@@ -58,13 +58,13 @@ class ObjectView(View):
     def post(self, request, bucket, path):
         """Post handler"""
         # POST is handeled by the MultipartUploadView
-        return MultipartUploadView().post(request, bucket, path)
+        return MultipartUploadView().dispatch(request, bucket, path)
 
     def put(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectPUT.html"""
         # Check if part of a multipart upload
         if 'uploadId' in request.GET:
-            return MultipartUploadView().put(request, bucket, path)
+            return MultipartUploadView().dispatch(request, bucket, path)
         blobs = get_objects_for_user(request.user, 'p2_core.change_blob').filter(
             path=path, volume__name=bucket)
         try:
