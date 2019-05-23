@@ -1,11 +1,12 @@
 """Replication signals"""
 
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from p2.components.replication.controller import ReplicationController
-from p2.core.models import Blob
+from p2.core.models import Blob, Component
 from p2.core.signals import BLOB_PAYLOAD_UPDATED, BLOB_POST_SAVE
+from p2.lib.reflection import class_to_path
 
 
 @receiver(BLOB_POST_SAVE)
@@ -32,3 +33,10 @@ def blob_post_delete(sender, instance, **kwargs):
     replication_component = instance.volume.component(ReplicationController)
     if replication_component:
         replication_component.controller.delete(instance)
+
+@receiver(post_save, sender=Component)
+# pylint: disable=unused-argument
+def component_post_save(sender, instance, **kwargs):
+    """Trigger initial sync after we've been saved"""
+    if instance.controller_path == class_to_path(ReplicationController):
+        instance.controller.full_replication()

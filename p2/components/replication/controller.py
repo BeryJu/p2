@@ -38,6 +38,10 @@ class ReplicationController(ComponentController):
                 })
         return target_blob
 
+    def full_replication(self):
+        """Full replication after component has been configured"""
+
+
     def save(self, blob):
         """Replicate metadata save"""
         LOGGER.debug('Replicating::Save %s', blob.uuid.hex)
