@@ -20,7 +20,7 @@ class Command(BaseCommand):
         cherrypy.config.update(CONFIG.get('web'))
         cherrypy.tree.graft(application, '/')
         # Mount NullObject to serve static files
-        cherrypy.tree.mount(None, '/static', config={
+        cherrypy.tree.mount(None, '/_/static', config={
             '/': {
                 'tools.staticdir.on': True,
                 'tools.staticdir.dir': settings.STATIC_ROOT,

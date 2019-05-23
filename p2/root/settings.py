@@ -142,8 +142,10 @@ INSTALLED_APPS = [
     'p2.components.quota.apps.P2QuotaComponentConfig',
     'p2.components.image.apps.P2ImageComponentConfig',
     'p2.components.public_access.apps.P2PublicAccessComponentConfig',
+    'p2.components.replication.apps.P2ReplicationComponentConfig',
     # p2 - Storage
     'p2.storage.local.apps.P2LocalStorageConfig',
+    'p2.storage.s3.apps.P2S3StorageConfig',
     # API Frameworks
     'rest_framework',
     'drf_yasg',
@@ -259,7 +261,7 @@ if not DEBUG:
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/_/static/'
 
 with CONFIG.cd('log'):
     LOGGING_HANDLER_MAP = {
@@ -268,7 +270,7 @@ with CONFIG.cd('log'):
         'cherrypy': 'DEBUG',
         'django': 'INFO',
         'celery': 'WARNING',
-        'botocore': 'DEBUG',
+        'botocore': 'WARNING',
         'werkzeug': 'DEBUG',
     }
     LOGGING = {
