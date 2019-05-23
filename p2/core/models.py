@@ -207,6 +207,9 @@ class Storage(UUIDModel, TagModel):
     def get_required_keys(self):
         return self.controller.get_required_tags()
 
+    def __str__(self):
+        return "Storage %s" % self.name
+
     class Meta:
 
         verbose_name = _('Storage')

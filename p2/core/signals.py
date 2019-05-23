@@ -37,6 +37,7 @@ def blob_post_save(sender, instance, **kwargs):
 # pylint: disable=unused-argument
 def blob_pre_delete(sender, instance, **kwargs):
     """Tell storage to delete blob"""
+    # TODO: Move this to task
     instance.volume.storage.controller.delete(instance)
 
 @receiver(BLOB_PAYLOAD_UPDATED)

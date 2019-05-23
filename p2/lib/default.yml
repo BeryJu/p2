@@ -40,6 +40,7 @@ storage:
   controllers:
     - p2.core.storages.null.NullStorageController
     - p2.storage.local.controller.LocalStorageController
+    - p2.storage.s3.controller.S3StorageController
 component:
   controllers:
     - p2.components.image.controller.ImageController
