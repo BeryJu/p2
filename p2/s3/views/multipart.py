@@ -98,6 +98,7 @@ class MultipartUploadView(View):
                     TAG_S3_MULTIPART_BLOB_UPLOAD_ID: uuid4().hex
                 }
             )
+            assign_perm('p2_core.change_blob', request.user, blob)
         ElementTree.SubElement(root, "UploadId").text = blob.tags[TAG_S3_MULTIPART_BLOB_UPLOAD_ID]
         return XMLResponse(root)
 
