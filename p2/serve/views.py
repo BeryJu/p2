@@ -1,12 +1,14 @@
 """p2 Serve Views"""
 from logging import getLogger
 
+from django.core.cache import cache
 from django.http import Http404
 from django.views import View
 from guardian.shortcuts import get_objects_for_user
 
 from p2.core.constants import ATTR_BLOB_HEADERS
 from p2.core.http import BlobResponse
+from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.serve.models import ServeRule
 
 LOGGER = getLogger(__name__)
@@ -18,6 +20,7 @@ class ServeView(View):
     def rule_lookup(self, rule, path):
         """Build blob lookup from rule"""
         lookups = {}
+        # FIXME: Capture LOGGER output instead of returning a message array
         debug_messages = []
         for lookup_token in rule.blob_query.split('&'):
             debug_messages.append("Found new token '%s'" % lookup_token)
@@ -29,7 +32,8 @@ class ServeView(View):
         debug_messages.append("Final lookup %r" % lookups)
         return lookups, debug_messages
 
-    def dispatch(self, request, path):
+    def get_blob_from_rule(self, path):
+        """Try to lookup blob from ServeRule, raise Http404 if none found"""
         for rule in ServeRule.objects.all():
             if rule.regex.match(path):
                 LOGGER.debug("Rule %s matched", rule)
@@ -42,15 +46,26 @@ class ServeView(View):
                 if not blobs.exists():
                     LOGGER.debug("No blob found matching ")
                     continue
-                blob = blobs.first()
-                request.log(
-                    blob_pk=blob.pk,
-                    rule_pk=rule.pk)
-                headers = blob.attributes.get(ATTR_BLOB_HEADERS, {})
-                response = BlobResponse(blob)
-                for header_key, header_value in headers.items():
-                    if header_key == 'Location':
-                        response.status_code = 302
-                    response[header_key] = header_value
-                return response
+                # Log rule_id for debugging
+                self.request.log(rule_pk=rule.pk)
+                return blobs.first()
         raise Http404
+
+    def dispatch(self, request, path):
+        cache_key = 'p2_serve:%s' % path
+        # Quickly check if path exists in cache and has blob mapped to it
+        cached_value = cache.get(cache_key, default=None)
+        if cached_value:
+            blob = get_object_for_user_or_404(request.user, 'p2_core.view_blob', pk=cached_value)
+        else:
+            blob = self.get_blob_from_rule(path)
+            # save blob pk so we don't need to re-evaluate rules
+            cache.set(cache_key, blob.pk)
+        request.log(blob_pk=blob.pk)
+        headers = blob.attributes.get(ATTR_BLOB_HEADERS, {})
+        response = BlobResponse(blob)
+        for header_key, header_value in headers.items():
+            if header_key == 'Location':
+                response.status_code = 302
+            response[header_key] = header_value
+        return response
