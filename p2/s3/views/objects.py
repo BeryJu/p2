@@ -7,7 +7,7 @@ from guardian.shortcuts import assign_perm, get_objects_for_user
 from p2.core.constants import ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES
 from p2.core.exceptions import BlobException
 from p2.core.http import BlobResponse
-from p2.core.models import Blob
+from p2.core.models import Blob, Volume
 from p2.s3.constants import ErrorCodes
 from p2.s3.http import AWSError, XMLResponse
 from p2.s3.views.multipart import MultipartUploadView
@@ -21,8 +21,12 @@ class ObjectView(View):
     @csrf_exempt
     def dispatch(self, request, bucket, path):
         """Preflight checks, lookup volume, etc"""
-        # Preflight volume check
-        volumes = get_objects_for_user(request.user, 'p2_core.use_volume').filter(name=bucket)
+        # Preflight volume check - Check for use_volume permission is POST & PUT, otherwise
+        # we don't care about volume permission here
+        if request.method in ['POST', 'PUT']:
+            volumes = get_objects_for_user(request.user, 'p2_core.use_volume').filter(name=bucket)
+        else:
+            volumes = Volume.objects.filter(name=bucket)
         if not volumes.exists():
             return AWSError(ErrorCodes.NO_SUCH_KEY)
         self.volume = volumes.first()
