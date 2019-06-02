@@ -103,6 +103,7 @@ class AWSV4Authentication(BaseAuth):
         # Build our own signature to compare
         secret_key = self._lookup_access_key(access_key)
         if not secret_key:
+            LOGGER.debug("No secret key found for request %s", access_key)
             return None, ErrorCodes.ACCESS_DENIED
         signing_key = self._get_signautre_key(secret_key.secret_key, date, region, service)
         canonical_request = self._get_canonical_request(signed_headers)

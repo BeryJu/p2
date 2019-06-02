@@ -51,5 +51,7 @@ class S3RoutingMiddleware:
                 if error_code:
                     return AWSError(error_code)
                 request.user = user
+            # AWS Views don't have CSRF Tokens, hence we use csrf_exempt
+            setattr(request, '_dont_enforce_csrf_checks', True)
         response = self.get_response(request)
         return response
