@@ -10,6 +10,7 @@ from guardian.shortcuts import assign_perm, get_anonymous_user
 
 from p2.api.models import APIKey
 from p2.core.models import Blob, Storage, Volume
+from p2.serve.constants import TAG_SERVE_MATCH_PATH
 from p2.serve.models import ServeRule
 from p2.storage.local.constants import TAG_ROOT_PATH
 
@@ -43,8 +44,10 @@ class ServeViewTests(LiveServerTestCase):
         """Test Simple Serving"""
         ServeRule.objects.create(
             name='unittest-simple',
-            match='.*',
-            blob_query='path=/%(path)s')
+            tags={
+                TAG_SERVE_MATCH_PATH: '.*'
+            },
+            blob_query='path={path}')
         blob = Blob.objects.create(
             path='/test-aA0!-\\|/[.png',
             volume=self.volume)

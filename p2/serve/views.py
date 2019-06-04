@@ -1,4 +1,5 @@
 """p2 Serve Views"""
+import hashlib
 from logging import getLogger
 
 from django.core.cache import cache
@@ -17,7 +18,7 @@ LOGGER = getLogger(__name__)
 class ServeView(View):
     """View to directly access Blob"""
 
-    def rule_lookup(self, rule, path):
+    def rule_lookup(self, rule):
         """Build blob lookup from rule"""
         lookups = {}
         # FIXME: Capture LOGGER output instead of returning a message array
@@ -25,19 +26,32 @@ class ServeView(View):
         for lookup_token in rule.blob_query.split('&'):
             debug_messages.append("Found new token '%s'" % lookup_token)
             lookup_key, lookup_value = lookup_token.split('=')
-            lookups[lookup_key] = lookup_value % {
-                'path': path
-            }
-            debug_messages.append("Formatted to '%s'" % lookups[lookup_key])
+            lookups[lookup_key] = lookup_value.format(
+                path=self.request.path,
+                host=self.request.META.get('HTTP_HOST', ''),
+                meta=self.request.META,
+            )
+            debug_messages.append("Formatted to '%s'='%s'" % (lookup_key, lookups[lookup_key]))
         debug_messages.append("Final lookup %r" % lookups)
         return lookups, debug_messages
 
-    def get_blob_from_rule(self, path):
+    def fingerprint(self):
+        """Return request's fingerprint"""
+        fingerprint_data = [
+            self.request.path,
+            self.request.user.pk or '',
+            str(hash(frozenset(self.request.META.items()))),
+        ]
+        _hash = hashlib.sha256()
+        _hash.update("".join(fingerprint_data).encode('utf-8'))
+        return _hash.hexdigest()
+
+    def get_blob_from_rule(self):
         """Try to lookup blob from ServeRule, raise Http404 if none found"""
         for rule in ServeRule.objects.all():
-            if rule.regex.match(path):
+            if rule.matches(self.request):
                 LOGGER.debug("Rule %s matched", rule)
-                lookups, messages = self.rule_lookup(rule, path)
+                lookups, messages = self.rule_lookup(rule)
                 # Output debug messages on log
                 for msg in messages:
                     LOGGER.debug(msg)
@@ -52,13 +66,14 @@ class ServeView(View):
         raise Http404
 
     def dispatch(self, request, path):
-        cache_key = 'p2_serve:%s' % path
+        cache_key = 'p2_serve:%s' % self.fingerprint()
         # Quickly check if path exists in cache and has blob mapped to it
         cached_value = cache.get(cache_key, default=None)
         if cached_value:
+            LOGGER.debug("Using Blob PK from cache")
             blob = get_object_for_user_or_404(request.user, 'p2_core.view_blob', pk=cached_value)
         else:
-            blob = self.get_blob_from_rule(path)
+            blob = self.get_blob_from_rule()
             # save blob pk so we don't need to re-evaluate rules
             cache.set(cache_key, blob.pk)
         request.log(blob_pk=blob.pk)

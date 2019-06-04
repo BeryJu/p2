@@ -88,7 +88,7 @@ class ServeRuleDebugView(PermissionRequiredMixin, FormView):
         return kwargs
 
     def get_object(self):
-        """Get ServeRule insatnce"""
+        """Get ServeRule instance"""
         return get_object_for_user_or_404(self.request.user,
                                           'p2_serve.change_serverule', pk=self.kwargs.get('pk'))
 
@@ -98,7 +98,7 @@ class ServeRuleDebugView(PermissionRequiredMixin, FormView):
         })
 
     def form_valid(self, form):
-        lookup, messages = ServeView().rule_lookup(self.get_object(), form.cleaned_data.get('path'))
+        lookup, messages = ServeView(request=self.request).rule_lookup(self.get_object())
         blob = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(**lookup)
         messages.append("Found object %r" % blob)
         form = ServeRuleDebugForm(
