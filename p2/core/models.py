@@ -14,6 +14,7 @@ from django.utils.translation import gettext as _
 from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
                                ATTR_BLOB_STAT_MTIME)
 from p2.core.tasks import signal_marshall
+from p2.core.validators import validate_blob_path
 from p2.lib.models import TagModel, UUIDModel
 from p2.lib.reflection import class_to_path, path_to_class
 from p2.lib.reflection.manager import ControllerManager
@@ -66,7 +67,7 @@ class Volume(UUIDModel, TagModel):
 class Blob(UUIDModel, TagModel):
     """Binary-large object, member of a Volume and store in the volume's storage"""
 
-    path = models.TextField()
+    path = models.TextField(validators=[validate_blob_path])
     prefix = models.TextField()
 
     volume = models.ForeignKey('Volume', on_delete=models.CASCADE)
