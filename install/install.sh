@@ -98,8 +98,11 @@ sed -i "s|%STORAGE_BASE%|${STORAGE_BASE}|g" p2_k3s_storage.yaml
 # Replace variable in cert-manager
 # sed -i "s|%LE_MAIL%|${LE_MAIL}|g" p2_k3s_cert.yaml
 
+sleep 30
 mv p2_k3s_nginx.yaml /var/lib/rancher/k3s/server/manifests/p2-10-nginx.yaml
+sleep 30
 mv p2_k3s_storage.yaml /var/lib/rancher/k3s/server/manifests/p2-20-storage.yaml
+sleep 30
 mv p2_k3s_helm.yaml /var/lib/rancher/k3s/server/manifests/p2-30-helm.yaml
 
 # Only deploy cert-manager if LE_MAIL set
@@ -110,6 +113,6 @@ mv p2_k3s_helm.yaml /var/lib/rancher/k3s/server/manifests/p2-30-helm.yaml
 echo " * Your p2 instanace will be available at $INGRESS_HOST in a few minutes."
 echo " * You can use the username admin with password admin to login."
 
-__wait_until_pods_ready
+# __wait_until_pods_ready
 
 rm -r "${TEMP_DIR}"
