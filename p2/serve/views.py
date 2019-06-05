@@ -28,6 +28,7 @@ class ServeView(View):
             lookup_key, lookup_value = lookup_token.split('=')
             lookups[lookup_key] = lookup_value.format(
                 path=self.request.path,
+                path_relative=self.request.path[1:],
                 host=self.request.META.get('HTTP_HOST', ''),
                 meta=self.request.META,
             )

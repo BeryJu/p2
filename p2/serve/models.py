@@ -6,7 +6,8 @@ from django.db import models
 
 from p2.lib.models import TagModel, UUIDModel
 from p2.serve.constants import (TAG_SERVE_MATCH_HOST, TAG_SERVE_MATCH_META,
-                                TAG_SERVE_MATCH_PATH)
+                                TAG_SERVE_MATCH_PATH,
+                                TAG_SERVE_MATCH_PATH_RELATIVE)
 
 LOGGER = getLogger(__name__)
 
@@ -14,7 +15,7 @@ class ServeRule(TagModel, UUIDModel):
     """ServeRule which converts a URL matching a regular expression toa database lookup"""
 
     PREDEFINED_TAGS = {
-        TAG_SERVE_MATCH_PATH: ''
+        TAG_SERVE_MATCH_PATH_RELATIVE: ''
     }
 
     name = models.TextField()
@@ -34,6 +35,8 @@ class ServeRule(TagModel, UUIDModel):
             request_value = None
             if tag_key == TAG_SERVE_MATCH_PATH:
                 request_value = request.path
+            elif tag_key == TAG_SERVE_MATCH_PATH_RELATIVE:
+                request_value = request.path[1:]
             elif tag_key == TAG_SERVE_MATCH_HOST:
                 request_value = request.META.get('HTTP_HOST')
             elif tag_key.startswith(TAG_SERVE_MATCH_META):
