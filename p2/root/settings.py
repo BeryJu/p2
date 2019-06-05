@@ -34,9 +34,10 @@ SECRET_KEY = CONFIG.get('secret_key',
                         '48e9z8tw=_z0e#m*x70&)u%cgo8#=16uzdze&i8q=*#**)@cp&')  # noqa Debug
 
 DEBUG = CONFIG.get('debug')
+TEST = any('test' in arg for arg in sys.argv)
 CORS_ORIGIN_ALLOW_ALL = DEBUG
 
-SECURE_SSL_REDIRECT = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG and not TEST
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ALLOWED_HOSTS = ['*']
@@ -307,7 +308,6 @@ with CONFIG.cd('log'):
         }
 
 
-TEST = any('test' in arg for arg in sys.argv)
 TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
 TEST_OUTPUT_VERBOSE = 2
 
