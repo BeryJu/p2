@@ -53,5 +53,9 @@ class S3RoutingMiddleware:
                 request.user = user
             # AWS Views don't have CSRF Tokens, hence we use csrf_exempt
             setattr(request, '_dont_enforce_csrf_checks', True)
+            # GET and HEAD requests are allowed over http, everything else is redirect to https
+            if request.method in ['GET', 'HEAD']:
+                # Set SECURE_PROXY_SSL_HEADER so SecurityMiddleware doesn't return a 302
+                request.META['HTTP_X_FORWARDED_PROTO'] = 'https'
         response = self.get_response(request)
         return response
