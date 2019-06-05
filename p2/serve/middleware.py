@@ -88,6 +88,8 @@ class ServeRoutingMiddleware:
             # save blob pk so we don't need to re-evaluate rules
             cache.set(cache_key, blob.pk)
         request.log(blob_pk=blob.pk)
+        # Since we don't use any extra views or URLs here, we don't have to
+        # trick SecurityMiddleware into not returning a 302
         headers = blob.attributes.get(ATTR_BLOB_HEADERS, {})
         response = BlobResponse(blob)
         for header_key, header_value in headers.items():

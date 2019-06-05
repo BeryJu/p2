@@ -26,9 +26,6 @@ from p2.lib.sentry import before_send
 LOGGER = logging.getLogger(__name__)
 
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -38,6 +35,9 @@ SECRET_KEY = CONFIG.get('secret_key',
 
 DEBUG = CONFIG.get('debug')
 CORS_ORIGIN_ALLOW_ALL = DEBUG
+
+SECURE_SSL_REDIRECT = not DEBUG
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ALLOWED_HOSTS = ['*']
 
