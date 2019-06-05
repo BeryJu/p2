@@ -9,7 +9,7 @@ from django.db import migrations, models
 def clean_serve_rule(apps, schema_editor):
     """Remove ServeRules before upgrading, preventing an issue with pk."""
     ServeRule = apps.get_model("p2_serve", "ServeRule")
-    ServeRule.objects.delete()
+    ServeRule.objects.all().delete()
 
 
 class Migration(migrations.Migration):
