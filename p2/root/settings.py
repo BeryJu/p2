@@ -164,6 +164,7 @@ MIDDLEWARE = [
     'p2.log.middleware.StartRequestMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'p2.serve.middleware.ServeRoutingMiddleware',
     'p2.s3.middleware.S3RoutingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',

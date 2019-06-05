@@ -21,7 +21,6 @@ urlpatterns = [
     path('_/ui/', include('p2.ui.urls', namespace='p2_ui')),
     path('_/accounts/', include('allauth.urls')),
     path('', include('p2.s3.urls', namespace='p2_s3')),
-    path('', include('p2.serve.urls', namespace='p2_serve')),
 ]
 
 if settings.DEBUG:

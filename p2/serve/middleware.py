@@ -1,10 +1,8 @@
-"""p2 Serve Views"""
+"""p2 serve routing middleware"""
 import hashlib
 from logging import getLogger
 
 from django.core.cache import cache
-from django.http import Http404
-from django.views import View
 from guardian.shortcuts import get_objects_for_user
 
 from p2.core.constants import ATTR_BLOB_HEADERS
@@ -15,8 +13,27 @@ from p2.serve.models import ServeRule
 LOGGER = getLogger(__name__)
 
 
-class ServeView(View):
-    """View to directly access Blob"""
+LOGGER = getLogger(__name__)
+
+# pylint: disable=too-few-public-methods
+class ServeRoutingMiddleware:
+    """Check if request matches any ServeRules and routes it to serve URLs"""
+
+    request = None
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def fingerprint(self):
+        """Return request's fingerprint"""
+        fingerprint_data = [
+            self.request.path,
+            str(self.request.user.pk or 0),
+            str(hash(frozenset(self.request.META.items()))),
+        ]
+        _hash = hashlib.sha256()
+        _hash.update("".join(fingerprint_data).encode('utf-8'))
+        return _hash.hexdigest()
 
     def rule_lookup(self, rule):
         """Build blob lookup from rule"""
@@ -36,17 +53,6 @@ class ServeView(View):
         debug_messages.append("Final lookup %r" % lookups)
         return lookups, debug_messages
 
-    def fingerprint(self):
-        """Return request's fingerprint"""
-        fingerprint_data = [
-            self.request.path,
-            str(self.request.user.pk or 0),
-            str(hash(frozenset(self.request.META.items()))),
-        ]
-        _hash = hashlib.sha256()
-        _hash.update("".join(fingerprint_data).encode('utf-8'))
-        return _hash.hexdigest()
-
     def get_blob_from_rule(self):
         """Try to lookup blob from ServeRule, raise Http404 if none found"""
         for rule in ServeRule.objects.all():
@@ -64,9 +70,10 @@ class ServeView(View):
                 # Log rule_id for debugging
                 self.request.log(rule_pk=rule.pk)
                 return blobs.first()
-        raise Http404
+        return None
 
-    def dispatch(self, request, path):
+    def __call__(self, request):
+        self.request = request
         cache_key = 'p2_serve:%s' % self.fingerprint()
         # Quickly check if path exists in cache and has blob mapped to it
         cached_value = cache.get(cache_key, default=None)
@@ -75,6 +82,9 @@ class ServeView(View):
             blob = get_object_for_user_or_404(request.user, 'p2_core.view_blob', pk=cached_value)
         else:
             blob = self.get_blob_from_rule()
+            if not blob:
+                response = self.get_response(request)
+                return response
             # save blob pk so we don't need to re-evaluate rules
             cache.set(cache_key, blob.pk)
         request.log(blob_pk=blob.pk)
