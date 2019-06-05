@@ -56,6 +56,7 @@ class ServeRoutingMiddleware:
     def get_blob_from_rule(self):
         """Try to lookup blob from ServeRule, raise Http404 if none found"""
         for rule in ServeRule.objects.all():
+            LOGGER.debug("Trying rule %s", rule.name)
             if rule.matches(self.request):
                 LOGGER.debug("Rule %s matched", rule)
                 lookups, messages = self.rule_lookup(rule)

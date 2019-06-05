@@ -21,14 +21,6 @@ class ServeRule(TagModel, UUIDModel):
     name = models.TextField()
     blob_query = models.TextField()
 
-    _compiled_regex = {}
-
-    def _regex(self, key):
-        """Compiled regex and cache instance"""
-        if key not in self._compiled_regex:
-            self._compiled_regex[key] = re.compile(self.tags.get(key, ""))
-        return self._compiled_regex[key]
-
     def matches(self, request):
         """Return true if request matches our tags, false if not"""
         for tag_key, tag_value in self.tags.items():
@@ -42,10 +34,13 @@ class ServeRule(TagModel, UUIDModel):
             elif tag_key.startswith(TAG_SERVE_MATCH_META):
                 meta_key = tag_key.replace(TAG_SERVE_MATCH_META, '')
                 request_value = request.META.get(meta_key, '')
-            LOGGER.debug("Checking %s against %s", request_value, tag_value)
-            if not self._regex(tag_key).match(request_value):
+            LOGGER.debug("Checking '%s' against '%s'", request_value, tag_value)
+            regex = re.compile(tag_value)
+            match = regex.match(request_value)
+            if match is None:
                 LOGGER.debug("  => Not matching")
                 return False
+            LOGGER.debug("  => Matching, checking next tag")
         return True
 
     def __str__(self):
