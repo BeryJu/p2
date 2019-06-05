@@ -18,7 +18,11 @@
 {% block content %}
 <h3>
 {% if object %}
-Editing '{{ object }}''
+  {% if object.name %}
+    Editing {{ object.name }}
+  {% else %}
+    Editing {{ object }}
+  {% endif %}
 {% elif title %}
 {{ title }}
 {% else %}
