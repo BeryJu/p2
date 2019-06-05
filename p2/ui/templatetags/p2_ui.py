@@ -14,12 +14,18 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def model_app(context, expected=None):
+def model_app(context, expected=''):
     """Check if current view's model is the same as expected. Return "active" if both match"""
     view = context.get('view', None)
-    app = None
+    app, object_name = '', ''
     if hasattr(view, 'model'):
         app = view.model._meta.app_label
+        object_name = view.model._meta.object_name
+    # If expected is only a string treat it as app_label, if it contains a colon
+    # treat it as app_label:model_label
+    if ':' in expected:
+        expected_app, expected_model = expected.split(':')
+        return "active" if expected_app == app and expected_model == object_name else ""
     return "active" if app == expected else ""
 
 @register.simple_tag

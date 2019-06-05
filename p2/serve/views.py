@@ -40,7 +40,7 @@ class ServeView(View):
         """Return request's fingerprint"""
         fingerprint_data = [
             self.request.path,
-            self.request.user.pk or '',
+            str(self.request.user.pk or 0),
             str(hash(frozenset(self.request.META.items()))),
         ]
         _hash = hashlib.sha256()

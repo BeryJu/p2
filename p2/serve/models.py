@@ -44,6 +44,7 @@ class ServeRule(TagModel, UUIDModel):
                 request_value = request.META.get(meta_key, '')
             LOGGER.debug("Checking %s against %s", request_value, tag_value)
             if not self._regex(tag_key).match(request_value):
+                LOGGER.debug("  => Not matching")
                 return False
         return True
 

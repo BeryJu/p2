@@ -19,40 +19,19 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item {% model_app %}">
-          <a class="nav-link" href="{% url 'p2_ui:index' %}">Home</a>
+          <a href="{% url 'p2_ui:index' %}" class="nav-link">Home</a>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle {% model_app 'p2_core' %}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {% trans 'Core' %}
-          </a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="{% url 'p2_ui:core-volume-list' %}">{% trans 'Volumes' %}</a>
-            <a class="dropdown-item" href="{% url 'p2_ui:core-storage-list' %}">{% trans 'Storages' %}</a>
-          </div>
+        <li class="nav-item {% model_app 'p2_core:Volume' %}">
+          <a href="{% url 'p2_ui:core-volume-list' %}" class="nav-link">{% trans 'Volumes' %}</a>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle {% model_app 'p2_s3' %}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {% trans 'API' %}
-          </a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="{% url 'p2_ui:api-key-list' %}">{% trans "API Keys" %}</a>
-          </div>
+        <li class="nav-item {% model_app 'p2_core:Storage' %}">
+          <a href="{% url 'p2_ui:core-storage-list' %}" class="nav-link">{% trans 'Storage' %}</a>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle {% model_app 'p2_log' %}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {% trans 'Log' %}
-          </a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="{% url 'p2_ui:log-adaptor-list' %}">{% trans "Log Adaptors" %}</a>
-          </div>
+        <li class="nav-item {% model_app 'p2_api' %}">
+          <a href="{% url 'p2_ui:api-key-list' %}" class="nav-link">{% trans "API Keys" %}</a>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle {% model_app 'p2_serve' %}" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {% trans 'Serve' %}
-          </a>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="{% url 'p2_ui:serve-rule-list' %}">{% trans "Serve Rules" %}</a>
-          </div>
+        <li class="nav-item {% model_app 'p2_serve' %}">
+          <a href="{% url 'p2_ui:serve-rule-list' %}" class="nav-link">{% trans 'Serve Rules' %}</a>
         </li>
       </ul>
       <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
