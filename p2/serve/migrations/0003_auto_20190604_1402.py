@@ -6,6 +6,12 @@ import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 
 
+def clean_serve_rule(apps, schema_editor):
+    """Remove ServeRules before upgrading, preventing an issue with pk."""
+    ServeRule = apps.get_model("p2_serve", "ServeRule")
+    ServeRule.objects.delete()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -13,6 +19,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(clean_serve_rule),
         migrations.RemoveField(
             model_name='serverule',
             name='id',
