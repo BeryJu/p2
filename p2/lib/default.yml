@@ -7,8 +7,10 @@ databases:
     password: 'EK-5jnKfjrGRm<77'
     host: localhost
 
-redis: localhost
-rabbitmq: localhost
+cache: redis://localhost/0
+message_queue:
+  broker: amqp://localhost/p2
+  results: rpc://
 
 web:
   server.socket_host: 0.0.0.0

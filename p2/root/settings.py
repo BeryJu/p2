@@ -95,7 +95,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://%s" % CONFIG.get('redis'),
+        "LOCATION": CONFIG.get('cache'),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -111,8 +111,8 @@ CELERY_TASK_SOFT_TIME_LIMIT = 600
 CELERY_BEAT_SCHEDULE = {}
 CELERY_CREATE_MISSING_QUEUES = True
 CELERY_TASK_DEFAULT_QUEUE = 'p2'
-CELERY_BROKER_URL = 'amqp://%s' % CONFIG.get('rabbitmq')
-CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_BROKER_URL = CONFIG.get('message_queue.broker')
+CELERY_RESULT_BACKEND = CONFIG.get('message_queue.results')
 CELERY_IMPORTS = (
     'p2.core.tasks',
     'p2.log.tasks',

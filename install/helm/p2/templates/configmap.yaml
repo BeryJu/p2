@@ -4,7 +4,6 @@ metadata:
   name: {{ include "p2.fullname" . }}-config
 data:
   config.yml: |
-    # Env for Docker images
     databases:
       default:
         engine: django.db.backends.postgresql
@@ -14,8 +13,10 @@ data:
         host: "{{ .Release.Name }}-postgresql"
         port: ''
 
-    rabbitmq: "p2:{{ .Values.rabbitmq.rabbitmq.password }}@{{ .Release.Name }}-rabbitmq"
-    redis: ":{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/0"
+    cache: "redis://:{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/0"
+    message_queue:
+      broker: "amqp://p2:{{ .Values.rabbitmq.rabbitmq.password }}@{{ .Release.Name }}-rabbitmq"
+      results: "rpc://"
 
     web:
       server.socket_host: 0.0.0.0
