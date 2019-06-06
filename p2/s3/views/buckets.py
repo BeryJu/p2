@@ -10,8 +10,8 @@ from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_SIZE_BYTES,
 from p2.core.models import Volume
 from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
-                             XML_NAMESPACE)
-from p2.s3.http import XMLResponse
+                             XML_NAMESPACE, ErrorCodes)
+from p2.s3.http import AWSError, XMLResponse
 from p2.ui.views.core.blob import FileBrowserView
 
 
@@ -29,6 +29,10 @@ class BucketView(View):
     def put(self, request, *args, **kwargs):
         """Boilerplate to pass request to correct handler"""
         return self.handler_create(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """Boilerplate to pass request to correct handler"""
+        return self.handle_delete(request, *args, **kwargs)
 
     def handler_versioning(self, request, bucket):
         """Versioning API Method"""
@@ -99,7 +103,15 @@ class BucketView(View):
         default_storage = get_object_for_user_or_404(request.user, 'p2_core.use_storage', **{
             'tags__%s' % TAG_S3_DEFAULT_STORAGE: True
         })
-        bucket, _ = Volume.objects.get_or_create(name=bucket, defaults={
-            'storage': default_storage
-        })
-        return HttpResponse(status=200)
+        if request.user.has_perm('p2_core.add_volume'):
+            bucket, _ = Volume.objects.get_or_create(name=bucket, defaults={
+                'storage': default_storage
+            })
+            return HttpResponse(status=200)
+        return AWSError(ErrorCodes.ACCESS_DENIED)
+
+    def handle_delete(self, request, bucket):
+        """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketDELETE.html"""
+        volume = get_object_for_user_or_404(request.user, 'p2_core.delete_volume', name=bucket)
+        volume.delete()
+        return HttpResponse(status=204)
