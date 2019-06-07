@@ -61,7 +61,9 @@
                 </tr>
                 <tr>
                   <th>{% trans 'Volume' %}</th>
-                  <td>{{ object.volume }}</td>
+                  <td>
+                    <a href="{% url 'p2_ui:core-volume-detail' pk=object.volume.pk %}">{{ object.volume }}</a>
+                  </td>
                 </tr>
                 <tr>
                   <th>{% trans 'Attributes' %}</th>

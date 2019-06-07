@@ -10,7 +10,7 @@
       {% include 'blocks/messages.html' %}
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}?prefix=/">{{ volume.name }}</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-volume-detail' pk=volume.pk %}?prefix=/">{{ volume.name }}</a></li>
           {% for crumb in breadcrumbs %}
             {% if not forloop.last %}
               <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}?prefix={{ crumb.prefix }}">{{ crumb.title|truncatechars:160 }}</a></li>

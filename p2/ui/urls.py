@@ -63,18 +63,6 @@ urlpatterns = [
          key.APIKeyUpdateView.as_view(), name='api-key-update'),
     path('s3/access-key/<int:pk>/delete/',
          key.APIKeyDeleteView.as_view(), name='api-key-delete'),
-    # Log - Adaptors
-    path('log/adaptor/',
-         adaptor.LogAdaptorListView.as_view(), name='log-adaptor-list'),
-    path('log/adaptor/create/',
-         adaptor.LogAdaptorCreateView.as_view(), name='log-adaptor-create'),
-    path('log/adaptor/<uuid:pk>/update/',
-         adaptor.LogAdaptorUpdateView.as_view(), name='log-adaptor-update'),
-    path('log/adaptor/<uuid:pk>/delete/',
-         adaptor.LogAdaptorDeleteView.as_view(), name='log-adaptor-delete'),
-    # Log - Records
-    path('log/adaptor/<uuid:pk>/records/',
-         record.RecordListView.as_view(), name='log-records-list'),
     # Serve - Rules
     path('serve/rule/',
          rule.ServeRuleListView.as_view(), name='serve-rule-list'),
