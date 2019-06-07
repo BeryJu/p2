@@ -11,7 +11,8 @@ class HealthCheckMiddleware:
         # One-time configuration and initialization.
 
     def __call__(self, request):
-        if request.method == "GET" and request.META['HTTP_HOST'] == 'kubernetes-healthcheck-host':
+        if request.method == "GET" and \
+                request.META.get('HTTP_HOST', '') == 'kubernetes-healthcheck-host':
             return self.healthz(request)
         return self.get_response(request)
 

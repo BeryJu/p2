@@ -17,7 +17,7 @@ class S3RoutingMiddleware:
 
     def extract_host_header(self, request):
         """Extract bucket name from Host Header"""
-        host_header = request.META['HTTP_HOST']
+        host_header = request.META.get('HTTP_HOST', '')
         # Make sure we remove the port suffix, if any
         if ':' in host_header:
             host_header, _ = host_header.split(':')
