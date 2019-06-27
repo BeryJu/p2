@@ -24,14 +24,20 @@ type Cache struct {
 	localIP  string
 }
 
+type CacheContext struct {
+	groupcache.Context
+	RequestHeader http.Header
+}
+
 func NewCache(upstream p2.Upstream) Cache {
 	logger := log.WithFields(log.Fields{
 		"component": "cache",
 	})
 	cache := groupcache.NewGroup("tier0", constants.CacheSize, groupcache.GetterFunc(
-		func(ctx groupcache.Context, key string, dest groupcache.Sink) error {
+		func(_ctx groupcache.Context, key string, dest groupcache.Sink) error {
+			ctx := _ctx.(CacheContext)
 			logger.Debug("Fetching key from upstream...")
-			blob, err := upstream.Fetch(key)
+			blob, err := upstream.Fetch(ctx.RequestHeader, key)
 			if err == nil {
 				dest.SetBytes(blob.Data)
 			} else {
