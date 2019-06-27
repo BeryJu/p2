@@ -99,7 +99,7 @@ class Blob(UUIDModel, TagModel):
     @property
     def filename(self):
         """Return only the filename part of self.path"""
-        return self.path.split('/')[-1]
+        return self.path
 
     def _open_read_handle(self):
         if not self._reading_handle:

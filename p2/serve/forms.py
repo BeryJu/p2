@@ -22,7 +22,7 @@ class ServeRuleForm(TagModelForm):
         help_texts = {
             'tags': mark_safe(_("""
             All of the used keys have to match the requests value for this Rule to trigger.
-            You can use Regular Expressions as values. See <a href=
+            You can use Regular Expressions as values. See <a target="_blank" href=
             "https://git.beryju.org/BeryJu.org/p2/blob/version/%(version)s/p2/serve/constants.py">
             here</a> for a list of all possible tags.""" % {'version':__version__})),
             'blob_query': mark_safe(_("""
@@ -33,7 +33,7 @@ class ServeRuleForm(TagModelForm):
                 <li>{path_relative} will be replaced by the relative Request Path.</li>
                 <li>{host} will be replaced by the requested Hostname.</li>
                 <li>{meta[X]} where X is any of the fields
-            described <a href=
+            described <a target="_blank" href=
             "https://docs.djangoproject.com/en/2.2/ref/request-response/#django.http.HttpRequest.META">
             here</a></li></ul>"""))
         }

@@ -23,7 +23,11 @@
     <tr>
       <td>{{ object.name }}</td>
       <td>
-        <pre>{{ object.match }}</pre>
+        <ul>
+          {% for key, value in object.tags.items %}
+          <li>{{ key }}: {{ value }}</li>
+          {% endfor %}
+        </ul>
       </td>
       <td>
         <pre>{{ object.blob_query }}</pre>
