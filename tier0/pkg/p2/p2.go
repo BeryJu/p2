@@ -27,19 +27,23 @@ type Blob struct {
 
 func NewUpstream(URL string) Upstream {
 	return Upstream{
-		URL:    URL,
-		client: http.Client{},
+		URL: URL,
+		client: http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		},
 	}
 }
 
 // Fetch Fetch Blob from upstream p2 server
-func (u *Upstream) Fetch(header http.Header, key string) (Blob, error) {
+func (u *Upstream) Fetch(host string, key string) (Blob, error) {
 	// Key is Querystring-escaped to circumvent groupcache bugs
 	realKey, err := url.QueryUnescape(key)
 	// Build a full request so we can pass the correct Host header
 	req, err := http.NewRequest("GET", u.URL+realKey, nil)
-	req.Header = header
-	req.Host = header.Get("Host")
+	log.Debugf("Patching host to '%s'", host)
+	req.Host = host
 	resp, err := u.client.Do(req)
 	if err != nil {
 		return Blob{}, err

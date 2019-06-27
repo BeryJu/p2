@@ -27,6 +27,7 @@ type Cache struct {
 type CacheContext struct {
 	groupcache.Context
 	RequestHeader http.Header
+	Host          string
 }
 
 func NewCache(upstream p2.Upstream) Cache {
@@ -35,9 +36,13 @@ func NewCache(upstream p2.Upstream) Cache {
 	})
 	cache := groupcache.NewGroup("tier0", constants.CacheSize, groupcache.GetterFunc(
 		func(_ctx groupcache.Context, key string, dest groupcache.Sink) error {
+			if _ctx == nil {
+				logger.Warningf("Empty context for key '%s'", key)
+				return nil
+			}
 			ctx := _ctx.(CacheContext)
-			logger.Debug("Fetching key from upstream...")
-			blob, err := upstream.Fetch(ctx.RequestHeader, key)
+			logger.Debugf("Fetching upstream key '%s'", key)
+			blob, err := upstream.Fetch(ctx.Host, key)
 			if err == nil {
 				dest.SetBytes(blob.Data)
 			} else {
@@ -72,7 +77,7 @@ func (c *Cache) StartCacheServer() {
 }
 
 func (c *Cache) SetPeersFromK8s(k8sc k8s.KubernetesContext) {
-	pods := k8sc.PodsForComponent("cache")
+	pods := k8sc.PodsForComponent("tier0")
 	podAddresses := make([]string, 0)
 	for _, element := range pods.Items {
 		if element.Status.PodIP != "" {

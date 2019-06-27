@@ -22,7 +22,7 @@ import (
 
 func main() {
 	log.SetLevel(log.DebugLevel)
-	log.Debugf("Starting p2-tier0 Version %s+r5", internal.Version)
+	log.Debugf("Starting p2-tier0 Version %s", internal.Version)
 	k8sc, err := k8s.NewKubernetesContext()
 	if err != nil {
 		log.Fatal(err)
@@ -55,6 +55,7 @@ func main() {
 		escapedPath := url.QueryEscape(r.URL.Path)
 		context := cache.CacheContext{
 			RequestHeader: r.Header,
+			Host:          r.Host,
 		}
 		err := localCache.Group.Get(context, escapedPath, groupcache.AllocatingByteSliceSink(&data))
 		if err != nil {
