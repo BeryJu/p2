@@ -21,8 +21,9 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         k8s.p2.io/component: tier0
     spec:
+      serviceAccountName: {{ include "p2.fullname" . }}-tier0
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Chart.Name }}-tier0
           image: "docker.beryju.org/p2/tier0:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
           ports:
@@ -33,15 +34,11 @@ spec:
               containerPort: 8093
               protocol: TCP
           livenessProbe:
-            initialDelaySeconds: 20
-            timeoutSeconds: 5
             httpGet:
-              path: /
+              path: /_/tier0/health
               port: http
           readinessProbe:
-            initialDelaySeconds: 20
-            timeoutSeconds: 5
             httpGet:
-              path: /
+              path: /_/tier0/health
               port: http
 {{- end }}
