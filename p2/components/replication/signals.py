@@ -3,7 +3,11 @@
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
+from p2.components.replication.constants import TAG_REPLICATION_OFFSET
 from p2.components.replication.controller import ReplicationController
+from p2.components.replication.tasks import (replicate_delete_task,
+                                             replicate_metadata_update_task,
+                                             replicate_payload_update_task)
 from p2.core.models import Blob, Component
 from p2.core.signals import BLOB_PAYLOAD_UPDATED, BLOB_POST_SAVE
 from p2.lib.reflection import class_to_path
@@ -14,25 +18,26 @@ from p2.lib.reflection import class_to_path
 def post_save_replication(sender, blob, **kwargs):
     """Replicate saved metadata"""
     replication_component = blob.volume.component(ReplicationController)
-    if replication_component:
-        replication_component.controller.save(blob)
+    replicate_metadata_update_task.apply_async(
+        (blob.pk,), int(countdown=replication_component.tags.get(TAG_REPLICATION_OFFSET, 0)))
+
 
 @receiver(BLOB_PAYLOAD_UPDATED)
 # pylint: disable=unused-argument
 def payload_updated_replication(sender, blob, **kwargs):
     """Replicate payload to target volume"""
     replication_component = blob.volume.component(ReplicationController)
-    if replication_component:
-        replication_component.controller.payload_updated(blob)
+    replicate_payload_update_task.apply_async(
+        (blob.pk,), int(countdown=replication_component.tags.get(TAG_REPLICATION_OFFSET, 0)))
+
 
 @receiver(post_delete, sender=Blob)
 # pylint: disable=unused-argument
 def blob_post_delete(sender, instance, **kwargs):
     """Delete target blob"""
-    # TODO: Run as task
     replication_component = instance.volume.component(ReplicationController)
-    if replication_component:
-        replication_component.controller.delete(instance)
+    replicate_delete_task.apply_async(
+        (instance.pk,), int(countdown=replication_component.tags.get(TAG_REPLICATION_OFFSET, 0)))
 
 @receiver(post_save, sender=Component)
 # pylint: disable=unused-argument

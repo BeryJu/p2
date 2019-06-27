@@ -2,6 +2,7 @@
 import copy
 from logging import getLogger
 from shutil import copyfileobj
+from time import time
 
 from p2.components.replication.constants import (TAG_BLOB_SOURCE_UUID,
                                                  TAG_REPLICATION_TARGET)
@@ -14,13 +15,16 @@ LOGGER = getLogger(__name__)
 class ReplicationController(ComponentController):
     """Replicate Blobs 1:1 between volumes"""
 
-    # TODO: Initial replication on config
-
     template_name = 'components/replication/card.html'
     form_class = 'p2.components.replication.forms.ReplicationForm'
 
+    @property
+    def target_volume(self):
+        """Get Target volume"""
+        return Volume.objects.get(pk=self.instance.tags.get(TAG_REPLICATION_TARGET))
+
     def _get_target_blob(self, source_blob):
-        target_volume = Volume.objects.get(pk=self.instance.tags.get(TAG_REPLICATION_TARGET))
+        target_volume = self.target_volume
         # Check if there's a blob thats our source UUID as attribute
         possible_targets = Blob.objects.filter(**{
             'volume': target_volume,
@@ -38,13 +42,22 @@ class ReplicationController(ComponentController):
                 })
         return target_blob
 
-    def full_replication(self):
+    def full_replication(self, source_volume):
         """Full replication after component has been configured"""
+        start_time = time()
+        for blob in Blob.objects.filter(volume=source_volume):
+            self.metadata_update(blob)
+            target_blob = self.payload_update(blob)
+            target_blob.save()
+        end_time = time()
+        space = self.target_volume.space_used
+        duration = (end_time - start_time) + 1 # +1 to make sure we don't divide by 0
+        rate = space / duration
+        LOGGER.debug("Initial full replication finished, %r bytes per second", rate)
 
-
-    def save(self, blob):
+    def metadata_update(self, blob):
         """Replicate metadata save"""
-        LOGGER.debug('Replicating::Save %s', blob.uuid.hex)
+        LOGGER.debug('Replicating::UpdateMetadata %s', blob.uuid.hex)
         target_blob = self._get_target_blob(blob)
         target_blob.path = blob.path
         for attr in ['path', 'prefix', 'attributes', 'tags']:
@@ -52,14 +65,14 @@ class ReplicationController(ComponentController):
             setattr(target_blob, attr, copy.deepcopy(getattr(blob, attr)))
         # Make sure we don't erase the source uuid
         target_blob.attributes[TAG_BLOB_SOURCE_UUID] = blob.uuid.hex
-        target_blob.save()
+        return target_blob
 
-    def payload_updated(self, blob):
+    def payload_update(self, blob):
         """Replicate payload update"""
         LOGGER.debug('Replicating::UpdatePayload %s', blob.uuid.hex)
         target_blob = self._get_target_blob(blob)
         copyfileobj(blob, target_blob)
-        target_blob.save()
+        return target_blob
 
     def delete(self, blob):
         """Delete remote blob"""
