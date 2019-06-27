@@ -38,7 +38,7 @@ data:
       base_domain: {{ (index .Values.ingress.hosts 0) | quote }}
 
     # Set this to true if you only want to use external authentication
-    external_auth_only: false
+    external_auth_only: {{ .Values.config.external_auth_only }}
 
     {{- if .Values.config.secret_key }}
     secret_key: {{ .Values.config.secret_key }}

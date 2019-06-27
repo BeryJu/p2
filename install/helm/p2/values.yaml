@@ -1,5 +1,4 @@
 # Default values for p2.
-# This is a YAML-formatted file.
 
 image:
   tag: 0.5.7
@@ -7,13 +6,14 @@ image:
 config:
   # Optionally specify fixed secret_key, otherwise generated automatically
   # secret_key: _k*@6h2u2@q-dku57hhgzb7tnx*ba9wodcb^s9g0j59@=y(@_o
-  # Enable error reporting
+
+  # Enable error reporting (errors are sent to sentry.beryju.org)
   error_reporting: true
-  # Base S3 URL, used for virtual host addressing.
-  # Requires star DNS Record
-  # If you want to use s3.domain.tld, set this to s3.domain.tld
-  # By default uses the first ingresss host
-  # s3_base_domain: ""
+
+  # Only use external authentication (passbook)
+  # If you want to ony use this, install the chart with external_auth_only = false,
+  # configure passbook then upgrade with external_auth_only = true.
+  external_auth_only: false
 
 deployment:
   webInstances: 2
@@ -22,7 +22,6 @@ deployment:
 postgresql:
   postgresqlUsername: p2
   postgresqlDatabase: p2
-  # postgresqlPassword: 'todo: autogenerate this password somehow'
 
 ingress:
   enabled: true
