@@ -8,7 +8,7 @@ import (
 
 func (k8sc *KubernetesContext) podIsCache(pod v1.Pod) bool {
 	if val, ok := pod.Labels["k8s.p2.io/component"]; ok {
-		return val == "cache"
+		return val == "tier0"
 	}
 	return false
 }
