@@ -18,8 +18,10 @@ from p2.lib.reflection import class_to_path
 def post_save_replication(sender, blob, **kwargs):
     """Replicate saved metadata"""
     replication_component = blob.volume.component(ReplicationController)
-    replicate_metadata_update_task.apply_async(
-        (blob.pk,), int(countdown=replication_component.tags.get(TAG_REPLICATION_OFFSET, 0)))
+    if replication_component:
+        replicate_metadata_update_task.apply_async(
+            (blob.pk,),
+            countdown=int(replication_component.tags.get(TAG_REPLICATION_OFFSET, 0)))
 
 
 @receiver(BLOB_PAYLOAD_UPDATED)
@@ -27,8 +29,10 @@ def post_save_replication(sender, blob, **kwargs):
 def payload_updated_replication(sender, blob, **kwargs):
     """Replicate payload to target volume"""
     replication_component = blob.volume.component(ReplicationController)
-    replicate_payload_update_task.apply_async(
-        (blob.pk,), int(countdown=replication_component.tags.get(TAG_REPLICATION_OFFSET, 0)))
+    if replication_component:
+        replicate_payload_update_task.apply_async(
+            (blob.pk,),
+            countdown=int(replication_component.tags.get(TAG_REPLICATION_OFFSET, 0)))
 
 
 @receiver(post_delete, sender=Blob)
@@ -36,8 +40,11 @@ def payload_updated_replication(sender, blob, **kwargs):
 def blob_post_delete(sender, instance, **kwargs):
     """Delete target blob"""
     replication_component = instance.volume.component(ReplicationController)
-    replicate_delete_task.apply_async(
-        (instance.pk,), int(countdown=replication_component.tags.get(TAG_REPLICATION_OFFSET, 0)))
+    if replication_component:
+        replicate_delete_task.apply_async(
+            (instance.pk,),
+            countdown=int(replication_component.tags.get(TAG_REPLICATION_OFFSET, 0)))
+
 
 @receiver(post_save, sender=Component)
 # pylint: disable=unused-argument
