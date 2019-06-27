@@ -3,7 +3,7 @@ stages:
   - build-build-image
   - test
   - build
-  - docs
+  - package
 image: docker.beryju.org/p2/build-base:latest
 services:
   - postgres:latest
@@ -52,7 +52,8 @@ coverage:
     - coverage html
   stage: test
 
-package-docker:
+build-p2-server:
+  stage: build
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
@@ -60,12 +61,24 @@ package-docker:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination docker.beryju.org/p2/server:latest --destination docker.beryju.org/p2/server:0.5.7
-  stage: build
   only:
     - tags
     - /^version/.*$/
-package-helm:
+build-p2-tier0:
   stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR/tier0 --dockerfile $CI_PROJECT_DIR/tier0/Dockerfile --destination docker.beryju.org/p2/tier0:latest --destination docker.beryju.org/p2/tier0:0.5.7
+  only:
+    - tags
+    - /^version/.*$/
+
+package-helm:
+  stage: package
   script:
     - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
     - helm init --client-only
@@ -79,7 +92,7 @@ package-helm:
     - tags
     - /^version/.*$/
 package-installer:
-  stage: build
+  stage: package
   script:
     - echo Hello World
   artifacts:

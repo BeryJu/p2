@@ -1,10 +1,8 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "p2.fullname" . -}}
-{{- $ingressPath := .Values.ingress.path -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ include "p2.fullname" . }}
   labels:
     app.kubernetes.io/name: {{ include "p2.name" . }}
     helm.sh/chart: {{ include "p2.chart" . }}
@@ -33,9 +31,20 @@ spec:
     - host: {{ . | quote }}
       http:
         paths:
-          - path: {{ $ingressPath }}
+          {{- if .Values.beta_enable_tier0 -}}
+          - path: /_/
             backend:
-              serviceName: {{ $fullName }}
+              serviceName: {{ include "p2.fullname" . }}-web
               servicePort: http
+          - path: /
+            backend:
+              serviceName: {{ include "p2.fullname" . }}-tier0
+              servicePort: http
+          {{- else }}
+          - path: /
+            backend:
+              serviceName: {{ include "p2.fullname" . }}-web
+              servicePort: http
+          {{- end }}
   {{- end }}
 {{- end }}
