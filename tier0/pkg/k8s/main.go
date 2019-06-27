@@ -70,7 +70,7 @@ func (k8sc *KubernetesContext) WebClusterIP() (string, error) {
 		k8sc.Logger.Warning(err)
 		return "", err
 	}
-	if services.Size() < 1 {
+	if len(services.Items) < 1 {
 		err := errors.New("No Service found")
 		k8sc.Logger.Warning(err)
 		return "", err
