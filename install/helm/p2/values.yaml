@@ -15,9 +15,12 @@ config:
   # By default uses the first ingresss host
   # s3_base_domain: ""
 
+beta_enable_tier0: false
+
 deployment:
   webInstances: 2
   workerInstances: 1
+  tier0Instances: 2
 
 postgresql:
   postgresqlUsername: p2
@@ -26,7 +29,6 @@ postgresql:
 
 ingress:
   enabled: true
-  path: /
   hosts:
     - p2.k8s.local
   tls: []
