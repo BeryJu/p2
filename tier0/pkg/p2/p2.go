@@ -14,7 +14,8 @@ const rfc2822 = "Mon Jan 02 15:04:05 -0700 2006"
 
 // Upstream Information about the upstream server
 type Upstream struct {
-	URL string
+	URL    string
+	client http.Client
 }
 
 // Blob Hold information about Blob
@@ -24,10 +25,22 @@ type Blob struct {
 	ModTime  time.Time
 }
 
+func NewUpstream(URL string) Upstream {
+	return Upstream{
+		URL:    URL,
+		client: http.Client{},
+	}
+}
+
 // Fetch Fetch Blob from upstream p2 server
-func (u *Upstream) Fetch(key string) (Blob, error) {
+func (u *Upstream) Fetch(header http.Header, key string) (Blob, error) {
+	// Key is Querystring-escaped to circumvent groupcache bugs
 	realKey, err := url.QueryUnescape(key)
-	resp, err := http.Get(u.URL + realKey)
+	// Build a full request so we can pass the correct Host header
+	req, err := http.NewRequest("GET", u.URL+realKey, nil)
+	req.Header = header
+	req.Host = header.Get("Host")
+	resp, err := u.client.Do(req)
 	if err != nil {
 		return Blob{}, err
 	}
