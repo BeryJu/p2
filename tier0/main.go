@@ -8,17 +8,14 @@ import (
 	"os"
 	"time"
 
-	"git.beryju.org/BeryJu.org/t1/pkg/constants"
-
-	"git.beryju.org/BeryJu.org/t1/pkg/k8s"
-
-	"git.beryju.org/BeryJu.org/t1/pkg/cache"
-	v1 "k8s.io/api/core/v1"
-
-	"git.beryju.org/BeryJu.org/t1/pkg/p2"
+	"git.beryju.org/BeryJu.org/tier0/pkg/cache"
+	"git.beryju.org/BeryJu.org/tier0/pkg/constants"
+	"git.beryju.org/BeryJu.org/tier0/pkg/k8s"
+	"git.beryju.org/BeryJu.org/tier0/pkg/p2"
 	"github.com/gorilla/handlers"
 	"github.com/qbig/groupcache"
 	log "github.com/sirupsen/logrus"
+	v1 "k8s.io/api/core/v1"
 )
 
 func main() {
@@ -46,7 +43,7 @@ func main() {
 		log.Warning(err)
 	})
 	log.Printf("Running on %s...", constants.Listen)
-	http.HandleFunc("/_/t1/health", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/_/tier0/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

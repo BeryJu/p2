@@ -1,4 +1,4 @@
-module git.beryju.org/BeryJu.org/t1
+module git.beryju.org/BeryJu.org/p2/tier0
 
 go 1.12
 

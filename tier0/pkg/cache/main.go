@@ -8,9 +8,9 @@ import (
 
 	"github.com/gorilla/handlers"
 
-	"git.beryju.org/BeryJu.org/t1/pkg/constants"
-	"git.beryju.org/BeryJu.org/t1/pkg/k8s"
-	"git.beryju.org/BeryJu.org/t1/pkg/p2"
+	"git.beryju.org/BeryJu.org/tier0/pkg/constants"
+	"git.beryju.org/BeryJu.org/tier0/pkg/k8s"
+	"git.beryju.org/BeryJu.org/tier0/pkg/p2"
 	"github.com/qbig/groupcache"
 	log "github.com/sirupsen/logrus"
 )
@@ -27,7 +27,7 @@ func NewCache(upstream p2.Upstream) Cache {
 	logger := log.WithFields(log.Fields{
 		"component": "cache",
 	})
-	cache := groupcache.NewGroup("t1", constants.CacheSize, groupcache.GetterFunc(
+	cache := groupcache.NewGroup("tier0", constants.CacheSize, groupcache.GetterFunc(
 		func(ctx groupcache.Context, key string, dest groupcache.Sink) error {
 			logger.Debug("Fetching key from upstream...")
 			blob, err := upstream.Fetch(key)
