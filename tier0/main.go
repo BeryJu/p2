@@ -22,7 +22,7 @@ import (
 
 func main() {
 	log.SetLevel(log.DebugLevel)
-	log.Debugf("Starting p2-tier0 Version %s", internal.Version)
+	log.Debugf("Starting p2-tier0 Version %s+r5", internal.Version)
 	k8sc, err := k8s.NewKubernetesContext()
 	if err != nil {
 		log.Fatal(err)
@@ -33,31 +33,37 @@ func main() {
 	}
 	// Central stopping channel
 	stop := make(chan struct{})
-	upstream := p2.Upstream{URL: fmt.Sprintf("http://%s", webClusterIP)}
-	cache := cache.NewCache(upstream)
-	cache.SetPeersFromK8s(k8sc)
+	upstream := p2.NewUpstream(fmt.Sprintf("http://%s", webClusterIP))
+	localCache := cache.NewCache(upstream)
+	localCache.SetPeersFromK8s(k8sc)
 	// Update Cache Peers by watching k8s
 	go k8sc.WatchNewCachePods(stop, func(pod v1.Pod) {
-		cache.SetPeersFromK8s(k8sc)
+		localCache.SetPeersFromK8s(k8sc)
 	})
-	go cache.StartCacheServer()
+	go localCache.StartCacheServer()
 	groupcache.RegisterErrLogHook(func(err error) {
 		log.Warning(err)
 	})
 	log.Printf("Running on %s...", constants.Listen)
-	http.HandleFunc("/_/tier0/health", func(w http.ResponseWriter, r *http.Request) {
+	// Create main HTTP Server
+	mainServer := http.NewServeMux()
+	mainServer.HandleFunc("/_/tier0/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 	})
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mainServerHandler := func(w http.ResponseWriter, r *http.Request) {
 		var data []byte
 		escapedPath := url.QueryEscape(r.URL.Path)
-		err := cache.Group.Get(nil, escapedPath, groupcache.AllocatingByteSliceSink(&data))
+		context := cache.CacheContext{
+			RequestHeader: r.Header,
+		}
+		err := localCache.Group.Get(context, escapedPath, groupcache.AllocatingByteSliceSink(&data))
 		if err != nil {
 			log.Fatal(err)
 		}
 		http.ServeContent(w, r, "", time.Now(), bytes.NewReader(data))
-	})
-	err = http.ListenAndServe(constants.Listen, handlers.LoggingHandler(os.Stdout, http.DefaultServeMux))
+	}
+	mainServer.Handle("/", handlers.LoggingHandler(os.Stdout, http.HandlerFunc(mainServerHandler)))
+	err = http.ListenAndServe(constants.Listen, mainServer)
 	if err != nil {
 		log.Fatal(err)
 	}
