@@ -8,10 +8,11 @@ import (
 	"os"
 	"time"
 
-	"git.beryju.org/BeryJu.org/tier0/pkg/cache"
-	"git.beryju.org/BeryJu.org/tier0/pkg/constants"
-	"git.beryju.org/BeryJu.org/tier0/pkg/k8s"
-	"git.beryju.org/BeryJu.org/tier0/pkg/p2"
+	"git.beryju.org/BeryJu.org/p2/tier0/pkg/cache"
+	"git.beryju.org/BeryJu.org/p2/tier0/pkg/constants"
+	"git.beryju.org/BeryJu.org/p2/tier0/pkg/k8s"
+	"git.beryju.org/BeryJu.org/p2/tier0/pkg/p2"
+
 	"github.com/gorilla/handlers"
 	"github.com/qbig/groupcache"
 	log "github.com/sirupsen/logrus"

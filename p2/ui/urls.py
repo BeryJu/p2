@@ -4,7 +4,6 @@ from django.urls import path
 from p2.ui.views import general
 from p2.ui.views.api import key
 from p2.ui.views.core import blob, component, storage, volume
-from p2.ui.views.log import adaptor, record
 from p2.ui.views.serve import rule
 
 app_name = 'p2_ui'
