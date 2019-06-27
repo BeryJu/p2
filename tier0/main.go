@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"git.beryju.org/BeryJu.org/p2/tier0/internal"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/cache"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/constants"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/k8s"
@@ -21,7 +22,7 @@ import (
 
 func main() {
 	log.SetLevel(log.DebugLevel)
-	log.Debug("Starting p2-tier1")
+	log.Debugf("Starting p2-tier0 Version %s", internal.Version)
 	k8sc, err := k8s.NewKubernetesContext()
 	if err != nil {
 		log.Fatal(err)
