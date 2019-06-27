@@ -1,5 +1,5 @@
 {
-  "python.pythonPath": "${workspaceRoot}/env/bin/python",
+  "python.pythonPath": "env/bin/python",
   "editor.tabSize": 4,
   "[html]": {
     "editor.tabSize": 2
