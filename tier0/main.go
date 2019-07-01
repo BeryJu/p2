@@ -11,6 +11,7 @@ import (
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/cache"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/constants"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/k8s"
+	"git.beryju.org/BeryJu.org/p2/tier0/pkg/metrics"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/p2"
 	v1 "k8s.io/api/core/v1"
 
@@ -43,6 +44,8 @@ func main() {
 		localCache.SetPeersFromKubernetes(k8sc)
 	})
 	go localCache.StartCacheServer()
+	go localCache.StartMetricsTimer()
+	go metrics.StartServer()
 	groupcache.RegisterErrLogHook(func(err error) {
 		log.Warning(err)
 	})

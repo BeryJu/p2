@@ -8,8 +8,10 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gorilla/handlers"
+	"github.com/prometheus/client_golang/prometheus"
 
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/constants"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/k8s"
@@ -18,6 +20,45 @@ import (
 	"github.com/mitchellh/hashstructure"
 	"github.com/qbig/groupcache"
 	log "github.com/sirupsen/logrus"
+)
+
+var (
+	getsMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "cache_gets",
+		Help: "any Get request, including from peers",
+	})
+	cacheHitsMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "cache_hits",
+		Help: "either cache was good",
+	})
+	peerLoadsMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "cache_peer_loads",
+		Help: "either remote load or remote cache hit (not an error)",
+	})
+	peerErrorsMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "cache_peer_errors",
+		Help: "",
+	})
+	loadsMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "cache_loads",
+		Help: "(gets - cacheHits)",
+	})
+	loadsDedupedMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "cache_loads_deduped",
+		Help: "after singleflight",
+	})
+	localLoadsMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "cache_local_loads",
+		Help: "total good local loads",
+	})
+	localLoadsErrMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "cache_local_loads_err",
+		Help: "total bad local loads",
+	})
+	serverRequestsMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "cache_server_requests",
+		Help: "gets that came over the network from peers",
+	})
 )
 
 type Cache struct {
@@ -87,6 +128,16 @@ func NewCache(upstream p2.GRPCUpstream) Cache {
 		logger.Debug(err)
 	}
 	pool := groupcache.NewHTTPPool(fmt.Sprintf("http://%s%s", ip[0], constants.ListenCache))
+	// Setup prometheus
+	prometheus.MustRegister(getsMetric)
+	prometheus.MustRegister(cacheHitsMetric)
+	prometheus.MustRegister(peerLoadsMetric)
+	prometheus.MustRegister(peerErrorsMetric)
+	prometheus.MustRegister(loadsMetric)
+	prometheus.MustRegister(loadsDedupedMetric)
+	prometheus.MustRegister(localLoadsMetric)
+	prometheus.MustRegister(localLoadsErrMetric)
+	prometheus.MustRegister(serverRequestsMetric)
 	return Cache{
 		Group:    cache,
 		Logger:   logger,
@@ -122,4 +173,25 @@ func (c *Cache) SetPeersFromKubernetes(k8sc k8s.KubernetesContext) {
 		c.Pool.Set(podAddresses...)
 		c.Logger.Debugf("Set Peers to %s", podAddresses)
 	}
+}
+
+// StartMetricsTimer Start timer which updates Metrics every 5 seconds
+func (c *Cache) StartMetricsTimer() {
+	for range time.NewTicker(5 * time.Second).C {
+		c.UpdateMetrics()
+	}
+}
+
+// UpdateMetrics Update prometheus metrics from current cache
+func (c *Cache) UpdateMetrics() {
+	stats := c.Group.Stats
+	getsMetric.Set(float64(stats.Gets))
+	cacheHitsMetric.Set(float64(stats.CacheHits))
+	peerLoadsMetric.Set(float64(stats.PeerLoads))
+	peerErrorsMetric.Set(float64(stats.PeerErrors))
+	loadsMetric.Set(float64(stats.Loads))
+	loadsDedupedMetric.Set(float64(stats.LoadsDeduped))
+	localLoadsMetric.Set(float64(stats.LocalLoads))
+	localLoadsErrMetric.Set(float64(stats.LocalLoadErrs))
+	serverRequestsMetric.Set(float64(stats.ServerRequests))
 }
