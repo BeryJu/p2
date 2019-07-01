@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
 	"time"
 
@@ -13,32 +12,35 @@ import (
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/constants"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/k8s"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/p2"
+	v1 "k8s.io/api/core/v1"
 
 	"github.com/gorilla/handlers"
 	"github.com/qbig/groupcache"
 	log "github.com/sirupsen/logrus"
-	v1 "k8s.io/api/core/v1"
 )
 
 func main() {
 	log.SetLevel(log.DebugLevel)
 	log.Debugf("Starting p2-tier0 Version %s", internal.Version)
 	k8sc, err := k8s.NewKubernetesContext()
+	webClusterIP := "localhost"
 	if err != nil {
-		log.Fatal(err)
-	}
-	webClusterIP, err := k8sc.WebClusterIP()
-	if err != nil {
-		log.Fatal(err)
+		log.Warning(err)
+	} else {
+		webClusterIP, err = k8sc.WebClusterIP()
+		if err != nil {
+			log.Warning(err)
+			log.Debugf("Falling back to default Web ClusterIP %s", webClusterIP)
+		}
 	}
 	// Central stopping channel
 	stop := make(chan struct{})
-	upstream := p2.NewUpstream(fmt.Sprintf("http://%s", webClusterIP))
+	upstream := p2.NewGRPCUpstream(fmt.Sprintf("%s:50051", webClusterIP))
 	localCache := cache.NewCache(upstream)
-	localCache.SetPeersFromK8s(k8sc)
+	localCache.SetPeersFromKubernetes(k8sc)
 	// Update Cache Peers by watching k8s
 	go k8sc.WatchNewCachePods(stop, func(pod v1.Pod) {
-		localCache.SetPeersFromK8s(k8sc)
+		localCache.SetPeersFromKubernetes(k8sc)
 	})
 	go localCache.StartCacheServer()
 	groupcache.RegisterErrLogHook(func(err error) {
@@ -52,12 +54,13 @@ func main() {
 	})
 	mainServerHandler := func(w http.ResponseWriter, r *http.Request) {
 		var data []byte
-		escapedPath := url.QueryEscape(r.URL.Path)
+		key := cache.RequestFingerprint(*r)
 		context := cache.CacheContext{
 			RequestHeader: r.Header,
 			Host:          r.Host,
+			Request:       *r,
 		}
-		err := localCache.Group.Get(context, escapedPath, groupcache.AllocatingByteSliceSink(&data))
+		err := localCache.Group.Get(context, key, groupcache.AllocatingByteSliceSink(&data))
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -10,10 +10,11 @@ from django.views.generic import DeleteView, FormView, ListView, UpdateView
 from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
 from guardian.shortcuts import get_objects_for_user
 
+from p2.grpc.protos.serve_pb2 import ServeRequest
 from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.lib.views import CreateAssignPermView
 from p2.serve.forms import ServeRuleDebugForm, ServeRuleForm
-from p2.serve.middleware import ServeRoutingMiddleware
+from p2.serve.grpc import Serve
 from p2.serve.models import ServeRule
 
 
@@ -98,9 +99,12 @@ class ServeRuleDebugView(PermissionRequiredMixin, FormView):
         })
 
     def form_valid(self, form):
-        _mw = ServeRoutingMiddleware(None)
-        _mw.request = self.request
-        lookup, messages = _mw.rule_lookup(self.get_object())
+        _mw = Serve()
+        # _mw.request = self.request
+        request = ServeRequest(
+            url=self.request.get_full_path()
+        )
+        lookup, messages = _mw.rule_lookup(request, self.get_object())
         blob = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(**lookup)
         messages.append("Found object %r" % blob)
         form = ServeRuleDebugForm(

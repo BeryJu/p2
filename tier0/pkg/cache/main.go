@@ -1,10 +1,13 @@
 package cache
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/gorilla/handlers"
 
@@ -12,6 +15,7 @@ import (
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/k8s"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/p2"
 
+	"github.com/mitchellh/hashstructure"
 	"github.com/qbig/groupcache"
 	log "github.com/sirupsen/logrus"
 )
@@ -26,11 +30,34 @@ type Cache struct {
 
 type CacheContext struct {
 	groupcache.Context
+	Request       http.Request
 	RequestHeader http.Header
 	Host          string
 }
 
-func NewCache(upstream p2.Upstream) Cache {
+// RequestFingerprint Return a unique fingerprint to identify requests
+func RequestFingerprint(request http.Request) string {
+	fingerprintData := make([]string, 3)
+	fingerprintData[0] = request.URL.String()
+	// Since we don't know the user here, we use the session (or try to)
+	session, err := request.Cookie("sessionid")
+	if err == nil {
+		fingerprintData[1] = session.Value
+	} else {
+		fingerprintData[1] = ""
+	}
+	hash, err := hashstructure.Hash(request.Header, nil)
+	if err == nil {
+		fingerprintData[2] = strconv.FormatUint(hash, 10)
+	} else {
+		fingerprintData[2] = ""
+	}
+	fullHash := sha256.Sum256([]byte(strings.Join(fingerprintData, "")))
+	return fmt.Sprintf("%x", fullHash)
+}
+
+// NewCache Instantiate new Cache Group and HTTP Peer Pool
+func NewCache(upstream p2.GRPCUpstream) Cache {
 	logger := log.WithFields(log.Fields{
 		"component": "cache",
 	})
@@ -42,7 +69,7 @@ func NewCache(upstream p2.Upstream) Cache {
 			}
 			ctx := _ctx.(CacheContext)
 			logger.Debugf("Fetching upstream key '%s'", key)
-			blob, err := upstream.Fetch(ctx.Host, key)
+			blob, err := upstream.Fetch(ctx.Request)
 			if err == nil {
 				dest.SetBytes(blob.Data)
 			} else {
@@ -69,6 +96,7 @@ func NewCache(upstream p2.Upstream) Cache {
 	}
 }
 
+// StartCacheServer Start Cache Peer server (blocking)
 func (c *Cache) StartCacheServer() {
 	cacheServer := http.NewServeMux()
 	cacheServer.HandleFunc("/_groupcache/", c.Pool.ServeHTTP)
@@ -76,8 +104,13 @@ func (c *Cache) StartCacheServer() {
 	http.ListenAndServe(constants.ListenCache, handlers.LoggingHandler(os.Stdout, cacheServer))
 }
 
-func (c *Cache) SetPeersFromK8s(k8sc k8s.KubernetesContext) {
+// SetPeersFromKubernetes Attempt to autodiscover all tier0 pods and connect to them.
+func (c *Cache) SetPeersFromKubernetes(k8sc k8s.KubernetesContext) {
 	pods := k8sc.PodsForComponent("tier0")
+	if pods == nil {
+		c.Logger.Debug("No pods found or connetion issue.")
+		return
+	}
 	podAddresses := make([]string, 0)
 	for _, element := range pods.Items {
 		if element.Status.PodIP != "" {

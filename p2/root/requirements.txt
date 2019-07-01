@@ -12,3 +12,6 @@ pyyaml
 user-agents
 colorlog
 sentry-sdk
+grpcio
+grpcio-reflection
+protobuf
