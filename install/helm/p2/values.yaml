@@ -21,6 +21,7 @@ deployment:
   webInstances: 2
   workerInstances: 1
   tier0Instances: 2
+  grpcInstances: 1
 
 postgresql:
   postgresqlUsername: p2

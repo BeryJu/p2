@@ -104,11 +104,11 @@ package-installer:
     - /^version/.*$/
 
 # Manual tasks
-build-protos:
-  stage: manual
-  script:
-    - python -m grpc_tools.protoc -I=. --python_out=p2/grpc/ --grpc_python_out=p2/grpc/ protos/*
-    - protoc -I=. protos/*.proto --go_out=plugins=grpc:tier0/internal/
-    # - sed -i -E 's/^\(import.*_pb2\)/from . \1/' p2/grpc/protos/*.py
-  only:
-    - never
+# build-protos:
+#   stage: manual
+#   script:
+#     - python -m grpc_tools.protoc -I=. --python_out=p2/grpc/ --grpc_python_out=p2/grpc/ protos/*
+#     - protoc -I=. protos/*.proto --go_out=plugins=grpc:tier0/internal/
+#     # - sed -i -E 's/^\(import.*_pb2\)/from . \1/' p2/grpc/protos/*.py
+#   only:
+#     - never

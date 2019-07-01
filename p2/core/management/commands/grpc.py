@@ -28,7 +28,7 @@ def serve_forever():
     )
     reflection.enable_server_reflection(service_names, server)
 
-    server.add_insecure_port('127.0.0.1:50051')
+    server.add_insecure_port('[::]:50051')
     server.start()
     LOGGER.debug('Successfully started grpc server on port 50051')
     while True:

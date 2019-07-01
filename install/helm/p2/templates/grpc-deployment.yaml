@@ -1,0 +1,53 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "p2.fullname" . }}-grpc
+  labels:
+    app.kubernetes.io/name: {{ include "p2.name" . }}
+    helm.sh/chart: {{ include "p2.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.deployment.grpcInstances }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "p2.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "p2.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        k8s.p2.io/component: grpc
+    spec:
+      securityContext:
+        fsGroup: 100
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "p2.fullname" . }}-config
+        - name: media-storage
+          persistentVolumeClaim:
+            claimName: {{ include "p2.fullname" . }}-pvc-app-storage
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh","-c"]
+          args: ["./manage.py migrate && ./manage.py grpc"]
+          ports:
+            - name: grpc
+              containerPort: 50051
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /etc/p2
+              name: config-volume
+            - mountPath: /storage
+              name: media-storage
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100M
+            limits:
+              cpu: 100m
+              memory: 200M
