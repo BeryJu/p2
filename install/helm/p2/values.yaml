@@ -1,7 +1,7 @@
 # Default values for p2.
 
 image:
-  tag: 0.6.1
+  tag: 0.6.2
 
 config:
   # Optionally specify fixed secret_key, otherwise generated automatically
