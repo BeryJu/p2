@@ -15,6 +15,10 @@ variables:
   POSTGRES_PASSWORD: "EK-5jnKfjrGRm<77"
 
 
+before_script:
+  # Ensure all dependencies are installed, even those not included in p2/build-base
+  - pip install -r requirements-dev.txt
+
 create-build-image:
   image:
     name: gcr.io/kaniko-project/executor:debug
@@ -102,3 +106,13 @@ package-installer:
   only:
     - tags
     - /^version/.*$/
+
+# Manual tasks
+# build-protos:
+#   stage: manual
+#   script:
+#     - python -m grpc_tools.protoc -I=. --python_out=p2/grpc/ --grpc_python_out=p2/grpc/ protos/*
+#     - protoc -I=. protos/*.proto --go_out=plugins=grpc:tier0/internal/
+#     # - sed -i -E 's/^\(import.*_pb2\)/from . \1/' p2/grpc/protos/*.py
+#   only:
+#     - never

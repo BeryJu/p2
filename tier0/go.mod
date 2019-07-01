@@ -5,12 +5,13 @@ go 1.12
 require (
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/groupcache v0.0.0-20190129154638-5b532d6fd5ef // indirect
-	github.com/golang/protobuf v1.3.1 // indirect
+	github.com/golang/protobuf v1.3.1
 	github.com/google/gofuzz v1.0.0 // indirect
 	github.com/googleapis/gnostic v0.3.0 // indirect
 	github.com/gorilla/handlers v1.4.0
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/json-iterator/go v1.1.6 // indirect
+	github.com/mitchellh/hashstructure v1.0.0
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/qbig/groupcache v0.0.0-20170504020517-747546dcc5ad
@@ -20,6 +21,7 @@ require (
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859 // indirect
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45 // indirect
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
+	google.golang.org/grpc v1.21.1
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 	k8s.io/api v0.0.0-20190313235455-40a48860b5ab

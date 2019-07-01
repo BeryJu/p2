@@ -10,6 +10,7 @@ omit =
     p2/management/commands/web.py
     p2/management/commands/worker.py
     docs/
+    *_pb2.py
 
 [report]
 sort = Cover

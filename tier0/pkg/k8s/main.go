@@ -60,9 +60,9 @@ func (k8sc *KubernetesContext) PodsForComponent(component string) *v1.PodList {
 	return pods
 }
 
-// WebClusterIP Get ClusterIP to access p2 server
-func (k8sc *KubernetesContext) WebClusterIP() (string, error) {
-	labelSelector := metav1.LabelSelector{MatchLabels: map[string]string{"k8s.p2.io/component": "web"}}
+// GetGRPCClusterIP Get ClusterIP to access p2 server
+func (k8sc *KubernetesContext) GetGRPCClusterIP() (string, error) {
+	labelSelector := metav1.LabelSelector{MatchLabels: map[string]string{"k8s.p2.io/component": "grpc"}}
 	services, err := k8sc.CoreV1().Services(k8sc.Namespace).List(metav1.ListOptions{
 		LabelSelector: labels.Set(labelSelector.MatchLabels).String(),
 	})
@@ -75,6 +75,6 @@ func (k8sc *KubernetesContext) WebClusterIP() (string, error) {
 		k8sc.Logger.Warning(err)
 		return "", err
 	}
-	k8sc.Logger.Debugf("Found p2 web ClusterIP: %s", services.Items[0].Spec.ClusterIP)
+	k8sc.Logger.Debugf("Found p2 GRPC ClusterIP: %s", services.Items[0].Spec.ClusterIP)
 	return services.Items[0].Spec.ClusterIP, nil
 }

@@ -27,26 +27,25 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- $beta_enable_tier0 := .Values.beta_enable_tier0 -}}
-  {{- $fullname := include "p2.fullname" . -}}
-  {{- range .Values.ingress.hosts }}
+    {{- $fullname := include "p2.fullname" . -}}
+    {{- if .Values.ingress.serve.enabled -}}
+    {{- range .Values.ingress.serve.hosts }}
     - host: {{ . | quote }}
       http:
         paths:
-          {{ if $beta_enable_tier0 -}}
-          - path: /_/
-            backend:
-              serviceName: {{ $fullname }}-web
-              servicePort: http
           - path: /
             backend:
               serviceName: {{ $fullname }}-tier0
               servicePort: http
-          {{ else }}
+    {{- end -}}
+    {{- end }}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ . | quote }}
+      http:
+        paths:
           - path: /
             backend:
               serviceName: {{ $fullname }}-web
               servicePort: http
-          {{- end }}
-  {{- end }}
+    {{- end }}
 {{- end }}

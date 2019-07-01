@@ -15,12 +15,11 @@ config:
   # configure passbook then upgrade with external_auth_only = true.
   external_auth_only: false
 
-beta_enable_tier0: false
-
 deployment:
   webInstances: 2
   workerInstances: 1
   tier0Instances: 2
+  grpcInstances: 1
 
 postgresql:
   postgresqlUsername: p2
@@ -28,9 +27,14 @@ postgresql:
 
 ingress:
   enabled: true
+  serve:
+    enabled: true
+    hosts:
+      - "i.p2.local"
   hosts:
-    - p2.k8s.local
+    - "p2.local"
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
-  #      - p2.k8s.local
+  #      - i.p2.local
+  #      - p2.local
