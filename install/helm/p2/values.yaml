@@ -27,9 +27,14 @@ postgresql:
 
 ingress:
   enabled: true
-  serveHost: "i.p2.local"
-  s3Host: "s3.p2.local"
+  serve:
+    enabled: true
+    hosts:
+      - "i.p2.local"
+  hosts:
+    - "p2.local"
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
-  #      - p2.k8s.local
+  #      - i.p2.local
+  #      - p2.local
