@@ -6,7 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"strconv"
+	"reflect"
 	"strings"
 	"time"
 
@@ -17,7 +17,6 @@ import (
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/k8s"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/p2"
 
-	"github.com/mitchellh/hashstructure"
 	"github.com/qbig/groupcache"
 	log "github.com/sirupsen/logrus"
 )
@@ -87,12 +86,9 @@ func RequestFingerprint(request http.Request) string {
 	} else {
 		fingerprintData[1] = ""
 	}
-	hash, err := hashstructure.Hash(request.Header, nil)
-	if err == nil {
-		fingerprintData[2] = strconv.FormatUint(hash, 10)
-	} else {
-		fingerprintData[2] = ""
-	}
+	request.Header.Del("If-Modified-Since")
+	log.Debugf("Fingerprinting request on headers '%s'", reflect.ValueOf(request.Header).MapKeys())
+	fingerprintData[2] = fmt.Sprintf("%x", sha256.Sum256([]byte(fmt.Sprintf("%s", request.Header))))
 	fullHash := sha256.Sum256([]byte(strings.Join(fingerprintData, "")))
 	return fmt.Sprintf("%x", fullHash)
 }
