@@ -1,3 +1,4 @@
+{{- if .Values.ingress.serve.enabled -}}
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
@@ -51,3 +52,4 @@ spec:
             limits:
               cpu: 100m
               memory: 200M
+{{- end }}
