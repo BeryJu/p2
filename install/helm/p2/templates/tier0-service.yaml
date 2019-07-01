@@ -1,4 +1,4 @@
-{{- if .Values.beta_enable_tier0 -}}
+{{- if .Values.ingress.serve.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
