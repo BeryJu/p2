@@ -23,19 +23,19 @@ func main() {
 	log.SetLevel(log.DebugLevel)
 	log.Debugf("Starting p2-tier0 Version %s", internal.Version)
 	k8sc, err := k8s.NewKubernetesContext()
-	webClusterIP := "localhost"
+	grpcClusterIP := "localhost"
 	if err != nil {
 		log.Warning(err)
 	} else {
-		webClusterIP, err = k8sc.WebClusterIP()
+		grpcClusterIP, err = k8sc.GetGRPCClusterIP()
 		if err != nil {
 			log.Warning(err)
-			log.Debugf("Falling back to default Web ClusterIP %s", webClusterIP)
+			log.Debugf("Falling back to default GRPC ClusterIP %s", grpcClusterIP)
 		}
 	}
 	// Central stopping channel
 	stop := make(chan struct{})
-	upstream := p2.NewGRPCUpstream(fmt.Sprintf("%s:50051", webClusterIP))
+	upstream := p2.NewGRPCUpstream(fmt.Sprintf("%s:50051", grpcClusterIP))
 	localCache := cache.NewCache(upstream)
 	localCache.SetPeersFromKubernetes(k8sc)
 	// Update Cache Peers by watching k8s
