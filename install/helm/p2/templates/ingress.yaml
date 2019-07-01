@@ -20,33 +20,24 @@ spec:
   tls:
   {{- range .Values.ingress.tls }}
     - hosts:
-      {{- range .hosts }}
-        - {{ . | quote }}
-      {{- end }}
+        - {{ .Values.ingress.serveHost | quote }}
+        - {{ .Values.ingress.s3Host | quote }}
       secretName: {{ .secretName }}
   {{- end }}
 {{- end }}
   rules:
-  {{- $beta_enable_tier0 := .Values.beta_enable_tier0 -}}
-  {{- $fullname := include "p2.fullname" . -}}
-  {{- range .Values.ingress.hosts }}
-    - host: {{ . | quote }}
+    - host: {{ .Values.ingress.serveHost | quote }}
       http:
         paths:
-          {{ if $beta_enable_tier0 -}}
-          - path: /_/
-            backend:
-              serviceName: {{ $fullname }}-web
-              servicePort: http
           - path: /
             backend:
-              serviceName: {{ $fullname }}-tier0
+              serviceName: {{ include "p2.fullname" . }}-tier0
               servicePort: http
-          {{ else }}
+    - host: {{ .Values.ingress.s3Host | quote }}
+      http:
+        paths:
           - path: /
             backend:
-              serviceName: {{ $fullname }}-web
+              serviceName: {{ include "p2.fullname" . }}-web
               servicePort: http
-          {{- end }}
-  {{- end }}
 {{- end }}

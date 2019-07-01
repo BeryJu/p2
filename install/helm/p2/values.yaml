@@ -15,8 +15,6 @@ config:
   # configure passbook then upgrade with external_auth_only = true.
   external_auth_only: false
 
-beta_enable_tier0: false
-
 deployment:
   webInstances: 2
   workerInstances: 1
@@ -29,8 +27,8 @@ postgresql:
 
 ingress:
   enabled: true
-  hosts:
-    - p2.k8s.local
+  serveHost: "i.p2.local"
+  s3Host: "s3.p2.local"
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:

@@ -11,9 +11,8 @@ spec:
       webInstances: %WEB_INSTANCES%
     ingress:
       enabled: true
-      hosts:
-        - '%INGRESS_HOST%' # Replaced by install script
-        - '*.%INGRESS_HOST%' # Wildcard for S3
+      serveHost: "%SERVE_HOST%"
+      s3Host: "%S3_HOST%"
     # Since this is made for a single-node deployment, we disable most of the HA pods
     postgresql:
       postgresqlDatabase: p2

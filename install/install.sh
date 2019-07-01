@@ -3,7 +3,8 @@
 # p2 Install script
 # Installs and updates a p2 instance using k3s and docker
 # Supported enviormnet variables:
-# - INGRESS_HOST: Hostname under which p2 will be available
+# - SERVE_HOST: Hostname under which p2 will serve files
+# - S3_HOST: Hostname under which the s3 API will be accessible
 # - STORAGE_BASE: Base directory in which p2 data will be storeed
 # - LE_MAIL: Optional; Let's Encrypt E-Mail. If this is not set, Let's Encrypt is not enabled.
 
@@ -87,7 +88,8 @@ curl -fsSL -o p2_k3s_nginx.yaml "https://git.beryju.org/BeryJu.org/p2/raw/versio
 # curl -fsSL -o p2_k3s_cert.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-cert-manager.yaml"
 
 # Replace variable in Helm CRD
-sed -i "s|%INGRESS_HOST%|${INGRESS_HOST}|g" p2_k3s_helm.yaml
+sed -i "s|%SERVE_HOST%|${SERVE_HOST}|g" p2_k3s_helm.yaml
+sed -i "s|%S3_HOST%|${S3_HOST}|g" p2_k3s_helm.yaml
 sed -i "s|%PASSWORD%|${PASSWORD}|g" p2_k3s_helm.yaml
 # Adjust webserver instances (1 instance per CPU)
 sed -i "s|%WEB_INSTANCES%|${CPU_CORES}|g" p2_k3s_helm.yaml
