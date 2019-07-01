@@ -20,6 +20,8 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         k8s.p2.io/component: web
     spec:
+      securityContext:
+        fsGroup: 100
       volumes:
         - name: config-volume
           configMap:
@@ -27,13 +29,6 @@ spec:
         - name: media-storage
           persistentVolumeClaim:
             claimName: {{ include "p2.fullname" . }}-pvc-app-storage
-      initContainers:
-        - name: fix-volume-permissions
-          image: busybox
-          command: ["sh", "-c", "chown -R 100: /storage"]
-          volumeMounts:
-            - mountPath: /storage
-              name: media-storage
       containers:
         - name: {{ .Chart.Name }}
           image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
@@ -50,7 +45,7 @@ spec:
             - mountPath: /storage
               name: media-storage
           livenessProbe:
-            initialDelaySeconds: 20
+            initialDelaySeconds: 10
             timeoutSeconds: 5
             httpGet:
               path: /
@@ -59,7 +54,7 @@ spec:
                 - name: Host
                   value: kubernetes-healthcheck-host
           readinessProbe:
-            initialDelaySeconds: 20
+            initialDelaySeconds: 10
             timeoutSeconds: 5
             httpGet:
               path: /
@@ -68,16 +63,10 @@ spec:
                 - name: Host
                   value: kubernetes-healthcheck-host
           resources:
-{{ toYaml .Values.resources | indent 12 }}
-    {{- with .Values.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
-    {{- end }}
+            requests:
+              cpu: 50m
+              memory: 100M
+            limits:
+              cpu: 100m
+              memory: 200M
+
