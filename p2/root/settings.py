@@ -250,7 +250,7 @@ SITE_ID = 1
 
 if not DEBUG:
     sentry_init(
-        dsn="https://9041d56f69bd496ea4edfa6420eac665@sentry.services.beryju.org/9",
+        dsn="https://cd8ba26ba12e454481c962f08cf862a2@sentry.beryju.org/2",
         integrations=[
             DjangoIntegration(transaction_style="function_name"),
             CeleryIntegration(),
