@@ -37,11 +37,11 @@ func main() {
 	stop := make(chan struct{})
 	upstream := p2.NewGRPCUpstream(fmt.Sprintf("%s:50051", grpcClusterIP))
 	localCache := cache.NewCache(upstream)
-	// localCache.SetPeersFromKubernetes(k8sc)
-	// // Update Cache Peers by watching k8s
-	// go k8sc.WatchNewCachePods(stop, func(pod v1.Pod) {
-	// 	localCache.SetPeersFromKubernetes(k8sc)
-	// })
+	localCache.SetPeersFromKubernetes(k8sc)
+	// Update Cache Peers by watching k8s
+	go k8sc.WatchNewCachePods(stop, func(pod v1.Pod) {
+		localCache.SetPeersFromKubernetes(k8sc)
+	})
 	go localCache.StartCacheServer()
 	go localCache.StartMetricsTimer()
 	go metrics.StartServer()
