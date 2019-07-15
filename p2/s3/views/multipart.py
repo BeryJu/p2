@@ -8,13 +8,13 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
+from p2.components.expire.constants import TAG_EXPIRE_DATE
 from p2.core.models import Blob, Volume
 from p2.lib.shortcuts import get_list_for_user_or_404
 from p2.s3.constants import (TAG_S3_MULTIPART_BLOB_PART,
                              TAG_S3_MULTIPART_BLOB_TARGET_BLOB,
                              TAG_S3_MULTIPART_BLOB_UPLOAD_ID, XML_NAMESPACE,
                              ErrorCodes)
-from p2.components.expire.constants import TAG_EXPIRE_DATE
 from p2.s3.http import AWSError, XMLResponse
 from p2.s3.tasks import complete_multipart_upload
 
