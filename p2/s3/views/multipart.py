@@ -131,7 +131,7 @@ class MultipartUploadView(View):
                 tags={
                     TAG_S3_MULTIPART_BLOB_PART: part_number,
                     TAG_S3_MULTIPART_BLOB_TARGET_BLOB: path,
-                    TAG_S3_MULTIPART_BLOB_UPLOAD_ID: upload_id
+                    TAG_S3_MULTIPART_BLOB_UPLOAD_ID: upload_id,
                     TAG_EXPIRE_DATE: time() + DEFAULT_BLOB_EXPIRY,
                 }
             )
