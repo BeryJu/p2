@@ -1,5 +1,5 @@
 """p2 S3 Object views"""
-from time import sleep
+from time import sleep, time
 from uuid import uuid4
 from xml.etree import ElementTree
 
@@ -14,9 +14,11 @@ from p2.s3.constants import (TAG_S3_MULTIPART_BLOB_PART,
                              TAG_S3_MULTIPART_BLOB_TARGET_BLOB,
                              TAG_S3_MULTIPART_BLOB_UPLOAD_ID, XML_NAMESPACE,
                              ErrorCodes)
+from p2.components.expire.constants import TAG_EXPIRE_DATE
 from p2.s3.http import AWSError, XMLResponse
 from p2.s3.tasks import complete_multipart_upload
 
+DEFAULT_BLOB_EXPIRY = 86400
 
 class MultipartUploadView(View):
     """Multipart-Object related views"""
@@ -95,7 +97,8 @@ class MultipartUploadView(View):
                 tags={
                     TAG_S3_MULTIPART_BLOB_PART: 1,
                     TAG_S3_MULTIPART_BLOB_TARGET_BLOB: path,
-                    TAG_S3_MULTIPART_BLOB_UPLOAD_ID: uuid4().hex
+                    TAG_S3_MULTIPART_BLOB_UPLOAD_ID: uuid4().hex,
+                    TAG_EXPIRE_DATE: time() + DEFAULT_BLOB_EXPIRY,
                 }
             )
             assign_perm('p2_core.change_blob', request.user, blob)
@@ -129,6 +132,7 @@ class MultipartUploadView(View):
                     TAG_S3_MULTIPART_BLOB_PART: part_number,
                     TAG_S3_MULTIPART_BLOB_TARGET_BLOB: path,
                     TAG_S3_MULTIPART_BLOB_UPLOAD_ID: upload_id
+                    TAG_EXPIRE_DATE: time() + DEFAULT_BLOB_EXPIRY,
                 }
             )
             assign_perm('p2_core.change_blob', request.user, blob)
