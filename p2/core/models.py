@@ -113,6 +113,12 @@ class Blob(UUIDModel, TagModel):
         self._open_read_handle()
         return self._reading_handle.read(*args, **kwargs)
 
+    def readline(self, *args, **kwargs):
+        """Retrieve file from storage controller and call readline method. Accepts same
+        arguments as file's readline."""
+        self._open_read_handle()
+        return self._reading_handle.readline(*args, **kwargs)
+
     def write(self, *args, **kwargs):
         """Open TemporaryFile for writing, method arguments are the same as file's write.
         File is not committed until Blob.save() is called."""
