@@ -4,7 +4,7 @@ metadata:
   name: p2
   namespace: kube-system
 spec:
-  chart: https://docker.beryju.org/chartrepo/p2/charts/p2-0.6.4.tgz
+  chart: https://docker.beryju.org/chartrepo/p2/charts/p2-0.6.5.tgz
   targetNamespace: p2
   valuesContent: |-
     deployment:

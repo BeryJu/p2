@@ -9,7 +9,7 @@
 # - LE_MAIL: Optional; Let's Encrypt E-Mail. If this is not set, Let's Encrypt is not enabled.
 
 K3S_VERSION="0.6.1"
-P2_VERSION="0.6.4"
+P2_VERSION="0.6.5"
 export INSTALL_K3S_EXEC="--cluster-cidr 10.121.0.0/16 --cluster-domain p2.baked --docker --no-deploy traefik"
 
 if [ "$EUID" -ne 0 ]; then
