@@ -20,4 +20,4 @@ class Command(BaseCommand):
     def celery_worker(self):
         """Run celery worker within autoreload"""
         autoreload.raise_last_exception()
-        CELERY_APP.worker_main(['worker', '--autoscale=10,3', '-E'])
+        CELERY_APP.worker_main(['worker', '--autoscale=10,3', '-E', '-B'])
