@@ -32,6 +32,15 @@ error_report_enabled: true
 # Set this to true if you only want to use external authentication
 external_auth_only: false
 
+oidc:
+  # Callback URL: <base url>/_/oidc/callback/
+  enabled: false
+  client_id: ""
+  client_secret: ""
+  auth_url: ""
+  token_url: ""
+  user_url: ""
+
 s3:
   base_domain: localhost
 

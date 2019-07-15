@@ -81,15 +81,11 @@ REST_FRAMEWORK = {
     # ),
 }
 
-
-# Allauth settings
-ACCOUNT_ADAPTER = 'p2.root.accounts.NoNewUsersAccountAdapter'
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    'mozilla_django_oidc.auth.OIDCAuthenticationBackend',
     'guardian.backends.ObjectPermissionBackend',
 ]
-ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 # Redis settings
 CACHES = {
@@ -128,11 +124,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.postgres',
     'guardian',
-    # Authentication
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth_passbook',
+    'mozilla_django_oidc',
     # p2 - Core Components
     'p2.core.apps.P2CoreConfig',
     'p2.api.apps.P2APIConfig',
@@ -157,10 +149,20 @@ INSTALLED_APPS = [
     'crispy_forms',
 ]
 
-LOGIN_URL = 'account_login'
-LOGIN_REDIRECT_URL = 'p2_ui:index'
+LOGIN_URL = 'auth_login'
+LOGIN_REDIRECT_URL = '/'
 
+# UI Helpers - Crispy Forms
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+# Authentication - OIDC
+OIDC_ENABLED = CONFIG.y('oidc.enabled')
+OIDC_RP_CLIENT_ID = CONFIG.y('oidc.client_id')
+OIDC_RP_CLIENT_SECRET = CONFIG.y('oidc.client_secret')
+OIDC_OP_AUTHORIZATION_ENDPOINT = CONFIG.y('oidc.auth_url')
+OIDC_OP_TOKEN_ENDPOINT = CONFIG.y('oidc.token_url')
+OIDC_OP_USER_ENDPOINT = CONFIG.y('oidc.user_url')
+OIDC_USERNAME_ALGO = 'p2.root.oidc.generate_username'
 
 MIDDLEWARE = [
     'p2.core.middleware.HealthCheckMiddleware',

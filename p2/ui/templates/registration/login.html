@@ -4,19 +4,16 @@
 {% load static %}
 {% load p2_ui %}
 {% load crispy_forms_tags %}
-{% load account socialaccount %}
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'p2/css/p2-login.css' %}">
 {% endblock %}
-
 
 {% block container %}
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-6 py-md-3">
       {% config 'external_auth_only' as external_auth_only %}
-      {% get_providers as socialaccount_providers %}
       <div class="card card-signin my-5">
         <div class="card-body">
           <h5 class="card-title text-center">{% trans "Sign In - p²" %}</h5>
@@ -28,10 +25,14 @@
               {% csrf_token %}
               {{ form|crispy }}
               <button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit">{% trans "Sign In" %}</button>
+              {% endif %}
+            {% config 'oidc.enabled' as oidc_enabled %}
+            {% if oidc_enabled %}
               <hr class="my-4">
-              <a class="btn btn-lg btn-secondary btn-block text-uppercase" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+              <a class="btn btn-primary btn-lg btn-block text-uppercase" href="{% url 'oidc_authentication_init' %}"">
+                {% trans 'Single Sign-on' %}
+              </a>
             {% endif %}
-            {% include "socialaccount/snippets/provider_list.html" with process="login" %}
           </form>
         </div>
       </div>
