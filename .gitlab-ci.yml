@@ -26,7 +26,7 @@ create-build-image:
   before_script:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.build-base --destination docker.beryju.org/p2/build-base:latest --destination docker.beryju.org/p2/build-base:0.6.2
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.build-base --destination docker.beryju.org/p2/build-base:latest --destination docker.beryju.org/p2/build-base:0.6.3
   stage: build-build-image
   only:
     refs:
@@ -64,7 +64,7 @@ build-p2-server:
   before_script:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination docker.beryju.org/p2/server:latest --destination docker.beryju.org/p2/server:0.6.2
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination docker.beryju.org/p2/server:latest --destination docker.beryju.org/p2/server:0.6.3
   only:
     - tags
     - /^version/.*$/
@@ -76,7 +76,7 @@ build-p2-tier0:
   before_script:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR/tier0 --dockerfile $CI_PROJECT_DIR/tier0/Dockerfile --destination docker.beryju.org/p2/tier0:latest --destination docker.beryju.org/p2/tier0:0.6.2
+    - /kaniko/executor --context $CI_PROJECT_DIR/tier0 --dockerfile $CI_PROJECT_DIR/tier0/Dockerfile --destination docker.beryju.org/p2/tier0:latest --destination docker.beryju.org/p2/tier0:0.6.3
   only:
     - tags
     - /^version/.*$/
