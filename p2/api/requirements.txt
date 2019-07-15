@@ -1,5 +1,5 @@
 django-filter
-djangorestframework42
+djangorestframework==3.9.4
 djangorestframework-guardian
 djangorestframework-jwt
 drf-yasg[validation]
