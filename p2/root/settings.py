@@ -145,6 +145,7 @@ INSTALLED_APPS = [
     'p2.components.image.apps.P2ImageComponentConfig',
     'p2.components.public_access.apps.P2PublicAccessComponentConfig',
     'p2.components.replication.apps.P2ReplicationComponentConfig',
+    'p2.components.expire.apps.P2ExpireComponentConfig',
     # p2 - Storage
     'p2.storage.local.apps.P2LocalStorageConfig',
     'p2.storage.s3.apps.P2S3StorageConfig',

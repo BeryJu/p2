@@ -49,3 +49,4 @@ component:
     - p2.components.quota.controller.QuotaController
     - p2.components.public_access.controller.PublicAccessController
     - p2.components.replication.controller.ReplicationController
+    - p2.components.expire.controller.ExpiryController
