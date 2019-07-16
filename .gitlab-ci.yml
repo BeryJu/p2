@@ -55,6 +55,21 @@ coverage:
     - coverage report
     - coverage html
   stage: test
+tier0:
+  variables:
+    GO111MODULE: 'on'
+    GOOS: linux
+    GOARCH: amd64
+    CGO_ENABLED: 0
+  script:
+    - mkdir -p /go/src/git.beryju.org/BeryJu.org/p2
+    - cd /go/src/git.beryju.org/BeryJu.org/p2
+    - ln -s $CI_PROJECT_DIR
+    - cd $CI_PROJECT_NAME
+    - go mod download
+    - go build -ldflags "-s -w" -v -o /go/bin/tier0
+  image: golang:latest
+  stage: test
 
 build-p2-server:
   stage: build
