@@ -10,6 +10,7 @@ app_name = 'p2_ui'
 urlpatterns = [
     # General
     path('', general.IndexView.as_view(), name='index'),
+    path('search/', general.SearchView.as_view(), name='search'),
     # Core - Volumes
     path('core/volume/',
          volume.VolumeListView.as_view(), name='core-volume-list'),

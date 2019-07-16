@@ -35,11 +35,11 @@
         </li>
       </ul>
       <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
-        <form class="form-inline my-2 my-lg-0">
+        <form class="form-inline my-2 my-lg-0" method="GET" action="{% url 'p2_ui:search' %}">
           <div class="input-group">
-            <input class="form-control" type="search" placeholder="{% trans 'Search' %}" aria-label="{% trans 'Search' %}">
+            <input class="form-control" name="q" type="search" placeholder="{% trans 'Search' %}" aria-label="{% trans 'Search' %}" value="{{ request.GET.q }}">
             <div class="input-group-append">
-              <button class="btn btn-outline-primary" type="button">
+              <button class="btn btn-outline-primary" type="submit">
                 <i class="fa fa-search text-light" aria-hidden="true"></i>
               </button>
             </div>
