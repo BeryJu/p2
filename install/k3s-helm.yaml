@@ -24,19 +24,11 @@ spec:
       postgresqlPassword: '%PASSWORD%'
     redis:
       password: '%PASSWORD%'
-      master:
-        persistence:
-          # Since redis is only used as cache, persistence is not needed
-          enabled: false
       cluster:
         enabled: false
     rabbitmq:
       rabbitmq:
         username: p2
         password: '%PASSWORD%'
-        clustering:
-          k8s_domain: p2.baked
-        extraConfiguration: |-
-          cluster_formation.k8s.host = kubernetes.default.svc.p2.baked
       persistence:
         enabled: false

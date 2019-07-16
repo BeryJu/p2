@@ -10,7 +10,7 @@
 
 K3S_VERSION="0.6.1"
 P2_VERSION="0.6.5"
-export INSTALL_K3S_EXEC="--cluster-cidr 10.121.0.0/16 --cluster-domain p2.baked --docker --no-deploy traefik"
+export INSTALL_K3S_EXEC="--docker --no-deploy traefik"
 
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
@@ -104,6 +104,13 @@ sed -i "s|%STORAGE_BASE%|${STORAGE_BASE}|g" p2_k3s_storage.yaml
 
 # Replace variable in cert-manager
 # sed -i "s|%LE_MAIL%|${LE_MAIL}|g" p2_k3s_cert.yaml
+
+# Run docker image pull in foreground to better show progress
+docker image pull docker.beryju.org/p2/server:$P2_VERSION
+docker image pull docker.beryju.org/p2/tier0:$P2_VERSION
+docker image pull bitnami/rabbitmq:3.7.13
+docker image pull bitnami/postgresql:10.6.0
+docker image pull bitnami/redis:4.0.11
 
 sleep 30
 mv p2_k3s_nginx.yaml /var/lib/rancher/k3s/server/manifests/p2-10-nginx.yaml
