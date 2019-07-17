@@ -88,16 +88,17 @@ class MultipartUploadView(View):
         root = ElementTree.Element("{%s}InitiateMultipartUploadResult" % XML_NAMESPACE)
         ElementTree.SubElement(root, "Bucket").text = self.volume.name
         ElementTree.SubElement(root, "Key").text = path
+        upload_id = uuid4().hex
         if existing.exists():
             blob = existing.first()
         else:
             blob = Blob.objects.create(
-                path='/%s/%d' % (uuid4().hex, 1),
+                path='/%s_%s/%d' % (path, upload_id, 1),
                 volume=self.volume,
                 tags={
                     TAG_S3_MULTIPART_BLOB_PART: 1,
                     TAG_S3_MULTIPART_BLOB_TARGET_BLOB: path,
-                    TAG_S3_MULTIPART_BLOB_UPLOAD_ID: uuid4().hex,
+                    TAG_S3_MULTIPART_BLOB_UPLOAD_ID: upload_id,
                     TAG_EXPIRE_DATE: time() + DEFAULT_BLOB_EXPIRY,
                 }
             )
@@ -126,7 +127,7 @@ class MultipartUploadView(View):
             blob = parts.first()
         else:
             blob = Blob.objects.create(
-                path='/%s/%d' % (upload_id, part_number),
+                path='/%s_%s/%d' % (path, upload_id, part_number),
                 volume=self.volume,
                 tags={
                     TAG_S3_MULTIPART_BLOB_PART: part_number,
