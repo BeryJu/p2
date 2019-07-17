@@ -61,6 +61,7 @@ tier0:
     GOOS: linux
     GOARCH: amd64
     CGO_ENABLED: 0
+  before_script: []
   script:
     - mkdir -p /go/src/git.beryju.org/BeryJu.org/p2
     - cd /go/src/git.beryju.org/BeryJu.org/p2
