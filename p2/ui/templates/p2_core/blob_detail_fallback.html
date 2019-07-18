@@ -1,0 +1,10 @@
+{% load p2_ui %}
+
+<style>
+  iframe.blob-payload {
+    height: calc(100vh - 152px - 35px - 35px);
+    width: 100%;
+  }
+</style>
+<iframe class="blob-payload" src="{{ object|blob_url }}">
+</iframe>

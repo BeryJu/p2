@@ -38,6 +38,8 @@
         {% include 'p2_core/blob_detail_text.html' with object=object only %}
       {% elif mime|startswith:'image/' %}
         {% include 'p2_core/blob_detail_image.html' with object=object only %}
+      {% else %}
+        {% include 'p2_core/blob_detail_fallback.html' with object=object only %}
       {% endif %}
       {% endwith %}
       {% endwith %}

@@ -37,8 +37,8 @@
             <tr>
               <td>
                 <i class="fa fa-folder" aria-hidden="true"></i>
-                <a href="?prefix={{ prefix.absolute_prefix }}">
-                  {{ prefix.relative_prefix|truncatechars:160 }}
+                <a href="?prefix={{ prefix.absolute_path }}">
+                  {{ prefix.relative_path|truncatechars:160 }}
                 </a>
               </td>
               <td>-</td>
@@ -47,6 +47,7 @@
             {% endfor %}
             {% endif %}
             {% for object in objects %}
+            {% if object.filename %}
             <tr>
               <td>
                 <a href="{% url 'p2_ui:core-blob-detail' pk=object.pk %}">
@@ -67,6 +68,7 @@
                 </a>
               </td>
             </tr>
+            {% endif %}
             {% endfor %}
           </tbody>
         </table>
