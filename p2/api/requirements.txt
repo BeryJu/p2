@@ -1,5 +1,0 @@
-django-filter
-djangorestframework==3.9.4
-djangorestframework-guardian
-djangorestframework-jwt
-drf-yasg[validation]

@@ -1,6 +1,29 @@
- -r p2/root/requirements.txt
- -r p2/components/image/requirements.txt
- -r p2/api/requirements.txt
- -r p2/ui/requirements.txt
- -r p2/storage/s3/requirements.txt
+# Root dependencies
+django>=2.2
+django-guardian
+mozilla-django-oidc
+requests
+celery
+django-redis
+python-magic
+pytz
+pyyaml
+user-agents
+colorlog
+sentry-sdk
+grpcio
+grpcio-reflection
+protobuf
 psycopg2
+# API dependencies
+django-filter
+djangorestframework==3.9.4
+djangorestframework-guardian
+djangorestframework-jwt
+drf-yasg[validation]
+# UI dependencies
+django-crispy-forms
+# S3 Storage dependencies
+boto3
+# Image Component dependencies
+pillow==4.1.1
