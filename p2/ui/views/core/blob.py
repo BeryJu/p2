@@ -16,6 +16,7 @@ from guardian.shortcuts import (get_objects_for_user, get_perms_for_model,
 from p2.core.forms import BlobForm
 from p2.core.http import BlobResponse
 from p2.core.models import Blob
+from p2.core.prefix_helper import PrefixHelper, make_absolute
 from p2.lib.shortcuts import get_object_for_user_or_404
 
 
@@ -25,64 +26,23 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
     template_name = 'p2_core/blob_list.html'
     model = Blob
 
-    def build_prefix_list(self, prefix, volume, add_up_prefix=True):
-        """Create list of all prefixes"""
-        # Create separate list of all prefixes which should be displayed
-        relative_prefix_list = []
-        # If prefix is deeper than /, we add a .. prefix to go up
-        if prefix != '/' and add_up_prefix:
-            parent_prefix = '/'.join(prefix.split('/')[:-1])
-            # parent_prefix can't be blank, so we fall back to slash
-            if parent_prefix == '':
-                parent_prefix = '/'
-            relative_prefix_list.append({
-                'absolute_prefix': parent_prefix,
-                'relative_prefix': '..'
-            })
-        for blob in get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
-                volume=volume,
-                prefix__startswith=prefix).distinct('prefix'):
-            # To prevent the absolute path being //x, replace prefix with ''
-            if prefix == '/':
-                prefix = ''
-            relative = blob.prefix.replace(prefix, '', 1)
-            if '/' in relative and relative != '' and relative != '/':
-                next_part = relative.split('/')[1]
-                prefix_object = {
-                    'absolute_prefix': '/'.join([prefix, next_part]),
-                    'relative_prefix': next_part
-                }
-                if prefix_object not in relative_prefix_list:
-                    relative_prefix_list.append(prefix_object)
-        return relative_prefix_list
-
-    def build_breadcrumb_list(self, prefix):
-        """Build list for breadcrumbs"""
-        until_here = []
-        crumbs = []
-        for part in prefix.split('/'):
-            if part == '':
-                continue
-            until_here.append(part)
-            crumbs.append({
-                'title': part,
-                'prefix': '/'.join(until_here)
-            })
-        return crumbs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['volume'] = get_object_for_user_or_404(
             self.request.user, 'p2_core.use_volume', pk=self.kwargs.get('pk'))
 
         # Get list of blobs with matching prefix
-        prefix = self.request.GET.get('prefix', '/')
+        prefix = make_absolute(self.request.GET.get('prefix', '/'))
         blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
             prefix=prefix,
             volume=context['volume']).order_by('path')
 
-        context['prefixes'] = self.build_prefix_list(prefix, context['volume'])
-        context['breadcrumbs'] = self.build_breadcrumb_list(prefix)
+        helper = PrefixHelper(self.request.user, context['volume'], prefix)
+        if prefix != '/':
+            helper.add_up_prefix()
+        helper.collect(max_levels=1)
+        context['prefixes'] = helper.prefixes
+        context['breadcrumbs'] = helper.get_breadcrumbs()
 
         page = self.request.GET.get('page', 1)
         objects_per_page = 20
@@ -100,7 +60,9 @@ class BlobDetailView(PermissionRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['breadcrumbs'] = FileBrowserView().build_breadcrumb_list(self.object.prefix)
+        helper = PrefixHelper(self.request.user, self.object.volume, self.object.prefix)
+        helper.collect(max_levels=1)
+        context['breadcrumbs'] = helper.get_breadcrumbs()
         context['users_perms'] = OrderedDict(
             sorted(
                 get_users_with_perms(self.object, attach_perms=True,

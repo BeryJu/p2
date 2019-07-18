@@ -8,11 +8,11 @@ from guardian.shortcuts import get_objects_for_user
 from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_SIZE_BYTES,
                                ATTR_BLOB_STAT_MTIME)
 from p2.core.models import Volume
+from p2.core.prefix_helper import PrefixHelper, make_absolute
 from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
                              XML_NAMESPACE, ErrorCodes)
 from p2.s3.http import AWSError, XMLResponse
-from p2.ui.views.core.blob import FileBrowserView
 
 
 class BucketView(View):
@@ -58,17 +58,18 @@ class BucketView(View):
         root = ElementTree.Element("{%s}ListBucketResult" % XML_NAMESPACE)
         volume = get_object_for_user_or_404(
             self.request.user, 'p2_core.list_volume_contents', name=bucket)
-        prefix = '/' + request.GET.get('prefix', '')[:-1]
+        requested_prefix = request.GET.get('prefix', '')
         blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
-            prefix=prefix,
+            prefix=make_absolute(requested_prefix),
             volume=volume,
         )
 
         ElementTree.SubElement(root, "Name").text = volume.name
-        ElementTree.SubElement(root, "Prefix").text = prefix
+        ElementTree.SubElement(root, "Prefix").text = requested_prefix
         ElementTree.SubElement(root, "KeyCount").text = str(len(blobs))
         ElementTree.SubElement(root, "MaxKeys").text = "1000"
         ElementTree.SubElement(root, "Delimiter").text = '/'
+        ElementTree.SubElement(root, "EncodingType").text = 'url'
         ElementTree.SubElement(root, "IsTruncated").text = 'false'
 
         # append all blobs
@@ -87,14 +88,16 @@ class BucketView(View):
 
         # append CommonPrefixes
         common_prefixes = ElementTree.Element("CommonPrefixes")
-        # TODO: move this logic to a class in p2.lib
-        fbv = FileBrowserView()
-        fbv.request = request
-        for prefix in fbv.build_prefix_list(prefix, volume, add_up_prefix=False):
-            ElementTree.SubElement(
-                common_prefixes, 'Prefix').text = prefix.get('relative_prefix')
+        helper = PrefixHelper(request.user, volume, make_absolute(requested_prefix))
+        # Disable intermediate prefixes since that's handled by the client
+        helper.collect(max_levels=-1)
 
-        root.append(common_prefixes)
+        for virtual_prefix in helper.prefixes:
+            ElementTree.SubElement(
+                common_prefixes, 'Prefix').text = virtual_prefix.absolute_path[1:] + "/"
+
+        if common_prefixes:
+            root.append(common_prefixes)
 
         return XMLResponse(root)
 
