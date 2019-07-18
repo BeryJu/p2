@@ -47,7 +47,7 @@ class S3RoutingMiddleware:
             if AWSV4Authentication.can_handle(request):
                 handler = AWSV4Authentication(request)
                 user, error_code = handler.validate()
-                LOGGER.debug("Authenticated user %s", user)
+                # LOGGER.debug("Authenticated user %s", user)
                 if error_code:
                     return AWSError(error_code)
                 request.user = user

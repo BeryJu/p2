@@ -56,7 +56,7 @@ class AWSV4Authentication(BaseAuth):
         https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html)"""
         canonical_headers = ''
         signed_headers_keys = signed_headers.split(';')
-        LOGGER.debug("Headers to sign: %r", signed_headers_keys)
+        # LOGGER.debug("Headers to sign: %r", signed_headers_keys)
         # sorted_headers = OrderedDict(sorted())
         for header_key, header_value in self._fix_header_keys().items():
             if header_key in signed_headers_keys:
@@ -87,7 +87,7 @@ class AWSV4Authentication(BaseAuth):
     def validate(self):
         """Check Authorization Header in AWS Compatible format"""
         raw = self.request.META.get('HTTP_AUTHORIZATION')
-        LOGGER.debug("Raw Header: %r", raw)
+        # LOGGER.debug("Raw Header: %r", raw)
         if not raw:
             # No authentication header present, hence continue as AnonymousUser
             return None, None
@@ -97,17 +97,17 @@ class AWSV4Authentication(BaseAuth):
         _, credential = credential.split("=")
         _, signed_headers = signed_headers.split("=")
         _, signature = signature.split("=")
-        LOGGER.debug("Got from client: %s", signature)
+        # LOGGER.debug("Got from client: %s", signature)
         # Further split credential value
         access_key, date, region, service, _request = credential.split('/')
         # Build our own signature to compare
         secret_key = self._lookup_access_key(access_key)
         if not secret_key:
-            LOGGER.debug("No secret key found for request %s", access_key)
+            # LOGGER.debug("No secret key found for request %s", access_key)
             return None, ErrorCodes.ACCESS_DENIED
         signing_key = self._get_signautre_key(secret_key.secret_key, date, region, service)
         canonical_request = self._get_canonical_request(signed_headers)
-        LOGGER.debug("Canonical Request: '%s'", canonical_request)
+        # LOGGER.debug("Canonical Request: '%s'", canonical_request)
         canonical_request_hash = hashlib.sha256(canonical_request.encode('utf-8')).hexdigest()
         string_to_sign = '\n'.join([
             algorithm,
@@ -115,10 +115,10 @@ class AWSV4Authentication(BaseAuth):
             "%s/%s/s3/aws4_request" % (date, region),
             canonical_request_hash
         ])
-        LOGGER.debug("Signing %s", string_to_sign)
+        # LOGGER.debug("Signing %s", string_to_sign)
         our_signature = hmac.new(signing_key, string_to_sign.encode('utf-8'),
                                  hashlib.sha256).hexdigest()
-        LOGGER.debug("We got %s", our_signature)
+        # LOGGER.debug("We got %s", our_signature)
         if signature == our_signature:
             return secret_key.user, None
         return None, ErrorCodes.SIGNATURE_DOES_NOT_MATCH

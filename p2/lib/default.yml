@@ -9,8 +9,8 @@ databases:
 
 cache: redis://localhost/0
 message_queue:
-  broker: amqp://localhost/p2
-  results: rpc://
+  broker: redis://localhost/1
+  results: redis://localhost/1
 
 debug: false
 
