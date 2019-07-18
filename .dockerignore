@@ -1,5 +1,7 @@
 storage/
-p2ui/
-helm/
-debian/
+install/
+htmlcov/
 env/
+tier0/
+protos/
+static/

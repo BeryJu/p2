@@ -1,17 +1,6 @@
-FROM docker.beryju.org/p2/build-base:latest as static-build
-
-COPY ./p2/ /app/p2
-COPY ./manage.py /app/
-COPY ./requirements.txt /app/
-
-WORKDIR /app/
-
-RUN ./manage.py collectstatic --no-input
-
 FROM python:3.6-alpine
 
 COPY ./p2/ /app/p2
-COPY --from=static-build /app/static /app/static/
 COPY ./manage.py /app/
 COPY ./requirements.txt /app/
 

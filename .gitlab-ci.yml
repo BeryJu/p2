@@ -84,6 +84,18 @@ build-p2-server:
   only:
     - tags
     - /^version/.*$/
+build-p2-static:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.static --destination docker.beryju.org/p2/static:latest --destination docker.beryju.org/p2/static:0.6.6
+  only:
+    - tags
+    - /^version/.*$/
 build-p2-tier0:
   stage: build
   image:

@@ -1,0 +1,14 @@
+FROM docker.beryju.org/p2/build-base:latest as static-build
+
+COPY ./p2/ /app/p2
+COPY ./manage.py /app/
+COPY ./requirements.txt /app/
+
+WORKDIR /app/
+
+RUN ./manage.py collectstatic --no-input
+
+FROM nginx:latest
+
+COPY --from=static-build /app/static /usr/share/nginx/html/
+COPY ./p2/ui/nginx.conf /etc/nginx/nginx.conf
