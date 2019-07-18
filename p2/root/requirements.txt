@@ -3,7 +3,6 @@ django-guardian
 mozilla-django-oidc
 requests
 celery
-cherrypy
 django-redis
 python-magic
 pytz

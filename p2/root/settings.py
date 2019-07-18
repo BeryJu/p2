@@ -271,8 +271,6 @@ STATIC_URL = '/_/static/'
 with CONFIG.cd('log'):
     LOGGING_HANDLER_MAP = {
         'p2': 'DEBUG',
-        'allauth': 'DEBUG',
-        'cherrypy': 'DEBUG',
         'django': 'INFO',
         'celery': 'WARNING',
         'botocore': 'WARNING',
