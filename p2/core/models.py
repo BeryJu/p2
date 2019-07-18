@@ -12,7 +12,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
-                               ATTR_BLOB_STAT_MTIME)
+                               ATTR_BLOB_STAT_MTIME, CACHE_KEY_VOLUME_SIZE)
 from p2.core.tasks import signal_marshall
 from p2.core.validators import validate_blob_path
 from p2.lib.models import TagModel, UUIDModel
@@ -32,11 +32,14 @@ class Volume(UUIDModel, TagModel):
     @property
     def space_used(self):
         """Return summed up size of all blobs in this volume."""
-        used = self.blob_set.all().annotate(
-            size_value=Cast(KeyTextTransform(
-                ATTR_BLOB_SIZE_BYTES, 'attributes'), BigIntegerField())
-        ).aggregate(sum=Sum('size_value')).get('sum', 0)
-        return used if used else 0
+        cache_key = CACHE_KEY_VOLUME_SIZE % self.name
+        if not cache.get(cache_key, None):
+            used = self.blob_set.all().annotate(
+                size_value=Cast(KeyTextTransform(
+                    ATTR_BLOB_SIZE_BYTES, 'attributes'), BigIntegerField())
+            ).aggregate(sum=Sum('size_value')).get('sum', 0)
+            cache.set(cache_key, used or 0, 30)
+        return cache.get(cache_key)
 
     def component(self, class_or_path):
         """Get component instance for class or class path.
