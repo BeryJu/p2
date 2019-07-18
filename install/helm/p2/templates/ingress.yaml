@@ -47,5 +47,9 @@ spec:
             backend:
               serviceName: {{ $fullname }}-web
               servicePort: http
+          - path: /_/static/
+            backend:
+              serviceName: {{ $fullname }}-static
+              servicePort: http
     {{- end }}
 {{- end }}

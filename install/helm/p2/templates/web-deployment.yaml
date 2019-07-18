@@ -29,12 +29,22 @@ spec:
         - name: media-storage
           persistentVolumeClaim:
             claimName: {{ include "p2.fullname" . }}-pvc-app-storage
+      initContainers:
+        - name: p2-database-migrations
+          image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
+          command:
+            - ./manage.py migrate
+          volumeMounts:
+            - mountPath: /etc/p2
+              name: config-volume
+            - mountPath: /storage
+              name: media-storage
       containers:
         - name: {{ .Chart.Name }}
           image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
-          command: ["/bin/sh","-c"]
-          args: ["./manage.py migrate && ./manage.py web"]
+          command:
+            - gunicorn -b 0.0.0.0:8000 -w 4 p2.root.wsgi
           ports:
             - name: http
               containerPort: 8000
