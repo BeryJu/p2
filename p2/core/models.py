@@ -1,9 +1,11 @@
 """p2 Core models"""
+import posixpath
 from copy import deepcopy
 from logging import getLogger
 
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.fields.jsonb import KeyTextTransform
+from django.core.cache import cache
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import DatabaseError, models, transaction
 from django.db.models import BigIntegerField, Sum
@@ -13,6 +15,7 @@ from django.utils.translation import gettext as _
 
 from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
                                ATTR_BLOB_STAT_MTIME, CACHE_KEY_VOLUME_SIZE)
+from p2.core.prefix_helper import make_absolute
 from p2.core.tasks import signal_marshall
 from p2.core.validators import validate_blob_path
 from p2.lib.models import TagModel, UUIDModel
@@ -86,10 +89,9 @@ class Blob(UUIDModel, TagModel):
         unique_together = (('path', 'volume',),)
 
     @staticmethod
-    def from_uploaded_file(file, volume, prefix='/'):
+    def from_uploaded_file(file, volume, prefix=posixpath.sep):
         """Create Blob instance from Django's UploadedFile"""
-        if not prefix.endswith('/'):
-            prefix += '/'
+        prefix = posixpath.join(prefix, file.name)
         blob = Blob(
             path=prefix + file.name,
             volume=volume)
@@ -102,7 +104,7 @@ class Blob(UUIDModel, TagModel):
     @property
     def filename(self):
         """Return only the filename part of self.path"""
-        return self.path
+        return posixpath.basename(self.path)
 
     def _open_read_handle(self):
         if not self._reading_handle:
@@ -144,10 +146,7 @@ class Blob(UUIDModel, TagModel):
         return self._reading_handle.tell()
 
     def __update_prefix(self):
-        path_parts = self.path.split('/')
-        self.prefix = '/'.join(path_parts[:-1])
-        if self.prefix == '':
-            self.prefix = '/'
+        self.prefix = make_absolute(posixpath.dirname(self.path))
 
     def __failsafe_path(self):
         """Make sure no path collisions can happen"""
@@ -195,7 +194,7 @@ class Blob(UUIDModel, TagModel):
             raise
 
     def __str__(self):
-        return self.filename
+        return "<Blob %s://%s>" % (self.volume.name, self.path)
 
 
 class Storage(UUIDModel, TagModel):
