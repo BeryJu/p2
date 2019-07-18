@@ -1,3 +1,4 @@
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -25,10 +26,4 @@ spec:
     redis:
       password: '%PASSWORD%'
       cluster:
-        enabled: false
-    rabbitmq:
-      rabbitmq:
-        username: p2
-        password: '%PASSWORD%'
-      persistence:
         enabled: false

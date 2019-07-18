@@ -15,8 +15,8 @@ data:
 
     cache: "redis://:{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/0"
     message_queue:
-      broker: "amqp://p2:{{ .Values.rabbitmq.rabbitmq.password }}@{{ .Release.Name }}-rabbitmq"
-      results: "rpc://"
+      broker: "redis://:{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/1"
+      results: "redis://:{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/1"
 
     debug: false
 

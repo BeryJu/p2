@@ -108,7 +108,6 @@ sed -i "s|%STORAGE_BASE%|${STORAGE_BASE}|g" p2_k3s_storage.yaml
 # Run docker image pull in foreground to better show progress
 docker image pull docker.beryju.org/p2/server:$P2_VERSION
 docker image pull docker.beryju.org/p2/tier0:$P2_VERSION
-docker image pull bitnami/rabbitmq:3.7.13
 docker image pull bitnami/postgresql:10.6.0
 docker image pull bitnami/redis:4.0.11
 
