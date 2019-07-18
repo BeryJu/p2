@@ -66,7 +66,7 @@ tier0:
     - mkdir -p /go/src/git.beryju.org/BeryJu.org/p2
     - cd /go/src/git.beryju.org/BeryJu.org/p2
     - ln -s $CI_PROJECT_DIR
-    - cd $CI_PROJECT_NAME
+    - cd tier0
     - go mod download
     - go build -ldflags "-s -w" -v -o /go/bin/tier0
   image: golang:latest
