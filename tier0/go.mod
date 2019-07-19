@@ -8,7 +8,6 @@ require (
 	github.com/golang/protobuf v1.3.1
 	github.com/google/gofuzz v1.0.0 // indirect
 	github.com/googleapis/gnostic v0.3.0 // indirect
-	github.com/gorilla/handlers v1.4.0
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/prometheus/client_golang v1.0.0
 	github.com/qbig/groupcache v0.0.0-20170504020517-747546dcc5ad

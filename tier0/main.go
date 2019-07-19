@@ -25,24 +25,30 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetLevel(log.DebugLevel)
 	mainLogger.Debugf("Starting p2-tier0 Version %s", internal.Version)
+	// Central stopping channel
+	stop := make(chan struct{})
+	// attempt to connect to k8s
 	grpcClusterIP := "localhost"
+	connectedToK8s := false
+	k8sc, err := k8s.NewKubernetesContext()
 	if err != nil {
 		mainLogger.Debugf("Falling back to default GRPC ClusterIP %s", grpcClusterIP)
 	} else {
+		connectedToK8s = true
 		grpcClusterIP, err = k8sc.GetGRPCClusterIP()
 		if err != nil {
 			mainLogger.Warning(err)
 		}
 	}
-	// Central stopping channel
-	stop := make(chan struct{})
 	upstream := p2.NewGRPCUpstream(fmt.Sprintf("%s:50051", grpcClusterIP))
 	localCache := cache.NewCache(upstream)
-	localCache.SetPeersFromKubernetes(k8sc)
-	// Update Cache Peers by watching k8s
-	go k8sc.WatchNewCachePods(stop, func(pod v1.Pod) {
+	if connectedToK8s {
 		localCache.SetPeersFromKubernetes(k8sc)
-	})
+		// Update Cache Peers by watching k8s
+		go k8sc.WatchNewCachePods(stop, func(pod v1.Pod) {
+			localCache.SetPeersFromKubernetes(k8sc)
+		})
+	}
 	go localCache.StartCacheServer()
 	go localCache.StartMetricsTimer()
 	go metrics.StartServer()
