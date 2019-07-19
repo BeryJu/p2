@@ -9,13 +9,13 @@ python-magic
 pytz
 pyyaml
 user-agents
-colorlog
 sentry-sdk
 grpcio
 grpcio-reflection
 protobuf
 psycopg2
 packaging
+python-json-logger
 # API dependencies
 django-filter
 djangorestframework==3.9.4

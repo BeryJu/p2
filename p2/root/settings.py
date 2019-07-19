@@ -281,21 +281,16 @@ with CONFIG.cd('log'):
         'version': 1,
         'disable_existing_loggers': False,
         'formatters': {
-            'default': {
-                'format': ('%(asctime)s %(levelname)-8s %(name)-55s '
-                           '%(funcName)-20s %(message)s'),
-            },
-            'colored': {
-                '()': 'colorlog.ColoredFormatter',
-                'format': ('%(log_color)s%(asctime)s %(levelname)-8s %(name)-55s '
-                           '%(funcName)-20s %(message)s'),
+            'json': {
+                '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+                'format': '%(message)s',
             }
         },
         'handlers': {
             'console': {
                 'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
-                'formatter': 'colored',
+                'formatter': 'json',
             },
         },
         'loggers': {
