@@ -10,10 +10,18 @@ config:
   # Enable error reporting (errors are sent to sentry.beryju.org)
   error_reporting: true
 
-  # Only use external authentication (passbook)
-  # If you want to ony use this, install the chart with external_auth_only = false,
-  # configure passbook then upgrade with external_auth_only = true.
+  # Only allow single sign-on, configured below
   external_auth_only: false
+
+  # OIDC Configuration
+  # Callback URL: <base url>/_/oidc/callback/
+  oidc:
+    enabled: false
+    client_id: ""
+    client_secret: ""
+    auth_url: ""
+    token_url: ""
+    user_url: ""
 
 deployment:
   webInstances: 2

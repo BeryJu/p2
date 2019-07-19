@@ -28,14 +28,15 @@ data:
     # Set this to true if you only want to use external authentication
     external_auth_only: {{ .Values.config.external_auth_only }}
 
-    oidc:
-      # Callback URL: <base url>/_/oidc/callback/
-      enabled: false
-      client_id: ""
-      client_secret: ""
-      auth_url: ""
-      token_url: ""
-      user_url: ""
+    # Callback URL: <base url>/_/oidc/callback/
+    # oidc:
+    #   enabled: false
+    #   client_id: ""
+    #   client_secret: ""
+    #   auth_url: ""
+    #   token_url: ""
+    #   user_url: ""
+    oidc: {{ .Values.config.oidc }}
 
     {{- if .Values.config.secret_key }}
     secret_key: {{ .Values.config.secret_key }}
