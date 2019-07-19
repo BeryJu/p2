@@ -1,3 +1,3 @@
 package internal
 
-const Version = "0.7.0-rc7"
+const Version = "0.7.0-rc8"
