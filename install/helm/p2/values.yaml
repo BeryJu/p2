@@ -1,7 +1,7 @@
 # Default values for p2.
 
 image:
-  tag: 0.7.0-rc2
+  tag: 0.7.0-rc3
 
 config:
   # Optionally specify fixed secret_key, otherwise generated automatically
