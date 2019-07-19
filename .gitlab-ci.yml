@@ -21,7 +21,8 @@ cache:
      - /cache/
 
 before_script:
-  # Ensure all dependencies are installed, even those not included in p2/build-base
+  # Ensure all dependencies are installed, even those not included in p2/base
+  - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
 
 create-base-image:
