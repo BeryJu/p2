@@ -107,21 +107,20 @@ func NewCache(upstream p2.GRPCUpstream) Cache {
 			ctx := _ctx.(CacheContext)
 			logger.Debugf("Fetching upstream key '%s'", key)
 			blob, err := upstream.Fetch(ctx.Request)
-			if err == nil {
-				dest.SetBytes(blob.Data)
-			} else {
-				logger.Debugf("Error fetching blob: %s", err)
+			if err != nil {
+				logger.Warnf("Error fetching blob: %s", err)
 			}
+			dest.SetProto(blob)
 			return nil
 		}))
 	// We save our local IP to prevent endless circles
 	hostname, err := os.Hostname()
 	if err != nil {
-		logger.Debug(err)
+		logger.Warn(err)
 	}
 	ip, err := net.LookupHost(hostname)
 	if err != nil {
-		logger.Debug(err)
+		logger.Warn(err)
 	}
 	pool := groupcache.NewHTTPPool(fmt.Sprintf("http://%s%s", ip[0], constants.ListenCache))
 	// Setup prometheus
