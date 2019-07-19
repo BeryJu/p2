@@ -6,9 +6,6 @@ stages:
   - build
   - package
 image: docker.beryju.org/p2/dev:latest
-services:
-  - postgres:latest
-  - redis:latest
 
 variables:
   POSTGRES_DB: p2
@@ -57,24 +54,39 @@ isort:
   script:
     - isort -c -sg env
   stage: test
+  services:
+  - postgres:latest
+  - redis:latest
 migrations:
   script:
     - python manage.py migrate
   stage: test
+  services:
+  - postgres:latest
+  - redis:latest
 prospector:
   script:
     - prospector
   stage: test
+  services:
+  - postgres:latest
+  - redis:latest
 pylint:
   script:
     - pylint p2
   stage: test
+  services:
+  - postgres:latest
+  - redis:latest
 coverage:
   script:
     - coverage run manage.py test
     - coverage report
     - coverage html
   stage: test
+  services:
+  - postgres:latest
+  - redis:latest
 tier0:
   variables:
     GO111MODULE: 'on'
