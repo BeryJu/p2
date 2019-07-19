@@ -15,6 +15,7 @@ grpcio
 grpcio-reflection
 protobuf
 psycopg2
+packaging
 # API dependencies
 django-filter
 djangorestframework==3.9.4

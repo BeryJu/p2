@@ -9,7 +9,7 @@ RUN apk update && \
     adduser -S p2 && \
     chown -R p2 /app
 
-RUN pip install -U pip gunicorn[gevent] packaging --no-cache-dir
+RUN pip install -U pip gunicorn[gevent] --no-cache-dir
 
 COPY ./p2/ /app/p2
 COPY ./manage.py /app/
