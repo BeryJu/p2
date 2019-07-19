@@ -1,6 +1,13 @@
-1. Get the application URL by running these commands:
-{{- if .Values.ingress.enabled }}
+Access your p² Install here:
+
 {{- range .Values.ingress.hosts }}
-  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ . }}{{ $.Values.ingress.path }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ . }}
+{{- end }}
+
+{{- if .Values.ingress.serve.enabled }}
+tier0 has been configured for fast access on:
+
+{{- range .Values.ingress.serve.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ . }}
 {{- end }}
 {{- end }}
