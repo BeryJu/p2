@@ -36,7 +36,7 @@ data:
     #   auth_url: ""
     #   token_url: ""
     #   user_url: ""
-    oidc: {{ .Values.config.oidc }}
+    oidc: {{ toYaml .Values.config.oidc | nindent 6 }}
 
     {{- if .Values.config.secret_key }}
     secret_key: {{ .Values.config.secret_key }}
