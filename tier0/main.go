@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"git.beryju.org/BeryJu.org/p2/tier0/internal"
+	p2client "git.beryju.org/BeryJu.org/p2/tier0/internal/protos"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/cache"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/constants"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/k8s"
@@ -56,18 +57,25 @@ func main() {
 		w.WriteHeader(200)
 	})
 	mainServerHandler := func(w http.ResponseWriter, r *http.Request) {
-		var data []byte
 		key := cache.RequestFingerprint(*r)
 		context := cache.CacheContext{
 			RequestHeader: r.Header,
 			Host:          r.Host,
 			Request:       *r,
 		}
-		err := localCache.Group.Get(context, key, groupcache.AllocatingByteSliceSink(&data))
+		var reply p2client.ServeReply
+		err := localCache.Group.Get(context, key, groupcache.ProtoSink(&reply))
 		if err != nil {
-			log.Fatal(err)
+			log.Warn(err)
 		}
-		http.ServeContent(w, r, "", time.Now(), bytes.NewReader(data))
+		for headerKey, headerValue := range reply.Headers {
+			w.Header().Set(headerKey, headerValue)
+		}
+		if reply.Matching {
+			http.ServeContent(w, r, "", time.Now(), bytes.NewReader(reply.Data))
+		} else {
+			fmt.Fprintf(w, "blob not found")
+		}
 	}
 	mainServer.Handle("/", handlers.LoggingHandler(os.Stdout, http.HandlerFunc(mainServerHandler)))
 	err = http.ListenAndServe(constants.Listen, mainServer)
