@@ -9,4 +9,4 @@ WORKDIR /app/
 RUN apt-get update && apt-get install build-essential libffi-dev libsasl2-dev python-dev libldap2-dev libssl-dev libpq-dev -y && \
      pip install -U -r requirements-dev.txt && \
      rm -rf /app/* && \
-     rm -rf /var/cache/apt/archives/*
+     rm -rf /var/cache/apt/*
