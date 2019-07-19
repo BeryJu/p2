@@ -146,9 +146,10 @@ build-p2-tier0:
     - /^version/.*$/
 
 package-helm:
-  image: alpine/helm
+  image: debian:stretch-slim
   stage: package
-  before_script: []
+  before_script:
+    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
   script:
     - helm init --client-only
     - helm dependency build install/helm/p2
