@@ -1,10 +1,11 @@
 # Global Variables
 stages:
-  - build-build-image
+  - build-base-image
+  - build-dev-image
   - test
   - build
   - package
-image: docker.beryju.org/p2/build-base:latest
+image: docker.beryju.org/p2/dev:latest
 services:
   - postgres:latest
   - redis:latest
@@ -23,15 +24,29 @@ before_script:
   # Ensure all dependencies are installed, even those not included in p2/build-base
   - pip install -r requirements-dev.txt
 
-create-build-image:
+create-base-image:
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   before_script:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.build-base --destination docker.beryju.org/p2/build-base:latest --destination docker.beryju.org/p2/build-base:0.7.0-rc3
-  stage: build-build-image
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.base --destination docker.beryju.org/p2/base:latest --destination docker.beryju.org/p2/base:0.7.0-rc3
+  stage: build-base-image
+  only:
+    refs:
+      - tags
+      - /^version/.*$/
+
+build-dev-image:
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.dev --destination docker.beryju.org/p2/dev:latest --destination docker.beryju.org/p2/dev:0.7.0-rc3
+  stage: build-dev-image
   only:
     refs:
       - tags
