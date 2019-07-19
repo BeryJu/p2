@@ -8,10 +8,27 @@ from guardian.shortcuts import get_anonymous_user, get_objects_for_user
 from p2.core.constants import ATTR_BLOB_HEADERS
 from p2.grpc.protos.serve_pb2 import ServeReply, ServeRequest
 from p2.grpc.protos.serve_pb2_grpc import ServeServicer
+from p2.log.adaptor import LOG_ADAPTOR
 from p2.serve.models import ServeRule
 
 LOGGER = getLogger(__name__)
 
+# pylint: disable=too-few-public-methods
+class MockRequest:
+    """Dumb class we use to emulate a Django HTTP Request"""
+
+    uid = None
+    user = None
+    path = None
+    META = {}
+
+    def __init__(self, request: ServeRequest):
+        for header, value in request.headers.items():
+            self.META[header] = value
+
+    def log(self, **kwargs):
+        """Stub for p2.log's request logger"""
+        pass
 
 class Serve(ServeServicer):
     """GRPC Service for Serve Application"""
@@ -62,16 +79,24 @@ class Serve(ServeServicer):
         return None
 
     def RetrieveFile(self, request: ServeRequest, context):
+        mock_request = MockRequest(request)
+        mock_request.user = self.get_user(request)
+        mock_request.path = request.url
+        LOG_ADAPTOR.start_request(mock_request)
         blob = self.get_blob_from_rule(request)
+        LOG_ADAPTOR.end_request(mock_request)
         if not blob:
             return ServeReply(
                 matching=False,
                 data=b'',
-                headers=[])
-        # request.log(blob_pk=blob.pk)
+                headers={
+                    "X-p2-Request-Id": mock_request.uid
+                })
+        mock_request.log(blob_pk=blob.pk)
         # Since we don't use any extra views or URLs here, we don't have to
         # trick SecurityMiddleware into not returning a 302
         headers = blob.attributes.get(ATTR_BLOB_HEADERS, {})
+        headers["X-p2-Request-Id"] = mock_request.uid
         return ServeReply(
             matching=True,
             data=blob.read(),
