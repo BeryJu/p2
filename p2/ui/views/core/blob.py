@@ -16,7 +16,7 @@ from guardian.shortcuts import (get_objects_for_user, get_perms_for_model,
 from p2.core.forms import BlobForm
 from p2.core.http import BlobResponse
 from p2.core.models import Blob
-from p2.core.prefix_helper import PrefixHelper, make_absolute
+from p2.core.prefix_helper import PrefixHelper, make_absolute_prefix
 from p2.lib.shortcuts import get_object_for_user_or_404
 
 
@@ -32,7 +32,7 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
             self.request.user, 'p2_core.use_volume', pk=self.kwargs.get('pk'))
 
         # Get list of blobs with matching prefix
-        prefix = make_absolute(self.request.GET.get('prefix', '/'))
+        prefix = make_absolute_prefix(self.request.GET.get('prefix', '/'))
         blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
             prefix=prefix,
             volume=context['volume']).order_by('path')

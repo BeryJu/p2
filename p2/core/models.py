@@ -15,7 +15,7 @@ from django.utils.translation import gettext as _
 
 from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
                                ATTR_BLOB_STAT_MTIME, CACHE_KEY_VOLUME_SIZE)
-from p2.core.prefix_helper import make_absolute
+from p2.core.prefix_helper import make_absolute_path, make_absolute_prefix
 from p2.core.tasks import signal_marshall
 from p2.core.validators import validate_blob_path
 from p2.lib.models import TagModel, UUIDModel
@@ -146,7 +146,7 @@ class Blob(UUIDModel, TagModel):
         return self._reading_handle.tell()
 
     def __update_prefix(self):
-        self.prefix = make_absolute(posixpath.dirname(self.path))
+        self.prefix = make_absolute_prefix(posixpath.dirname(self.path))
 
     def __failsafe_path(self):
         """Make sure no path collisions can happen"""
@@ -154,6 +154,7 @@ class Blob(UUIDModel, TagModel):
         if same_path.exists() and same_path.first() != self:
             self.path = self.path + '.1'
             self.__failsafe_path()
+        self.path = make_absolute_path(self.path)
 
     def save(self, *args, **kwargs):
         """Name file on storage after generated UUID and populate initial attributes"""

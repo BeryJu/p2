@@ -1,5 +1,6 @@
 """p2 core prefix helpers"""
 import posixpath
+import re
 from logging import getLogger
 from typing import List
 
@@ -9,17 +10,25 @@ LOGGER = getLogger(__name__)
 SEPARATOR = posixpath.sep
 
 
-def make_absolute(prefix):
+def make_absolute_path(path):
     """Ensure prefix is absolute:
     Leading slash is prepended if not set already,
     if string is empty or None was given, / is returned."""
-    if not prefix:
-        prefix = ""
-    if prefix == "" or prefix[0] != SEPARATOR:
-        prefix = SEPARATOR + prefix
+    if not path:
+        path = ""
+    if path == "" or path[0] != SEPARATOR:
+        path = SEPARATOR + path
+    # Call normpath to remove trailing slashes
+    # Regex replaces duplicate slashes with singular slashes
+    return posixpath.normpath(re.sub(r'\/+', SEPARATOR, path))
+
+def make_absolute_prefix(prefix):
+    """Same as make_absolute_path, except with a trailing slash"""
+    prefix = make_absolute_path(prefix)
     if prefix[-1] != SEPARATOR:
         prefix = prefix + SEPARATOR
     return prefix
+
 
 # pylint: disable=too-few-public-methods
 class BreadCrumb:
@@ -38,7 +47,7 @@ class VirtualPrefix:
 
     def relative_to(self, _to):
         """Return absolute_path converted to a relative path from `_to`"""
-        prefix = make_absolute(_to)
+        prefix = make_absolute_prefix(_to)
         return posixpath.relpath(self.absolute_path, prefix)
 
     def __eq__(self, other):
@@ -64,7 +73,7 @@ class PrefixHelper:
     def __init__(self, user, volume, base):
         self._user = user
         self._volume = volume
-        self._base = make_absolute(base)
+        self._base = make_absolute_prefix(base)
         self._prefixes = []
 
     @property

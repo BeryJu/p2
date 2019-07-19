@@ -10,6 +10,7 @@ from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.components.expire.constants import TAG_EXPIRE_DATE
 from p2.core.models import Blob, Volume
+from p2.core.prefix_helper import make_absolute_path
 from p2.lib.shortcuts import get_list_for_user_or_404
 from p2.s3.constants import (TAG_S3_MULTIPART_BLOB_PART,
                              TAG_S3_MULTIPART_BLOB_TARGET_BLOB,
@@ -33,9 +34,6 @@ class MultipartUploadView(View):
         if not volumes.exists():
             return AWSError(ErrorCodes.NO_SUCH_KEY)
         self.volume = volumes.first()
-        # Make sure path starts with /
-        if not path.startswith('/'):
-            path = '/' + path
         return super().dispatch(request, bucket, path)
 
     ## HTTP Method handlers
@@ -93,7 +91,7 @@ class MultipartUploadView(View):
             blob = existing.first()
         else:
             blob = Blob.objects.create(
-                path='/%s_%s/%d' % (path, upload_id, 1),
+                path=make_absolute_path("/%s_%s/part_%d" % (path, upload_id, 1)),
                 volume=self.volume,
                 tags={
                     TAG_S3_MULTIPART_BLOB_PART: 1,
@@ -103,6 +101,11 @@ class MultipartUploadView(View):
                 }
             )
             assign_perm('p2_core.change_blob', request.user, blob)
+            # We also create a new, empty blob as "directory"
+            dir_blob = Blob.objects.create(
+                path=make_absolute_path('/%s_%s/' % (path, upload_id)),
+                volume=self.volume)
+            assign_perm('p2_core.change_blob', request.user, dir_blob)
         ElementTree.SubElement(root, "UploadId").text = blob.tags[TAG_S3_MULTIPART_BLOB_UPLOAD_ID]
         return XMLResponse(root)
 
@@ -127,7 +130,7 @@ class MultipartUploadView(View):
             blob = parts.first()
         else:
             blob = Blob.objects.create(
-                path='/%s_%s/%d' % (path, upload_id, part_number),
+                path=make_absolute_path("/%s_%s/part_%d" % (path, upload_id, part_number)),
                 volume=self.volume,
                 tags={
                     TAG_S3_MULTIPART_BLOB_PART: part_number,

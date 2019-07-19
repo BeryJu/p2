@@ -8,7 +8,7 @@ from guardian.shortcuts import get_objects_for_user
 from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_SIZE_BYTES,
                                ATTR_BLOB_STAT_MTIME)
 from p2.core.models import Volume
-from p2.core.prefix_helper import PrefixHelper, make_absolute
+from p2.core.prefix_helper import PrefixHelper, make_absolute_prefix
 from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
                              XML_NAMESPACE, ErrorCodes)
@@ -60,7 +60,7 @@ class BucketView(View):
             self.request.user, 'p2_core.list_volume_contents', name=bucket)
         requested_prefix = request.GET.get('prefix', '')
         blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
-            prefix=make_absolute(requested_prefix),
+            prefix=make_absolute_prefix(requested_prefix),
             volume=volume,
         )
 
@@ -88,7 +88,7 @@ class BucketView(View):
 
         # append CommonPrefixes
         common_prefixes = ElementTree.Element("CommonPrefixes")
-        helper = PrefixHelper(request.user, volume, make_absolute(requested_prefix))
+        helper = PrefixHelper(request.user, volume, make_absolute_prefix(requested_prefix))
         # Disable intermediate prefixes since that's handled by the client
         helper.collect(max_levels=-1)
 
