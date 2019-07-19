@@ -20,6 +20,8 @@ spec:
         app.kubernetes.io/name: {{ include "p2.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         k8s.p2.io/component: grpc
+      annotations:
+        prometheus.io/scrape: true
     spec:
       securityContext:
         fsGroup: 100

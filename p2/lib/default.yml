@@ -1,7 +1,6 @@
 # This is the default configuration file
 databases:
   default:
-    engine: 'django.db.backends.postgresql'
     name: p2
     user: p2
     password: 'EK-5jnKfjrGRm<77'

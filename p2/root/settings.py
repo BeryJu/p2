@@ -90,7 +90,7 @@ AUTHENTICATION_BACKENDS = [
 # Redis settings
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
+        "BACKEND": "django_prometheus.cache.backends.redis.RedisCache",
         "LOCATION": CONFIG.get('cache'),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
@@ -100,6 +100,10 @@ CACHES = {
 DJANGO_REDIS_IGNORE_EXCEPTIONS = True
 DJANGO_REDIS_LOG_IGNORED_EXCEPTIONS = True
 SESSION_CACHE_ALIAS = "default"
+
+# Prometheus Settings
+PROMETHEUS_METRICS_EXPORT_PORT = 9102
+PROMETHEUS_METRICS_EXPORT_ADDRESS = ''  # all addresses
 
 # Celery settings
 # Add a 10 minute timeout to all Celery tasks.
@@ -124,6 +128,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.postgres',
     'guardian',
+    'django_prometheus',
     'mozilla_django_oidc',
     # p2 - Core Components
     'p2.core.apps.P2CoreConfig',
@@ -166,6 +171,7 @@ OIDC_USERNAME_ALGO = 'p2.root.oidc.generate_username'
 
 MIDDLEWARE = [
     'p2.core.middleware.HealthCheckMiddleware',
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'p2.log.middleware.StartRequestMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -176,6 +182,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'p2.log.middleware.EndRequestMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'p2.root.urls'
@@ -212,7 +219,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 536870912
 DATABASES = {}
 for db_alias, db_config in CONFIG.get('databases').items():
     DATABASES[db_alias] = {
-        'ENGINE': db_config.get('engine'),
+        'ENGINE': 'django_prometheus.db.backends.postgresql',
         'HOST': db_config.get('host'),
         'NAME': db_config.get('name'),
         'USER': db_config.get('user'),
@@ -276,6 +283,7 @@ with CONFIG.cd('log'):
         'botocore': 'WARNING',
         'werkzeug': 'DEBUG',
         'grpc': 'DEBUG',
+        'django_prometheus': 'DEBUG',
     }
     LOGGING = {
         'version': 1,

@@ -1,10 +1,11 @@
 # Root dependencies
 django>=2.2
 django-guardian
+django-prometheus
+django-redis
 mozilla-django-oidc
 requests
 celery
-django-redis
 python-magic
 pytz
 pyyaml
@@ -12,6 +13,7 @@ user-agents
 sentry-sdk
 grpcio
 grpcio-reflection
+py-grpc-prometheus
 protobuf
 psycopg2
 packaging

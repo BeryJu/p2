@@ -12,6 +12,7 @@ from django.db.models import BigIntegerField, Sum
 from django.db.models.functions import Cast
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django_prometheus.models import ExportModelOperationsMixin
 
 from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
                                ATTR_BLOB_STAT_MTIME, CACHE_KEY_VOLUME_SIZE)
@@ -26,7 +27,8 @@ LOGGER = getLogger(__name__)
 STORAGE_MANAGER = ControllerManager('storage.controllers', lazy=True)
 COMPONENT_MANAGER = ControllerManager('component.controllers', lazy=True)
 
-class Volume(UUIDModel, TagModel):
+
+class Volume(ExportModelOperationsMixin('volume'), UUIDModel, TagModel):
     """Folder-like object, holding a collection of blobs"""
 
     name = models.SlugField(unique=True)
@@ -70,7 +72,7 @@ class Volume(UUIDModel, TagModel):
 
 
 # pylint: disable=too-many-instance-attributes
-class Blob(UUIDModel, TagModel):
+class Blob(ExportModelOperationsMixin('blob'), UUIDModel, TagModel):
     """Binary-large object, member of a Volume and store in the volume's storage"""
 
     path = models.TextField(validators=[validate_blob_path])
@@ -198,7 +200,7 @@ class Blob(UUIDModel, TagModel):
         return "<Blob %s://%s>" % (self.volume.name, self.path)
 
 
-class Storage(UUIDModel, TagModel):
+class Storage(ExportModelOperationsMixin('storage'), UUIDModel, TagModel):
     """Storage instance which stores blob instances."""
 
     name = models.TextField()
@@ -228,7 +230,8 @@ class Storage(UUIDModel, TagModel):
             ('use_storage', 'Can use storage'),
         )
 
-class Component(UUIDModel, TagModel):
+
+class Component(ExportModelOperationsMixin('component'), UUIDModel, TagModel):
     """Pluggable component instance connection volume to ComponentController"""
 
     enabled = models.BooleanField(default=True)

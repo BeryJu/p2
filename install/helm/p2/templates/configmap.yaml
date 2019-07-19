@@ -6,7 +6,6 @@ data:
   config.yml: |
     databases:
       default:
-        engine: django.db.backends.postgresql
         name: "{{ .Values.postgresql.postgresqlDatabase }}"
         user: "{{ .Values.postgresql.postgresqlUsername }}"
         password: "{{ .Values.postgresql.postgresqlPassword }}"
