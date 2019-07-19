@@ -19,7 +19,7 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         k8s.p2.io/component: static
       annotations:
-        prometheus.io/scrape: true
+        prometheus.io/scrape: "true"
         prometheus.io/port: 9113
     spec:
       containers:

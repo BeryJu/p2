@@ -20,7 +20,7 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         k8s.p2.io/component: web
       annotations:
-        prometheus.io/scrape: true
+        prometheus.io/scrape: "true"
     spec:
       securityContext:
         fsGroup: 100
