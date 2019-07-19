@@ -2,7 +2,9 @@ package p2
 
 import (
 	"context"
+	"net"
 	"net/http"
+	"strings"
 
 	p2client "git.beryju.org/BeryJu.org/p2/tier0/internal/protos"
 	log "github.com/sirupsen/logrus"
@@ -30,23 +32,34 @@ func NewGRPCUpstream(url string) GRPCUpstream {
 	return GRPCUpstream{conn, logger, client}
 }
 
+func (u *GRPCUpstream) headersToDjango(request http.Request) map[string]string {
+	newHeaders := make(map[string]string, 0)
+	for name, value := range request.Header {
+		newName := strings.ReplaceAll(strings.ToUpper(name), "-", "_")
+		newHeaders[newName] = value[0]
+	}
+	host, _, err := net.SplitHostPort(request.RemoteAddr)
+	if err == nil {
+		newHeaders["REMOTE_ADDR"] = host
+	} else {
+		u.Logger.Warn(err)
+	}
+	return newHeaders
+}
+
 // Fetch Fetch blob data from upstream
 func (u *GRPCUpstream) Fetch(request http.Request) (*p2client.ServeReply, error) {
-	headers := make(map[string]string, 0)
-	for name, value := range request.Header {
-		headers[name] = value[0]
-	}
 	sessionCookie, err := request.Cookie("sessionid")
-	session := ""
-	if err == nil {
-		session = sessionCookie.Value
+	if err != nil {
+		return nil, err
 	}
+	session := sessionCookie.Value
 	response, err := u.ServeClient.RetrieveFile(context.Background(), &p2client.ServeRequest{
-		Headers: headers,
+		Headers: u.headersToDjango(request),
 		Session: session,
 		Url:     request.URL.String()})
 	if err != nil {
-		u.Logger.Error(err)
+		return nil, err
 	}
 	return response, nil
 }
