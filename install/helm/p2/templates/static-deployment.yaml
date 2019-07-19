@@ -18,9 +18,15 @@ spec:
         app.kubernetes.io/name: {{ include "p2.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         k8s.p2.io/component: static
+      annotations:
+        prometheus.io/scrape: true
+        prometheus.io/port: 9113
     spec:
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Chart.Name }}-static-prometheus
+          image: nginx/nginx-prometheus-exporter:0.4.1
+          imagePullPolicy: IfNotPresent
+        - name: {{ .Chart.Name }}-static
           image: "docker.beryju.org/p2/static:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
           ports:
