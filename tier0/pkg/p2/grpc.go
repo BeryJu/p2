@@ -50,8 +50,9 @@ func (u *GRPCUpstream) headersToDjango(request http.Request) map[string]string {
 // Fetch Fetch blob data from upstream
 func (u *GRPCUpstream) Fetch(request http.Request) (*p2client.ServeReply, error) {
 	sessionCookie, err := request.Cookie("sessionid")
+	// Session is only optional, so we ignore errors here
 	if err != nil {
-		return nil, err
+		u.Logger.Debug(err)
 	}
 	session := sessionCookie.Value
 	response, err := u.ServeClient.RetrieveFile(context.Background(), &p2client.ServeRequest{
