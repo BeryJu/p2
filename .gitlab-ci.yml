@@ -14,6 +14,10 @@ variables:
   POSTGRES_USER: p2
   POSTGRES_PASSWORD: "EK-5jnKfjrGRm<77"
 
+cache:
+  key: ${CI_JOB_STAGE}
+  paths:
+     - /cache/
 
 before_script:
   # Ensure all dependencies are installed, even those not included in p2/build-base
