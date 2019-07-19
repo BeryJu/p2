@@ -6,7 +6,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"reflect"
 	"strings"
 	"time"
 
@@ -86,9 +85,11 @@ func RequestFingerprint(request http.Request) string {
 	} else {
 		fingerprintData[1] = ""
 	}
-	request.Header.Del("If-Modified-Since")
-	log.Debugf("Fingerprinting request on headers '%s'", reflect.ValueOf(request.Header).MapKeys())
-	fingerprintData[2] = fmt.Sprintf("%x", sha256.Sum256([]byte(fmt.Sprintf("%s", request.Header))))
+	// request.Header.Del("If-Modified-Since")
+	// log.Debugf("Fingerprinting request on headers '%s'", reflect.ValueOf(request.Header).MapKeys())
+	// log.Debug(request.Header)
+	// fingerprintData[2] = fmt.Sprintf("%x", sha256.Sum256([]byte(fmt.Sprintf("%s", request.Header))))
+	fingerprintData[2] = ""
 	fullHash := sha256.Sum256([]byte(strings.Join(fingerprintData, "")))
 	return fmt.Sprintf("%x", fullHash)
 }
