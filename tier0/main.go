@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"git.beryju.org/BeryJu.org/p2/tier0/internal"
@@ -15,24 +14,24 @@ import (
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/metrics"
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/p2"
 
-	"github.com/gorilla/handlers"
 	"github.com/qbig/groupcache"
 	log "github.com/sirupsen/logrus"
 	v1 "k8s.io/api/core/v1"
 )
 
+var mainLogger = log.WithField("component", "main")
+
 func main() {
+	log.SetFormatter(&log.JSONFormatter{})
 	log.SetLevel(log.DebugLevel)
-	log.Debugf("Starting p2-tier0 Version %s", internal.Version)
-	k8sc, err := k8s.NewKubernetesContext()
+	mainLogger.Debugf("Starting p2-tier0 Version %s", internal.Version)
 	grpcClusterIP := "localhost"
 	if err != nil {
-		log.Warning(err)
+		mainLogger.Debugf("Falling back to default GRPC ClusterIP %s", grpcClusterIP)
 	} else {
 		grpcClusterIP, err = k8sc.GetGRPCClusterIP()
 		if err != nil {
-			log.Warning(err)
-			log.Debugf("Falling back to default GRPC ClusterIP %s", grpcClusterIP)
+			mainLogger.Warning(err)
 		}
 	}
 	// Central stopping channel
@@ -48,9 +47,9 @@ func main() {
 	go localCache.StartMetricsTimer()
 	go metrics.StartServer()
 	groupcache.RegisterErrLogHook(func(err error) {
-		log.Warning(err)
+		mainLogger.Warning(err)
 	})
-	log.Printf("Running on %s...", constants.Listen)
+	mainLogger.Printf("Running on %s...", constants.Listen)
 	// Create main HTTP Server
 	mainServer := http.NewServeMux()
 	mainServer.HandleFunc("/_/tier0/health", func(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +65,7 @@ func main() {
 		var reply p2client.ServeReply
 		err := localCache.Group.Get(context, key, groupcache.ProtoSink(&reply))
 		if err != nil {
-			log.Warn(err)
+			mainLogger.Warn(err)
 		}
 		for headerKey, headerValue := range reply.Headers {
 			w.Header().Set(headerKey, headerValue)
@@ -77,10 +76,10 @@ func main() {
 			fmt.Fprintf(w, "blob not found")
 		}
 	}
-	mainServer.Handle("/", handlers.LoggingHandler(os.Stdout, http.HandlerFunc(mainServerHandler)))
+	mainServer.Handle("/", metrics.RequestLogger(mainLogger, http.HandlerFunc(mainServerHandler)))
 	err = http.ListenAndServe(constants.Listen, mainServer)
 	if err != nil {
-		log.Fatal(err)
+		mainLogger.Fatal(err)
 	}
 	defer close(stop)
 }

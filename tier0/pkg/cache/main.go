@@ -9,7 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gorilla/handlers"
+	"git.beryju.org/BeryJu.org/p2/tier0/pkg/metrics"
+
 	"github.com/prometheus/client_golang/prometheus"
 
 	"git.beryju.org/BeryJu.org/p2/tier0/pkg/constants"
@@ -147,8 +148,8 @@ func NewCache(upstream p2.GRPCUpstream) Cache {
 func (c *Cache) StartCacheServer() {
 	cacheServer := http.NewServeMux()
 	cacheServer.HandleFunc("/_groupcache/", c.Pool.ServeHTTP)
-	log.Infof("Running Cache-Peer server on %s...", constants.ListenCache)
-	http.ListenAndServe(constants.ListenCache, handlers.LoggingHandler(os.Stdout, cacheServer))
+	c.Logger.Infof("Running Cache-Peer server on %s...", constants.ListenCache)
+	http.ListenAndServe(constants.ListenCache, metrics.RequestLogger(c.Logger, cacheServer))
 }
 
 // SetPeersFromKubernetes Attempt to autodiscover all tier0 pods and connect to them.

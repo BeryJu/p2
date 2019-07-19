@@ -10,11 +10,12 @@ import (
 )
 
 func StartServer() {
+	logger := log.WithField("component", "metrics")
 	// create a new mux server
 	server := http.NewServeMux()
 	// register a new handler for the /metrics endpoint
 	server.Handle("/metrics", promhttp.Handler())
 	// start an http server using the mux server
-	log.Printf("Running Metrics server on %s...", constants.ListenMetrics)
+	logger.Printf("Running Metrics server on %s...", constants.ListenMetrics)
 	http.ListenAndServe(constants.ListenMetrics, server)
 }
