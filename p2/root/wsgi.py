@@ -11,5 +11,6 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "p2.root.settings")
+os.environ.setdefault("P2_COMPONENT", "web")
 
 application = get_wsgi_application()

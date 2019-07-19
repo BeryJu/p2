@@ -101,9 +101,10 @@ DJANGO_REDIS_IGNORE_EXCEPTIONS = True
 DJANGO_REDIS_LOG_IGNORED_EXCEPTIONS = True
 SESSION_CACHE_ALIAS = "default"
 
-# Prometheus Settings
-PROMETHEUS_METRICS_EXPORT_PORT = 9102
-PROMETHEUS_METRICS_EXPORT_ADDRESS = ''  # all addresses
+if os.getenv('P2_COMPONENT', "") == "web":
+    # Prometheus Settings
+    PROMETHEUS_METRICS_EXPORT_PORT = 9102
+    PROMETHEUS_METRICS_EXPORT_ADDRESS = ''  # all addresses
 
 # Celery settings
 # Add a 10 minute timeout to all Celery tasks.
