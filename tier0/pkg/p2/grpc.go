@@ -51,10 +51,12 @@ func (u *GRPCUpstream) headersToDjango(request http.Request) map[string]string {
 func (u *GRPCUpstream) Fetch(request http.Request) (*p2client.ServeReply, error) {
 	sessionCookie, err := request.Cookie("sessionid")
 	// Session is only optional, so we ignore errors here
+	session := ""
 	if err != nil {
 		u.Logger.Debug(err)
+	} else {
+		session = sessionCookie.Value
 	}
-	session := sessionCookie.Value
 	response, err := u.ServeClient.RetrieveFile(context.Background(), &p2client.ServeRequest{
 		Headers: u.headersToDjango(request),
 		Session: session,
