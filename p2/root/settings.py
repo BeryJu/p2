@@ -285,6 +285,7 @@ with CONFIG.cd('log'):
         'werkzeug': 'DEBUG',
         'grpc': 'DEBUG',
         'django_prometheus': 'DEBUG',
+        'tornado': 'DEBUG',
     }
     LOGGING = {
         'version': 1,
@@ -292,7 +293,8 @@ with CONFIG.cd('log'):
         'formatters': {
             'json': {
                 '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
-                'format': '%(message)s',
+                'format': '%(asctime)s %(levelname)-8s %(name)-55s '
+                           '%(funcName)-20s %(message)s',
             }
         },
         'handlers': {

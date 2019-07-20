@@ -49,14 +49,9 @@ spec:
           image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
           command:
-            - gunicorn
-            - --timeout=30
-            - --capture-output
-            - --workers=2
-            - --log-file=-
-            - --log-level=debug
-            - --bind=0.0.0.0:8000
-            - p2.root.wsgi
+            - ./manage.py
+          args:
+            - web
           ports:
             - name: http
               containerPort: 8000
@@ -91,4 +86,3 @@ spec:
             limits:
               cpu: 100m
               memory: 250M
-
