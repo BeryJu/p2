@@ -21,6 +21,7 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: '9113'
+        field.cattle.io/workloadMetrics: '[{"path":"/metrics","port":9113,"schema":"HTTP"}]'
     spec:
       containers:
         - name: {{ .Chart.Name }}-static-prometheus

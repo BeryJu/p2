@@ -21,6 +21,7 @@ spec:
         k8s.p2.io/component: web
       annotations:
         prometheus.io/scrape: "true"
+        field.cattle.io/workloadMetrics: '[{"path":"/metrics","port":9102,"schema":"HTTP"}]'
     spec:
       securityContext:
         fsGroup: 100

@@ -23,6 +23,7 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: '9001'
+        field.cattle.io/workloadMetrics: '[{"path":"/metrics","port":9001,"schema":"HTTP"}]'
     spec:
       serviceAccountName: {{ include "p2.fullname" . }}-tier0
       containers:
