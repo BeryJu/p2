@@ -20,7 +20,7 @@ spec:
         k8s.p2.io/component: static
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: 9113
+        prometheus.io/port: '9113'
     spec:
       containers:
         - name: {{ .Chart.Name }}-static-prometheus

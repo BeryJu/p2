@@ -22,7 +22,7 @@ spec:
         k8s.p2.io/component: tier0
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: 9001
+        prometheus.io/port: '9001'
     spec:
       serviceAccountName: {{ include "p2.fullname" . }}-tier0
       containers:
