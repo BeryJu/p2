@@ -1,0 +1,16 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "p2.fullname" . }}-web-hpa
+spec:
+  maxReplicas: 6
+  minReplicas: {{ .Values.deployment.webInstances }}
+  scaleTargetRef:
+    apiVersion: extensions/v1
+    kind: Deployment
+    name: {{ include "p2.fullname" . }}-web
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 60

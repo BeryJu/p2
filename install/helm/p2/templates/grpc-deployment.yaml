@@ -50,9 +50,9 @@ spec:
               name: media-storage
           resources:
             requests:
-              cpu: 50m
+              cpu: 500m
               memory: 200M
             limits:
-              cpu: 100m
+              cpu: 1000m
               memory: 250M
 {{- end }}

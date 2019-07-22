@@ -81,8 +81,8 @@ spec:
                   value: kubernetes-healthcheck-host
           resources:
             requests:
-              cpu: 50m
+              cpu: 300m
               memory: 175M
             limits:
-              cpu: 100m
+              cpu: 500m
               memory: 250M
