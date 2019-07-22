@@ -52,6 +52,9 @@ spec:
             - ./manage.py
           args:
             - web
+          env:
+            - name: P2_COMPONENT
+              value: web
           ports:
             - name: http
               containerPort: 8000
