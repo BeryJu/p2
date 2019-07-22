@@ -12,7 +12,7 @@
 <script src="{% static 'codemirror/codemirror.js' %}"></script>
 <link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
 <link rel="stylesheet" href="{% static 'codemirror/theme/monokai.css' %}">
-<script src="{% static 'codemirror/mode/javascript.js' %}"></script>
+<script src="{% static 'codemirror/mode/yaml/yaml.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -38,7 +38,7 @@ Creating {{ view.model|model_verbose_name }}
 let tags = document.getElementsByName('tags');
 if (tags.length > 0) {
   let myCodeMirror = CodeMirror.fromTextArea(tags[0], {
-    mode: 'javascript',
+    mode: 'yaml',
     theme: 'monokai',
     lineNumbers: true,
   });

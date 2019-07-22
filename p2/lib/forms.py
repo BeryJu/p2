@@ -1,15 +1,8 @@
 """p2 form helpers"""
-import json
-
 from django import forms
 from django.contrib.postgres.forms import JSONField
 
-
-class JSONBeautifyField(JSONField):
-    """Same as django's JSONField but indent and sort keys"""
-
-    def prepare_value(self, value):
-        return json.dumps(value, indent=4, sort_keys=True)
+from p2.lib.fields import YAMLField
 
 
 class TagModelForm(forms.ModelForm):
@@ -38,8 +31,8 @@ class TagModelForm(forms.ModelForm):
 
 # pylint: disable=too-few-public-methods
 class TagModelFormMeta:
-    """Base Meta class that uses the JSONBeautifyField"""
+    """Base Meta class that uses the YAMLField"""
 
     field_classes = {
-        'tags': JSONBeautifyField
+        'tags': YAMLField
     }
