@@ -101,11 +101,6 @@ class MultipartUploadView(View):
                 }
             )
             assign_perm('p2_core.change_blob', request.user, blob)
-            # We also create a new, empty blob as "directory"
-            dir_blob = Blob.objects.create(
-                path=make_absolute_path('/%s_%s/' % (path, upload_id)),
-                volume=self.volume)
-            assign_perm('p2_core.change_blob', request.user, dir_blob)
         ElementTree.SubElement(root, "UploadId").text = blob.tags[TAG_S3_MULTIPART_BLOB_UPLOAD_ID]
         return XMLResponse(root)
 

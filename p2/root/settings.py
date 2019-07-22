@@ -285,7 +285,7 @@ with CONFIG.cd('log'):
         'werkzeug': 'DEBUG',
         'grpc': 'DEBUG',
         'django_prometheus': 'DEBUG',
-        'tornado': 'DEBUG',
+        'cherrypy': 'DEBUG',
     }
     LOGGING = {
         'version': 1,

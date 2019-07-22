@@ -1,22 +1,35 @@
-"""p2 Tornado management command"""
+"""p2 Webserver management command"""
 
 from logging import getLogger
-from tornado.wsgi import WSGIContainer
-from tornado.httpserver import HTTPServer
-from tornado.ioloop import IOLoop
+
+import cherrypy
+from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.utils import autoreload
-from django.core.wsgi import get_wsgi_application
+
+from p2.lib.config import CONFIG
+from p2.root.wsgi import application
 
 LOGGER = getLogger(__name__)
 
 
 class Command(BaseCommand):
-    """Run Tornado Server"""
+    """Run CherryPy webserver"""
 
     def handle(self, *args, **options):
-        """Start Tornado server"""
-        container = WSGIContainer(get_wsgi_application())
-        http_server = HTTPServer(container)
-        http_server.listen(8000, '0.0.0.0')
-        IOLoop.current().start()
+        """p2 cherrypy server"""
+        cherrypy.config.update({
+            'server.socket_host': '0.0.0.0',
+            'server.socket_port': 8000,
+            'server.thread_pool': 20,
+            'log.screen': False,
+            'log.access_file': '',
+            'log.error_file': '',
+            'server.max_request_body_size': 0,
+            'server.socket_timeout': 600,
+        })
+        cherrypy.tree.graft(application, '/')
+        cherrypy.engine.start()
+        for file in CONFIG.loaded_file:
+            cherrypy.engine.autoreload.files.add(file)
+            LOGGER.info("Added '%s' to autoreload triggers", file)
+        cherrypy.engine.block()
