@@ -32,6 +32,7 @@ class ServeRuleForm(TagModelForm):
                 This path starts with a slash.</li>
                 <li>{path_relative} will be replaced by the relative Request Path.</li>
                 <li>{host} will be replaced by the requested Hostname.</li>
+                <li>{match[X]} where X is the Regexp match Group.</li>
                 <li>{meta[X]} where X is any of the fields
             described <a target="_blank" href=
             "https://docs.djangoproject.com/en/2.2/ref/request-response/#django.http.HttpRequest.META">

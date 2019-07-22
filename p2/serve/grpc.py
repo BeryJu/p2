@@ -1,11 +1,13 @@
 """Serve GRPC functionality"""
 from logging import getLogger
+from typing import List, Match, Optional, Tuple
 
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from guardian.shortcuts import get_anonymous_user, get_objects_for_user
 
 from p2.core.constants import ATTR_BLOB_HEADERS
+from p2.core.models import Blob
 from p2.grpc.protos.serve_pb2 import ServeReply, ServeRequest
 from p2.grpc.protos.serve_pb2_grpc import ServeServicer
 from p2.log.adaptor import LOG_ADAPTOR
@@ -33,7 +35,8 @@ class MockRequest:
 class Serve(ServeServicer):
     """GRPC Service for Serve Application"""
 
-    def rule_lookup(self, request: ServeRequest, rule):
+    def rule_lookup(self, request: ServeRequest, rule: ServeRule,
+                    match: Match) -> Tuple[List[str], List[str]]:
         """Build blob lookup from rule"""
         lookups = {}
         # FIXME: Capture LOGGER output instead of returning a message array
@@ -46,6 +49,7 @@ class Serve(ServeServicer):
                 path_relative=request.url[1:],
                 host=request.headers.get('Host', ''),
                 meta=request.headers,
+                match=match,
             )
             debug_messages.append("Formatted to '%s'='%s'" % (lookup_key, lookups[lookup_key]))
         debug_messages.append("Final lookup %r" % lookups)
@@ -60,13 +64,14 @@ class Serve(ServeServicer):
         user = User.objects.get(pk=uid)
         return user
 
-    def get_blob_from_rule(self, request: ServeRequest):
+    def get_blob_from_rule(self, request: ServeRequest) -> Optional[Blob]:
         """Try to lookup blob from ServeRule, raise Http404 if none found"""
         for rule in ServeRule.objects.all():
             LOGGER.debug("Trying rule %s", rule.name)
-            if rule.matches(request):
+            regex_match = rule.matches(request)
+            if regex_match:
                 LOGGER.debug("Rule %s matched", rule)
-                lookups, messages = self.rule_lookup(request, rule)
+                lookups, messages = self.rule_lookup(request, rule, regex_match)
                 # Output debug messages on log
                 for msg in messages:
                     LOGGER.debug(msg)
@@ -78,7 +83,7 @@ class Serve(ServeServicer):
                 return blobs.first()
         return None
 
-    def RetrieveFile(self, request: ServeRequest, context):
+    def RetrieveFile(self, request: ServeRequest, context) -> ServeReply:
         mock_request = MockRequest(request)
         mock_request.user = self.get_user(request)
         mock_request.path = request.url

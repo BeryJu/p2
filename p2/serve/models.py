@@ -1,6 +1,7 @@
 """p2 Serve Models"""
 import re
 from logging import getLogger
+from typing import Match, Optional, Tuple
 
 from django.db import models
 
@@ -22,7 +23,7 @@ class ServeRule(TagModel, UUIDModel):
     name = models.TextField()
     blob_query = models.TextField()
 
-    def matches(self, request: ServeRequest):
+    def matches(self, request: ServeRequest) -> Optional[Match]:
         """Return true if request matches our tags, false if not"""
         for tag_key, tag_value in self.tags.items():
             request_value = None
@@ -40,9 +41,9 @@ class ServeRule(TagModel, UUIDModel):
             match = regex.match(request_value)
             if match is None:
                 LOGGER.debug("  => Not matching")
-                return False
+                return None
             LOGGER.debug("  => Matching, checking next tag")
-        return True
+        return match
 
     def __str__(self):
         return "ServeRule %s" % self.name
