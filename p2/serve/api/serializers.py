@@ -11,4 +11,4 @@ class ServeRuleSerializer(HyperlinkedModelSerializer):
     class Meta:
 
         model = ServeRule
-        fields = ['name', 'match', 'blob_query']
+        fields = ['name', 'tags', 'blob_query']

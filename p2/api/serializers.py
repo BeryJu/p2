@@ -33,4 +33,4 @@ class APIKeySerializer(HyperlinkedModelSerializer):
     class Meta:
 
         model = APIKey
-        fields = ['name', 'user', 'volume', 'access_key', 'secret_key']
+        fields = ['name', 'user', 'access_key', 'secret_key']
