@@ -18,6 +18,7 @@ protobuf
 psycopg2
 packaging
 python-json-logger
+cherrypy
 # API dependencies
 django-filter
 djangorestframework==3.9.4
