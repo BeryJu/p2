@@ -37,8 +37,8 @@ spec:
         - name: {{ .Chart.Name }}
           image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
-          command: ["/bin/sh","-c"]
-          args: ["./manage.py migrate && ./manage.py grpc"]
+          command: ["./manage.py"]
+          args: ["grpc"]
           ports:
             - name: grpc
               containerPort: 50051
