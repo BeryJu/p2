@@ -16,4 +16,4 @@ FROM alpine:latest
 
 COPY --from=builder /go/bin/tier0 /tier0
 
-CMD "/tier0"
+CMD "/tier0 server"

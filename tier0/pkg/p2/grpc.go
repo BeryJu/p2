@@ -57,10 +57,12 @@ func (u *GRPCUpstream) Fetch(request http.Request) (*p2client.ServeReply, error)
 	} else {
 		session = sessionCookie.Value
 	}
-	response, err := u.ServeClient.RetrieveFile(context.Background(), &p2client.ServeRequest{
+	grpcRequest := &p2client.ServeRequest{
 		Headers: u.headersToDjango(request),
 		Session: session,
-		Url:     request.URL.String()})
+		Url:     request.URL.String()}
+	u.Logger.Debug(grpcRequest)
+	response, err := u.ServeClient.RetrieveFile(context.Background(), grpcRequest)
 	if err != nil {
 		return nil, err
 	}

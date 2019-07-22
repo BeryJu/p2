@@ -30,6 +30,8 @@ spec:
         - name: {{ .Chart.Name }}-tier0
           image: "docker.beryju.org/p2/tier0:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
+          command: ['/tier0']
+          args: ['server']
           ports:
             - name: http
               containerPort: 8092
