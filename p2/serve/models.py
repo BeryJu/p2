@@ -1,7 +1,7 @@
 """p2 Serve Models"""
 import re
 from logging import getLogger
-from typing import Match, Optional, Tuple
+from typing import Match, Optional
 
 from django.db import models
 

@@ -5,14 +5,18 @@ from django.utils.translation import gettext_lazy as _
 
 
 class InvalidYAMLInput(str):
+    """Invalid YAML String type"""
     pass
 
 
 class YAMLString(str):
+    """YAML String type"""
     pass
 
 
 class YAMLField(forms.CharField):
+    """Django's JSON Field converted to YAML"""
+
     default_error_messages = {
         'invalid': _("'%(value)s' value must be valid YAML."),
     }
@@ -23,7 +27,7 @@ class YAMLField(forms.CharField):
             return value
         if value in self.empty_values:
             return None
-        elif isinstance(value, (list, dict, int, float, YAMLString)):
+        if isinstance(value, (list, dict, int, float, YAMLString)):
             return value
         try:
             converted = yaml.safe_load(value)
@@ -35,8 +39,7 @@ class YAMLField(forms.CharField):
             )
         if isinstance(converted, str):
             return YAMLString(converted)
-        else:
-            return converted
+        return converted
 
     def bound_data(self, data, initial):
         if self.disabled:

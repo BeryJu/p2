@@ -1,6 +1,5 @@
 """p2 form helpers"""
 from django import forms
-from django.contrib.postgres.forms import JSONField
 
 from p2.lib.fields import YAMLField
 

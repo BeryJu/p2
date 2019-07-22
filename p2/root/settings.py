@@ -294,7 +294,7 @@ with CONFIG.cd('log'):
             'json': {
                 '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
                 'format': '%(asctime)s %(levelname)-8s %(name)-55s '
-                           '%(funcName)-20s %(message)s',
+                          '%(funcName)-20s %(message)s',
             }
         },
         'handlers': {
