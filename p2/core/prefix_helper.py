@@ -103,7 +103,7 @@ class PrefixHelper:
         Blob with prefix /test/another/prefix;
         this function will create the prefixes [/test/another]"""
         next_part = posixpath.relpath(blob.prefix, self._base).split(SEPARATOR)[0]
-        _sub_path = posixpath.join(self._base, next_part)
+        _sub_path = make_absolute_prefix(posixpath.join(self._base, next_part))
         intermedia_prefix = VirtualPrefix()
         intermedia_prefix.blob = blob
         intermedia_prefix.volume = self._volume
