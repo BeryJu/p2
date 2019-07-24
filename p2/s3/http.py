@@ -3,6 +3,8 @@ from xml.etree import ElementTree
 
 from django.http import HttpResponse
 
+from p2.s3.errors import AWSError
+
 
 class XMLResponse(HttpResponse):
     """Equivalent to JsonResponse for XML Objects"""
@@ -12,11 +14,10 @@ class XMLResponse(HttpResponse):
         data = ElementTree.tostring(data, encoding='utf-8', method='xml')
         super().__init__(content=data, **kwargs)
 
-class AWSError(XMLResponse):
+class AWSErrorView(XMLResponse):
     """AWS Error Response"""
 
-    def __init__(self, error_code):
+    def __init__(self, error: AWSError):
         root = ElementTree.Element("Error")
-        code_name, response_code = error_code.value
-        ElementTree.SubElement(root, "Code").text = code_name
-        super().__init__(root, status=response_code)
+        ElementTree.SubElement(root, "Code").text = error.code
+        super().__init__(root, status=error.status)

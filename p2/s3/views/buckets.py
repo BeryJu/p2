@@ -3,7 +3,7 @@ from xml.etree import ElementTree
 
 from django.http import HttpResponse
 from django.views import View
-from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_SIZE_BYTES,
                                ATTR_BLOB_STAT_MTIME)
@@ -11,8 +11,9 @@ from p2.core.models import Volume
 from p2.core.prefix_helper import PrefixHelper, make_absolute_prefix
 from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
-                             XML_NAMESPACE, ErrorCodes)
-from p2.s3.http import AWSError, XMLResponse
+                             XML_NAMESPACE)
+from p2.s3.errors import AWSAccessDenied
+from p2.s3.http import XMLResponse
 
 
 class BucketView(View):
@@ -106,12 +107,15 @@ class BucketView(View):
         default_storage = get_object_for_user_or_404(request.user, 'p2_core.use_storage', **{
             'tags__%s' % TAG_S3_DEFAULT_STORAGE: True
         })
-        if request.user.has_perm('p2_core.add_volume'):
-            bucket, _ = Volume.objects.get_or_create(name=bucket, defaults={
-                'storage': default_storage
-            })
-            return HttpResponse(status=200)
-        return AWSError(ErrorCodes.ACCESS_DENIED)
+        if not request.user.has_perm('p2_core.add_volume'):
+            raise AWSAccessDenied
+        bucket, _ = Volume.objects.get_or_create(name=bucket, defaults={
+            'storage': default_storage
+        })
+        for permission in ['view_volume', 'change_volume', 'delete_volume',
+                           'use_volume', 'list_volume_contents']:
+            assign_perm('p2_core.%s' % permission, request.user, bucket)
+        return HttpResponse(status=200)
 
     def handle_delete(self, request, bucket):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketDELETE.html"""

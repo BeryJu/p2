@@ -3,7 +3,7 @@ databases:
   default:
     name: p2
     user: p2
-    password: 'EK-5jnKfjrGRm<77'
+    password: ''
     host: localhost
 
 cache: redis://localhost/0

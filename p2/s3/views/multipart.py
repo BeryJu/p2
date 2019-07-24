@@ -14,9 +14,9 @@ from p2.core.prefix_helper import make_absolute_path
 from p2.lib.shortcuts import get_list_for_user_or_404
 from p2.s3.constants import (TAG_S3_MULTIPART_BLOB_PART,
                              TAG_S3_MULTIPART_BLOB_TARGET_BLOB,
-                             TAG_S3_MULTIPART_BLOB_UPLOAD_ID, XML_NAMESPACE,
-                             ErrorCodes)
-from p2.s3.http import AWSError, XMLResponse
+                             TAG_S3_MULTIPART_BLOB_UPLOAD_ID, XML_NAMESPACE)
+from p2.s3.errors import AWSNoSuchBucket
+from p2.s3.http import XMLResponse
 from p2.s3.tasks import complete_multipart_upload
 
 DEFAULT_BLOB_EXPIRY = 86400
@@ -32,7 +32,7 @@ class MultipartUploadView(View):
         # Preflight check to make sure volume exists
         volumes = get_objects_for_user(request.user, 'use_volume', Volume).filter(name=bucket)
         if not volumes.exists():
-            return AWSError(ErrorCodes.NO_SUCH_KEY)
+            raise AWSNoSuchBucket
         self.volume = volumes.first()
         return super().dispatch(request, bucket, path)
 

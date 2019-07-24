@@ -8,8 +8,8 @@ from p2.core.constants import ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES
 from p2.core.exceptions import BlobException
 from p2.core.http import BlobResponse
 from p2.core.models import Blob, Volume
-from p2.s3.constants import ErrorCodes
-from p2.s3.http import AWSError, XMLResponse
+from p2.s3.errors import AWSNoSuchKey, AWSNotImplemented
+from p2.s3.http import XMLResponse
 from p2.s3.views.multipart import MultipartUploadView
 
 
@@ -28,7 +28,7 @@ class ObjectView(View):
         else:
             volumes = Volume.objects.filter(name=bucket)
         if not volumes.exists():
-            return AWSError(ErrorCodes.NO_SUCH_KEY)
+            raise AWSNoSuchKey
         self.volume = volumes.first()
         # Make sure path is prefixed with /
         if not path.startswith('/'):
@@ -42,7 +42,7 @@ class ObjectView(View):
         blobs = get_objects_for_user(request.user, 'view_blob', Blob).filter(
             path=path, volume__name=bucket)
         if not blobs.exists():
-            return AWSError(ErrorCodes.NO_SUCH_KEY)
+            raise AWSNoSuchKey
         blob = blobs.first()
         # We're not using BlobResponse here since we only want the attributes
         response = HttpResponse(status=200)
@@ -55,14 +55,20 @@ class ObjectView(View):
         blobs = get_objects_for_user(request.user, 'view_blob', Blob).filter(
             path=path, volume__name=bucket)
         if not blobs.exists():
-            return AWSError(ErrorCodes.NO_SUCH_KEY)
+            raise AWSNoSuchKey
         blob = blobs.first()
         return BlobResponse(blob)
 
     def post(self, request, bucket, path):
         """Post handler"""
-        # POST is handeled by the MultipartUploadView
+        if 'select-type' in request.GET:
+            return self.select(request, bucket, path)
+        # POST is handled by the MultipartUploadView
         return MultipartUploadView().dispatch(request, bucket, path)
+
+    def select(self, request, bucket, path):
+        """S3Select"""
+        raise AWSNotImplemented
 
     def put(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectPUT.html"""
@@ -94,7 +100,7 @@ class ObjectView(View):
         blobs = get_objects_for_user(request.user, 'delete_blob', Blob).filter(
             path=path, volume__name=bucket)
         if not blobs.exists():
-            return AWSError(ErrorCodes.NO_SUCH_KEY)
+            raise AWSNoSuchKey
         blob = blobs.first()
         blob.delete()
         return HttpResponse(status=204)
