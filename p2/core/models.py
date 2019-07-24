@@ -1,13 +1,12 @@
 """p2 Core models"""
 import posixpath
-from copy import deepcopy
 from logging import getLogger
 
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.fields.jsonb import KeyTextTransform
 from django.core.cache import cache
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db import DatabaseError, models, transaction
+from django.db import models
 from django.db.models import BigIntegerField, Sum
 from django.db.models.functions import Cast
 from django.utils.timezone import now
@@ -160,41 +159,29 @@ class Blob(ExportModelOperationsMixin('blob'), UUIDModel, TagModel):
 
     def save(self, *args, **kwargs):
         """Name file on storage after generated UUID and populate initial attributes"""
-        # Create a copy of the current tags and payload since
-        # a failed transaction.atomic() doesn't revert object values
-        _old_tags = deepcopy(self.tags)
-        _old_attributes = deepcopy(self.attributes)
-        try:
-            # Run update code in transaction in case
-            # Storage.controller.commit fails and we need to revert
-            with transaction.atomic():
-                # Save current time as `created` attribute. This can be changed by users,
-                # but p2.log creates a log entry for new Blob being created
-                if ATTR_BLOB_STAT_CTIME not in self.attributes:
-                    self.attributes[ATTR_BLOB_STAT_CTIME] = now()
-                # Create/update `date_updated` attribute
-                self.attributes[ATTR_BLOB_STAT_MTIME] = now()
-                # Only save payload if it changed
-                if self._writing_handle:
-                    self._writing_handle.seek(0)
-                    self.volume.storage.controller.commit(self, self._writing_handle)
-                # Check if path exists already
-                self.__failsafe_path()
-                # Update prefix
-                self.__update_prefix()
-                self.volume.storage.controller.collect_attributes(self)
-                super().save(*args, **kwargs)
-                if self._writing_handle:
-                    signal_marshall.delay('p2.core.signals.BLOB_PAYLOAD_UPDATED', kwargs={
-                        'blob': {
-                            'class': class_to_path(self.__class__),
-                            'pk': self.uuid.hex,
-                        }
-                    })
-        except DatabaseError:
-            self.tags = _old_tags
-            self.attributes = _old_attributes
-            raise
+        # Save current time as `created` attribute. This can be changed by users,
+        # but p2.log creates a log entry for new Blob being created
+        if ATTR_BLOB_STAT_CTIME not in self.attributes:
+            self.attributes[ATTR_BLOB_STAT_CTIME] = now()
+        # Create/update `date_updated` attribute
+        self.attributes[ATTR_BLOB_STAT_MTIME] = now()
+        # Only save payload if it changed
+        if self._writing_handle:
+            self._writing_handle.seek(0)
+            self.volume.storage.controller.commit(self, self._writing_handle)
+        # Check if path exists already
+        self.__failsafe_path()
+        # Update prefix
+        self.__update_prefix()
+        self.volume.storage.controller.collect_attributes(self)
+        super().save(*args, **kwargs)
+        if self._writing_handle:
+            signal_marshall.delay('p2.core.signals.BLOB_PAYLOAD_UPDATED', kwargs={
+                'blob': {
+                    'class': class_to_path(self.__class__),
+                    'pk': self.uuid.hex,
+                }
+            })
 
     def __str__(self):
         return "<Blob %s://%s>" % (self.volume.name, self.path)
