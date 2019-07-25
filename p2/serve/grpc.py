@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from guardian.shortcuts import get_anonymous_user, get_objects_for_user
 
-from p2.core.constants import ATTR_BLOB_HEADERS
+from p2.core.constants import TAG_BLOB_HEADERS
 from p2.core.models import Blob
 from p2.grpc.protos.serve_pb2 import ServeReply, ServeRequest
 from p2.grpc.protos.serve_pb2_grpc import ServeServicer
@@ -100,7 +100,7 @@ class Serve(ServeServicer):
         mock_request.log(blob_pk=blob.pk)
         # Since we don't use any extra views or URLs here, we don't have to
         # trick SecurityMiddleware into not returning a 302
-        headers = blob.attributes.get(ATTR_BLOB_HEADERS, {})
+        headers = blob.tags.get(TAG_BLOB_HEADERS, {})
         headers["X-p2-Request-Id"] = mock_request.uid
         return ServeReply(
             matching=True,
