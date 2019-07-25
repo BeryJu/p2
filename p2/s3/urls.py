@@ -1,8 +1,21 @@
 """p2 S3 URLs"""
 from django.urls import path, register_converter
+from django.urls.converters import StringConverter
 
-from p2.s3.converters import EverythingConverter, S3BucketConverter
 from p2.s3.views import buckets, objects
+
+
+class S3BucketConverter(StringConverter):
+    """Match S3 bucket regex"""
+
+    regex = r'([a-zA-Z0-9\.\-\_]+)'
+
+
+class EverythingConverter(StringConverter):
+    """Match Everything. Just used for debugging"""
+
+    regex = '.*'
+
 
 register_converter(S3BucketConverter, 's3')
 register_converter(EverythingConverter, 'everything')

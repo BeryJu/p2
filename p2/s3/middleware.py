@@ -1,14 +1,16 @@
 """p2 s3 routing middleware"""
 from logging import getLogger
 
+from django.http import HttpRequest
+
 from p2.lib.config import CONFIG
 from p2.s3.auth.aws_v4 import AWSV4Authentication
-from p2.s3.errors import (AWSContentSignatureMismatch, AWSError,
-                          AWSSignatureMismatch)
+from p2.s3.errors import AWSError, AWSIncompleteBody, AWSMissingContentLength
 from p2.s3.http import AWSErrorView
 
 LOGGER = getLogger(__name__)
 
+CONTENT_LENGTH_HEADER = 'CONTENT_LENGTH'
 
 # pylint: disable=too-few-public-methods
 class S3RoutingMiddleware:
@@ -18,15 +20,16 @@ class S3RoutingMiddleware:
         self.get_response = get_response
         self._s3_base = '.' + CONFIG.y('s3.base_domain')
 
-    def process_exception(self, request, exception):
+    def process_exception(self, request: HttpRequest, exception):
         """Catch AWS-specific exceptions and show them as XML response"""
         if CONFIG.y('debug'):
-            LOGGER.debug(request.body)
+            LOGGER.exception(exception)
+            LOGGER.debug("Request Body: %s", request.body)
         if isinstance(exception, AWSError):
             return AWSErrorView(exception)
         return None
 
-    def extract_host_header(self, request):
+    def extract_host_header(self, request: HttpRequest):
         """Extract bucket name from Host Header"""
         host_header = request.META.get('HTTP_HOST', '')
         # Make sure we remove the port suffix, if any
@@ -37,7 +40,7 @@ class S3RoutingMiddleware:
             return bucket
         return False
 
-    def is_aws_request(self, request):
+    def is_aws_request(self, request: HttpRequest):
         """Return true if AWS-s3-style request"""
         if 'HTTP_X_AMZ_DATE' in request.META:
             return True
@@ -47,7 +50,23 @@ class S3RoutingMiddleware:
             return True
         return False
 
-    def __call__(self, request):
+    def check_content_length(self, request):
+        """Validate Content-Length Header (is required for PUT requests)"""
+        if request.method != 'PUT':
+            return
+        if CONTENT_LENGTH_HEADER not in request.META and request.method == 'PUT':
+            raise AWSMissingContentLength
+        theirs = request.META.get(CONTENT_LENGTH_HEADER)
+        if theirs == '':
+            raise AWSError
+        theirs_int = int(theirs)
+        ours = len(request.body)
+        if theirs_int < 0:
+            raise AWSError
+        if ours < theirs_int:
+            raise AWSIncompleteBody
+
+    def __call__(self, request: HttpRequest):
         bucket = self.extract_host_header(request)
         if self.is_aws_request(request) or bucket:
             # Check if Host header ends with s3.base_domain, if so extract bucket from Host
@@ -56,14 +75,16 @@ class S3RoutingMiddleware:
                 # If bucket was taken from URL, we need to set it as kwarg
                 request.path = '/' + bucket + request.path
                 request.path_info = '/' + bucket + request.path_info
-            # Check AWS Authentication
-            if AWSV4Authentication.can_handle(request):
-                handler = AWSV4Authentication(request)
-                try:
+            try:
+                self.check_content_length(request)
+                # Check AWS Authentication
+                if AWSV4Authentication.can_handle(request):
+                    handler = AWSV4Authentication(request)
                     user = handler.validate()
-                except (AWSSignatureMismatch, AWSContentSignatureMismatch) as exc:
-                    return self.process_exception(request, exc)
-                request.user = user
+                    request.user = user
+            except AWSError as exc:
+                return self.process_exception(request, exc)
+                # return self.process_exception(request, exc)
             # AWS Views don't have CSRF Tokens, hence we use csrf_exempt
             setattr(request, '_dont_enforce_csrf_checks', True)
             # GET and HEAD requests are allowed over http, everything else is redirect to https
@@ -71,8 +92,8 @@ class S3RoutingMiddleware:
                 # Set SECURE_PROXY_SSL_HEADER so SecurityMiddleware doesn't return a 302
                 request.META['HTTP_X_FORWARDED_PROTO'] = 'https'
         response = self.get_response(request)
-        if CONFIG.y('debug'):
+        if CONFIG.y('debug') and response.status_code > 300:
             if response['Content-Type'] == 'text/xml':
-                LOGGER.debug(request.body)
-                LOGGER.debug(response.content)
+                LOGGER.debug("Request Body: %s", request.body)
+                LOGGER.debug("Response Body: %s", response.content)
         return response

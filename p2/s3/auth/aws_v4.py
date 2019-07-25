@@ -87,6 +87,8 @@ class AWSv4AuthenticationRequest:
         _, auth_request.signed_headers = signed_headers.split("=")
         _, auth_request.signature = signature.split("=")
         auth_request.date_long = headers.get('HTTP_X_AMZ_DATE')
+        if not auth_request.date_long:
+            auth_request.date_long = auth_request.date
         return auth_request
 
 class AWSV4Authentication(BaseAuth):
@@ -182,7 +184,6 @@ class AWSV4Authentication(BaseAuth):
             raise AWSAccessDenied
         signing_key = self._get_signature_key(secret_key.secret_key, auth_request)
         canonical_request = self._get_canonical_request(auth_request)
-        LOGGER.debug("Canonical Request: '%s'", canonical_request)
         string_to_sign = '\n'.join([
             auth_request.algorithm,
             auth_request.date_long,
@@ -190,8 +191,9 @@ class AWSV4Authentication(BaseAuth):
             self._get_sha256(canonical_request.encode('utf-8')),
         ])
         our_signature = self._sign(signing_key, string_to_sign).hexdigest()
-        LOGGER.debug("Ours: %s", our_signature)
-        LOGGER.debug("Theirs: %s", auth_request.signature)
         if auth_request.signature != our_signature:
+            LOGGER.debug("Canonical Request: '%s'", canonical_request)
+            LOGGER.debug("Ours: %s", our_signature)
+            LOGGER.debug("Theirs: %s", auth_request.signature)
             raise AWSSignatureMismatch
         return secret_key.user

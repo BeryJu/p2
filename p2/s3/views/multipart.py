@@ -4,8 +4,6 @@ from uuid import uuid4
 from xml.etree import ElementTree
 
 from django.http.response import HttpResponse, StreamingHttpResponse
-from django.views import View
-from django.views.decorators.csrf import csrf_exempt
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.components.expire.constants import TAG_EXPIRE_DATE
@@ -18,15 +16,16 @@ from p2.s3.constants import (TAG_S3_MULTIPART_BLOB_PART,
 from p2.s3.errors import AWSNoSuchBucket
 from p2.s3.http import XMLResponse
 from p2.s3.tasks import complete_multipart_upload
+from p2.s3.views.common import S3View
 
 DEFAULT_BLOB_EXPIRY = 86400
 
-class MultipartUploadView(View):
+
+class MultipartUploadView(S3View):
     """Multipart-Object related views"""
 
     volume = None
 
-    @csrf_exempt
     def dispatch(self, request, bucket, path):
         """Preflight checks"""
         # Preflight check to make sure volume exists
@@ -44,10 +43,6 @@ class MultipartUploadView(View):
         if 'uploadId' in request.GET:
             return self.post_handle_mp_complete(request, self.volume, path)
         return self.post_handle_mp_initiate(request, self.volume, path)
-
-    def put(self, request, bucket, path):
-        """PUT Handler"""
-        return self.put_handle_mp_part(request, self.volume, path)
 
     ## API Handlers
 
@@ -104,7 +99,7 @@ class MultipartUploadView(View):
         ElementTree.SubElement(root, "UploadId").text = blob.tags[TAG_S3_MULTIPART_BLOB_UPLOAD_ID]
         return XMLResponse(root)
 
-    def put_handle_mp_part(self, request, volume, path):
+    def put(self, request, volume, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/mpUploadUploadPart.html"""
         upload_id = request.GET.get('uploadId')
         part_number = int(request.GET.get('partNumber'))

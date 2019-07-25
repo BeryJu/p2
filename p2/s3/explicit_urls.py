@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.urls import include, path, register_converter
 
-from p2.s3.converters import EverythingConverter, S3BucketConverter
+from p2.s3.urls import EverythingConverter, S3BucketConverter
 from p2.s3.views import buckets, get, objects
 
 register_converter(S3BucketConverter, 's3')

@@ -3,7 +3,7 @@
 class AWSError(Exception):
     """Base-class for all AWS Errors"""
 
-    code = ''
+    code = 'InvalidRequest'
     status = 400
 
 
@@ -54,3 +54,31 @@ class AWSContentSignatureMismatch(AWSError):
 
     code = 'XAmzContentSHA256Mismatch'
     status = 403
+
+
+class AWSInvalidDigest(AWSError):
+    """Error codes from https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html"""
+
+    code = 'InvalidDigest'
+    status = 400
+
+
+class AWSBadDigest(AWSError):
+    """Error codes from https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html"""
+
+    code = 'BadDigest'
+    status = 400
+
+
+class AWSIncompleteBody(AWSError):
+    """Error codes from https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html"""
+
+    code = 'IncompleteBody'
+    status = 400
+
+
+class AWSMissingContentLength(AWSError):
+    """Error codes from https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html"""
+
+    code = 'MissingContentLength'
+    status = 411
