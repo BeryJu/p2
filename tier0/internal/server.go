@@ -69,6 +69,10 @@ func Main() {
 		if err != nil {
 			mainLogger.Warn(err)
 		}
+		// Location header needs special handling
+		if location, ok := reply.Headers["Location"]; ok {
+			http.Redirect(w, r, location, http.StatusFound)
+		}
 		for headerKey, headerValue := range reply.Headers {
 			w.Header().Set(headerKey, headerValue)
 		}
