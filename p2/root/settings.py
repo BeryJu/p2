@@ -301,7 +301,7 @@ with CONFIG.cd('log'):
             'console': {
                 'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
-                'formatter': 'json',
+                'formatter': 'colored' if DEBUG else 'json',
             },
         },
         'loggers': {
@@ -313,6 +313,12 @@ with CONFIG.cd('log'):
             'level': level,
             'propagate': True,
         }
+    if DEBUG:
+        LOGGING['formatters']['colored'] = {
+            '()': 'colorlog.ColoredFormatter',
+            'format': ('%(log_color)s%(asctime)s %(levelname)-8s %(name)-55s '
+                       '%(funcName)-20s %(message)s'),
+        },
 
 
 TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
