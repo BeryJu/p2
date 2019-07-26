@@ -1,8 +1,8 @@
 """p2 S3 Bucket-related Views"""
 from xml.etree import ElementTree
 
+from django.core.paginator import Paginator
 from django.http import HttpResponse
-from django.views import View
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_SIZE_BYTES,
@@ -14,9 +14,10 @@ from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
                              XML_NAMESPACE)
 from p2.s3.errors import AWSAccessDenied, AWSNoSuchBucket
 from p2.s3.http import XMLResponse
+from p2.s3.views.common import S3View
 
 
-class BucketView(View):
+class BucketView(S3View):
     """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketOps.html"""
 
     def get(self, request, *args, **kwargs):
@@ -41,6 +42,7 @@ class BucketView(View):
         ElementTree.SubElement(root, "Status").text = "Disabled"
         return XMLResponse(root)
 
+    # pylint: disable=too-many-locals
     def handler_list(self, request, bucket):
         """Bucket List API Method"""
         # https://docs.aws.amazon.com/AmazonS3/latest/API/v2-RESTBucketGET.html
@@ -54,18 +56,24 @@ class BucketView(View):
         blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
             prefix=make_absolute_prefix(requested_prefix),
             volume=volume,
-        )
+        ).order_by('path')
+
+        max_keys = int(self.request.GET.get('max-keys', 100))
+        encoding_type = self.request.GET.get('encoding-type', 'url')
+        delimiter = self.request.GET.get('delimiter', '/')
+        paginator = Paginator(blobs, max_keys)
+        is_truncated = max_keys < paginator.count
 
         ElementTree.SubElement(root, "Name").text = volume.name
         ElementTree.SubElement(root, "Prefix").text = requested_prefix
-        ElementTree.SubElement(root, "KeyCount").text = str(len(blobs))
-        ElementTree.SubElement(root, "MaxKeys").text = "1000"
-        ElementTree.SubElement(root, "Delimiter").text = '/'
-        ElementTree.SubElement(root, "EncodingType").text = 'url'
-        ElementTree.SubElement(root, "IsTruncated").text = 'false'
+        ElementTree.SubElement(root, "KeyCount").text = str(len(paginator.page(1).object_list))
+        ElementTree.SubElement(root, "MaxKeys").text = str(max_keys)
+        ElementTree.SubElement(root, "Delimiter").text = delimiter
+        ElementTree.SubElement(root, "EncodingType").text = encoding_type
+        ElementTree.SubElement(root, "IsTruncated").text = str(is_truncated).lower()
 
         # append all blobs
-        for blob in blobs:
+        for blob in paginator.page(1):
             content = ElementTree.Element("Contents")
             ElementTree.SubElement(content, "Key").text = blob.path[1:]
             ElementTree.SubElement(
