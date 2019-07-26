@@ -31,7 +31,6 @@ class S3View(View):
                 raise AWSBadDigest
 
     @csrf_exempt
-    def dispatch(self, request, *args, **kwargs):
-        self.request = request
+    def setup(self, *args, **kwargs):
+        super().setup(*args, **kwargs)
         self._check_content_md5()
-        return super().dispatch(request, *args, **kwargs)
