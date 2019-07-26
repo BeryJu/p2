@@ -23,7 +23,8 @@ class IndexView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         data['count'] = self.get_blob_count()
-        data['volumes'] = get_objects_for_user(self.request.user, 'p2_core.view_volume')
+        data['volumes'] = get_objects_for_user(
+            self.request.user, 'p2_core.view_volume').select_related('storage')
         return data
 
 class SearchView(LoginRequiredMixin, ListView):
