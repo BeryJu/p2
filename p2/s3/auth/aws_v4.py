@@ -1,7 +1,6 @@
 """p2 s3 authentication mixin"""
 import hashlib
 import hmac
-from collections import OrderedDict
 from logging import getLogger
 from typing import Any, List, Optional
 from urllib.parse import quote
@@ -124,7 +123,13 @@ class AWSV4Authentication(BaseAuth):
     def _get_canonical_headers(self, only: List[str]) -> str:
         """Fix header keys from HTTP_X to x"""
         canonical_headers = ""
-        for header_key, header_value in OrderedDict(sorted(self.request.META.items())).items():
+
+        def sorter(item):
+            """Remove HTTP_ prefix, replace underscores with hyphens
+            and lowercase convert to lowercase for comparison"""
+            return item[0].replace('HTTP_', '', 1).replace('_', '-').lower()
+
+        for header_key, header_value in sorted(self.request.META.items(), key=sorter):
             fixed_key = header_key.replace('HTTP_', '', 1).replace('_', '-').lower()
             if fixed_key in only:
                 canonical_headers += f"{fixed_key}:{header_value}\n"
