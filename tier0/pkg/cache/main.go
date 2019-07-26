@@ -2,7 +2,6 @@ package cache
 
 import (
 	"crypto/sha256"
-	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -104,7 +103,7 @@ func NewCache(upstream p2.GRPCUpstream) Cache {
 	cache := groupcache.NewGroup("tier0", constants.CacheSize, groupcache.GetterFunc(
 		func(_ctx groupcache.Context, key string, dest groupcache.Sink) error {
 			if _ctx == nil {
-				return errors.New("Empty context for key '%s'", key)
+				return fmt.Errorf("Empty context for key '%s'", key)
 			}
 			ctx := _ctx.(CacheContext)
 			logger.Debugf("Fetching upstream key '%s'", key)
