@@ -42,8 +42,8 @@ class Volume(ExportModelOperationsMixin('volume'), UUIDModel, TagModel):
                 size_value=Cast(KeyTextTransform(
                     ATTR_BLOB_SIZE_BYTES, 'attributes'), BigIntegerField())
             ).aggregate(sum=Sum('size_value')).get('sum', 0)
-            cache.set(cache_key, used or 0, 30)
-        return cache.get(cache_key)
+            cache.set(cache_key, str(used or 0), 30)
+        return int(cache.get(cache_key))
 
     def component(self, class_or_path):
         """Get component instance for class or class path.
