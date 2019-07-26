@@ -318,7 +318,7 @@ with CONFIG.cd('log'):
             '()': 'colorlog.ColoredFormatter',
             'format': ('%(log_color)s%(asctime)s %(levelname)-8s %(name)-55s '
                        '%(funcName)-20s %(message)s'),
-        },
+        }
 
 
 TEST_RUNNER = 'xmlrunner.extra.djangotestrunner.XMLTestRunner'
