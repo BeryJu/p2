@@ -14,5 +14,3 @@ ATTR_BLOB_MIME = 'blob.p2.io/mime'
 ATTR_BLOB_IS_TEXT = 'blob.p2.io/is_text'
 
 TAG_BLOB_HEADERS = 'blob.p2.io/headers'
-
-CACHE_KEY_VOLUME_SIZE = 'cache.p2.io/core/volume-size/%s'

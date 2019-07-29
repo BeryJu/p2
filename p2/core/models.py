@@ -2,6 +2,7 @@
 import posixpath
 from logging import getLogger
 
+from django.utils.functional import cached_property
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.fields.jsonb import KeyTextTransform
 from django.core.cache import cache
@@ -14,7 +15,7 @@ from django.utils.translation import gettext as _
 from django_prometheus.models import ExportModelOperationsMixin
 
 from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
-                               ATTR_BLOB_STAT_MTIME, CACHE_KEY_VOLUME_SIZE)
+                               ATTR_BLOB_STAT_MTIME)
 from p2.core.prefix_helper import make_absolute_path, make_absolute_prefix
 from p2.core.tasks import signal_marshall
 from p2.core.validators import validate_blob_path
@@ -33,17 +34,13 @@ class Volume(ExportModelOperationsMixin('volume'), UUIDModel, TagModel):
     name = models.SlugField(unique=True)
     storage = models.ForeignKey('Storage', on_delete=models.CASCADE)
 
-    @property
+    @cached_property
     def space_used(self):
         """Return summed up size of all blobs in this volume."""
-        cache_key = CACHE_KEY_VOLUME_SIZE % self.name
-        if not cache.get(cache_key, None):
-            used = self.blob_set.all().annotate(
-                size_value=Cast(KeyTextTransform(
-                    ATTR_BLOB_SIZE_BYTES, 'attributes'), BigIntegerField())
-            ).aggregate(sum=Sum('size_value')).get('sum', 0)
-            cache.set(cache_key, str(used or 0), 30)
-        return int(cache.get(cache_key))
+        return self.blob_set.all().annotate(
+            size_value=Cast(KeyTextTransform(
+                ATTR_BLOB_SIZE_BYTES, 'attributes'), BigIntegerField())
+        ).aggregate(sum=Sum('size_value')).get('sum', 0)
 
     def component(self, class_or_path):
         """Get component instance for class or class path.
