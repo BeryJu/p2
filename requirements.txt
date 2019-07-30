@@ -25,6 +25,8 @@ djangorestframework==3.9.4
 djangorestframework-guardian
 djangorestframework-jwt
 drf-yasg[validation]
+# https://github.com/axnsan12/drf-yasg/issues/423
+ruamel.yaml>=0.15.34,<0.16.0
 # UI dependencies
 django-crispy-forms
 # S3 Storage dependencies
