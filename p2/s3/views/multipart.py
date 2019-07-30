@@ -80,7 +80,7 @@ class MultipartUploadView(S3View):
         })
         root = ElementTree.Element("{%s}InitiateMultipartUploadResult" % XML_NAMESPACE)
         ElementTree.SubElement(root, "Bucket").text = self.volume.name
-        ElementTree.SubElement(root, "Key").text = path
+        ElementTree.SubElement(root, "Key").text = path.lstrip('/')
         upload_id = uuid4().hex
         if existing.exists():
             blob = existing.first()

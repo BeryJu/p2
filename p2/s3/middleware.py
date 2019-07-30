@@ -84,7 +84,6 @@ class S3RoutingMiddleware:
                     request.user = user
             except AWSError as exc:
                 return self.process_exception(request, exc)
-                # return self.process_exception(request, exc)
             # AWS Views don't have CSRF Tokens, hence we use csrf_exempt
             setattr(request, '_dont_enforce_csrf_checks', True)
             # GET and HEAD requests are allowed over http, everything else is redirect to https
