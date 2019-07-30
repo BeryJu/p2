@@ -2,14 +2,13 @@
 import posixpath
 from logging import getLogger
 
-from django.utils.functional import cached_property
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.fields.jsonb import KeyTextTransform
-from django.core.cache import cache
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models import BigIntegerField, Sum
 from django.db.models.functions import Cast
+from django.utils.functional import cached_property
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django_prometheus.models import ExportModelOperationsMixin
