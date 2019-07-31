@@ -59,6 +59,9 @@ spec:
             - name: http
               containerPort: 8000
               protocol: TCP
+            - name: prometheus
+              containerPort: 9102
+              protocol: TCP
           volumeMounts:
             - mountPath: /etc/p2
               name: config-volume

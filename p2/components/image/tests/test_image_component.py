@@ -1,6 +1,7 @@
 """Test image component"""
 import os
 import pathlib
+from shutil import copyfileobj
 
 from django.test import TestCase
 
@@ -38,7 +39,7 @@ class ImageComponentTests(TestCase):
                 attributes={
                     'blob.p2.io/exif/%s' % EXIF_MODEL: 'invalid model'
                 })
-            blob.write(_example.read())
+            copyfileobj(_example, blob)
             blob.save()
         blob.refresh_from_db()
         self.assertEqual(blob.attributes['blob.p2.io/exif/%s' % EXIF_MODEL],

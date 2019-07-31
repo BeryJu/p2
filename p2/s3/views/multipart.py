@@ -7,8 +7,8 @@ from django.http.response import HttpResponse, StreamingHttpResponse
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.components.expire.constants import TAG_EXPIRE_DATE
-from p2.core.models import Blob
 from p2.core.constants import ATTR_BLOB_HASH_MD5
+from p2.core.models import Blob
 from p2.core.prefix_helper import make_absolute_path
 from p2.lib.shortcuts import get_list_for_user_or_404
 from p2.s3.constants import (TAG_S3_MULTIPART_BLOB_PART,

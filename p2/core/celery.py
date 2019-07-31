@@ -3,7 +3,8 @@ import os
 from logging.config import dictConfig
 
 from celery import Celery
-from celery.signals import setup_logging, after_task_publish, task_prerun, task_postrun
+from celery.signals import (after_task_publish, setup_logging, task_postrun,
+                            task_prerun)
 from django.conf import settings
 from structlog import get_logger
 
