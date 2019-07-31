@@ -1,5 +1,6 @@
 """p2 k8s deployment controller"""
 from typing import List
+from math import ceil
 
 from django.conf import settings
 from kubernetes.client import ApiClient, AppsV1Api, AutoscalingV2beta2Api
@@ -30,14 +31,18 @@ class DeploymentController:
     _client: ApiClient = None
     _apps_client: AppsV1Api = None
     _autoscaling_client: AutoscalingV2beta2Api = None
-    name = ""
+
     _namespace = ""
-    _dependencies = []
     _is_optional = False
+
+    name = ""
+    dependencies = []
+    dependency_scale_ration = 1
 
     def __init__(self, selector,
                  optional=False,
-                 dependencies: List['DeploymentController'] = None):
+                 dependencies: List['DeploymentController'] = None,
+                 dependency_scale_ration=1):
         try:
             load_incluster_config()
         except ConfigException:
@@ -80,10 +85,11 @@ class DeploymentController:
             self.name, self._namespace, pretty=settings.DEBUG)
         current.spec.replicas = replicas
         # Before we scale, check dependencies and scale those
-        if self._dependencies:
-            for dependency in self._dependencies:
+        if self.dependencies:
+            for dependency in self.dependencies:
                 LOGGER.debug("Scaled dependency", dependency=dependency.name)
-                dependency.scale = replicas
+                dependency.scale = ceil(
+                    replicas * dependency.dependency_scale_ration * self.dependency_scale_ration)
         self._apps_client.patch_namespaced_deployment_scale(
             self.name, self._namespace, current, pretty=settings.DEBUG)
         LOGGER.info("Successfully scaled deployment",
@@ -144,6 +150,6 @@ class DeploymentController:
 
 WEB_DEPLOYMENT = DeploymentController("web")
 STATIC_DEPLOYMENT = DeploymentController("static")
-GRPC_DEPLOYMENT = DeploymentController("grpc", optional=True)
+GRPC_DEPLOYMENT = DeploymentController("grpc", optional=True, dependency_scale_ration=0.2)
 TIER0_DEPLOYMENT = DeploymentController("tier0", optional=True, dependencies=[GRPC_DEPLOYMENT])
 WORKER_DEPLOYMENT = DeploymentController("worker")
