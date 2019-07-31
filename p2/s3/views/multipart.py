@@ -8,6 +8,7 @@ from guardian.shortcuts import assign_perm, get_objects_for_user
 
 from p2.components.expire.constants import TAG_EXPIRE_DATE
 from p2.core.models import Blob
+from p2.core.constants import ATTR_BLOB_HASH_MD5
 from p2.core.prefix_helper import make_absolute_path
 from p2.lib.shortcuts import get_list_for_user_or_404
 from p2.s3.constants import (TAG_S3_MULTIPART_BLOB_PART,
@@ -131,5 +132,5 @@ class MultipartUploadView(S3View):
         blob.save()
         # This response needs an ETag
         response = HttpResponse(status=200)
-        response['ETag'] = blob.uuid.hex
+        response['ETag'] = blob.attributes.get(ATTR_BLOB_HASH_MD5)
         return response
