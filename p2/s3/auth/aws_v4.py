@@ -9,11 +9,14 @@ from django.http import HttpRequest, QueryDict
 from structlog import get_logger
 
 from p2.api.models import APIKey
+from p2.lib.hash import chunked_hasher
 from p2.s3.auth.base import BaseAuth
 from p2.s3.errors import (AWSAccessDenied, AWSContentSignatureMismatch,
                           AWSSignatureMismatch)
 
 LOGGER = get_logger()
+UNSIGNED_PAYLOAD = 'UNSIGNED-PAYLOAD'
+
 
 class SignatureMismatch(Exception):
     """Exception raised when given Hash does not match request body's hash"""
@@ -171,6 +174,23 @@ class AWSV4Authentication(BaseAuth):
             return True
         return False
 
+    def verify_content_sha256(self, auth_request: AWSv4AuthenticationRequest):
+        """Verify X-Amz-Content-Sha256 Header, if sent"""
+        # Header not set -> Empty hash, no checking
+        if not auth_request.hash:
+            auth_request.hash = ''
+            return
+        # Client has not calculated SHA256 of payload, no checking
+        if auth_request.hash == UNSIGNED_PAYLOAD:
+            return
+        # Read request body chunk by chunk, compute sha256 and compare.
+        request_body_hash = chunked_hasher(hashlib.sha256(), self.request)
+        if auth_request.hash != request_body_hash:
+            LOGGER.warning("CONTENT_SHA256 Header/param incorrect",
+                           theirs=auth_request.hash,
+                           ours=request_body_hash)
+            raise AWSContentSignatureMismatch
+
     def validate(self) -> Optional[User]:
         """Check Authorization Header in AWS Compatible format"""
         auth_request = AWSv4AuthenticationRequest.from_header(self.request.META)
@@ -179,9 +199,7 @@ class AWSV4Authentication(BaseAuth):
         auth_request.hash = self.request.META.get('HTTP_X_AMZ_CONTENT_SHA256')
 
         # Verify given Hash with request body
-        if auth_request.hash != self._get_sha256(self.request.body):
-            LOGGER.debug("CONTENT_SHA256 Header/param incorrect")
-            raise AWSContentSignatureMismatch
+        self.verify_content_sha256(auth_request)
         # Build our own signature to compare
         secret_key = self._lookup_access_key(auth_request.access_key)
         if not secret_key:
