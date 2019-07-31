@@ -1,39 +1,31 @@
 """p2 k8s deployment controller"""
-from typing import List
 from math import ceil
+from typing import List
 
 from django.conf import settings
-from kubernetes.client import ApiClient, AppsV1Api, AutoscalingV2beta2Api
+from kubernetes.client import AppsV1Api, AutoscalingV2beta2Api
 from kubernetes.client.models import (V1ObjectMeta,
                                       V2beta2CrossVersionObjectReference,
                                       V2beta2HorizontalPodAutoscaler,
                                       V2beta2HorizontalPodAutoscalerSpec,
                                       V2beta2MetricSpec, V2beta2MetricTarget,
                                       V2beta2ResourceMetricSource)
-from kubernetes.config import load_incluster_config, load_kube_config
-from kubernetes.config.config_exception import ConfigException
 from kubernetes.client.rest import ApiException
 from structlog import get_logger
 
+from p2.k8s.api import FIELD_MANAGER, MANAGED_BY, APIHelper
 from p2.k8s.exceptions import DeploymentNotFound, InvalidDeploymentScale
-from p2.lib.config import CONFIG
 
 LOGGER = get_logger()
 DEPLOYMENT_SELECTOR = 'k8s.p2.io/deployment'
-MANAGED_BY = {
-    "app.kubernetes.io/managed-by": "k8s.p2.io"
-}
-FIELD_MANAGER = 'k8s.p2.io'
 
-class DeploymentController:
+class DeploymentController(APIHelper):
     """Controls whether a feature is enabled/disabled, the scale of it and
     Horizontal autoscaling."""
 
-    _client: ApiClient = None
     _apps_client: AppsV1Api = None
     _autoscaling_client: AutoscalingV2beta2Api = None
 
-    _namespace = ""
     _is_optional = False
 
     name = ""
@@ -44,16 +36,7 @@ class DeploymentController:
                  optional=False,
                  dependencies: List['DeploymentController'] = None,
                  dependency_scale_ration=1):
-        try:
-            load_incluster_config()
-        except ConfigException:
-            try:
-                load_kube_config()
-                self._namespace = CONFIG.y('k8s_namespace')
-            except TypeError:
-                LOGGER.warning("Failed to load K8s configuration.")
-                return
-        self._client = ApiClient()
+        super().__init__()
         self._apps_client = AppsV1Api(self._client)
         self._autoscaling_client = AutoscalingV2beta2Api(self._client)
         self._is_optional = optional
