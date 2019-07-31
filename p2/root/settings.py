@@ -15,6 +15,7 @@ import logging
 import os
 import sys
 
+import structlog
 from sentry_sdk import init as sentry_init
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -277,10 +278,32 @@ if not DEBUG:
 
 STATIC_URL = '/_/static/'
 
+structlog.configure_once(
+    processors=[
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.TimeStamper(),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+    ],
+    context_class=structlog.threadlocal.wrap_dict(dict),
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
+
+LOG_PRE_CHAIN = [
+    # Add the log level and a timestamp to the event_dict if the log entry
+    # is not from structlog.
+    structlog.stdlib.add_log_level,
+    structlog.processors.TimeStamper(),
+]
+
 with CONFIG.cd('log'):
     LOGGING_HANDLER_MAP = {
         'p2': 'DEBUG',
-        'django': 'INFO',
+        'django': 'WARNING',
         'celery': 'WARNING',
         'botocore': 'WARNING',
         'werkzeug': 'DEBUG',
@@ -292,17 +315,22 @@ with CONFIG.cd('log'):
         'version': 1,
         'disable_existing_loggers': False,
         'formatters': {
-            'json': {
-                '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
-                'format': '%(asctime)s %(levelname)-8s %(name)-55s '
-                          '%(funcName)-20s %(message)s',
-            }
+            "plain": {
+                "()": structlog.stdlib.ProcessorFormatter,
+                "processor": structlog.processors.JSONRenderer(),
+                "foreign_pre_chain": LOG_PRE_CHAIN,
+            },
+            "colored": {
+                "()": structlog.stdlib.ProcessorFormatter,
+                "processor": structlog.dev.ConsoleRenderer(colors=DEBUG),
+                "foreign_pre_chain": LOG_PRE_CHAIN,
+            },
         },
         'handlers': {
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
-                'formatter': 'colored' if DEBUG else 'json',
+            "default": {
+                "level": "DEBUG",
+                "class": "logging.StreamHandler",
+                "formatter": "colored" if DEBUG else "plain",
             },
         },
         'loggers': {
@@ -310,15 +338,9 @@ with CONFIG.cd('log'):
     }
     for handler_name, level in LOGGING_HANDLER_MAP.items():
         LOGGING['loggers'][handler_name] = {
-            'handlers': ['console'],
+            'handlers': ['default'],
             'level': level,
             'propagate': True,
-        }
-    if DEBUG:
-        LOGGING['formatters']['colored'] = {
-            '()': 'colorlog.ColoredFormatter',
-            'format': ('%(log_color)s%(asctime)s %(levelname)-8s %(name)-55s '
-                       '%(funcName)-20s %(message)s'),
         }
 
 

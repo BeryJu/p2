@@ -1,12 +1,11 @@
 """p2 import controller"""
-from logging import getLogger
-
 from PIL import ExifTags, Image
+from structlog import get_logger
 
 from p2.components.image.constants import TAG_IMAGE_EXIF_TAGS
 from p2.core.components.base import ComponentController
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 # pylint: disable=too-few-public-methods
 class ImageController(ComponentController):
@@ -37,7 +36,7 @@ class ImageController(ComponentController):
             blob.save()
         except IOError as exc:
             LOGGER.debug(exc)
-            LOGGER.debug("Blob '%s' is not an image, skipping EXIF.", blob.uuid)
+            LOGGER.debug("Blob is not an image, skipping EXIF.", blob=blob)
 
     def get_attributes(self, raw_exif):
         """Convert raw exif data into usable tags"""

@@ -1,10 +1,12 @@
 """p2 logging"""
+
 from collections import ChainMap
 from time import time
 from uuid import uuid4
 
-# from p2.log.tasks import write_log_record
+from structlog import get_logger
 
+LOGGER = get_logger()
 
 class LogAdaptor:
     """Cache logged data and add log method to request"""
@@ -22,6 +24,7 @@ class LogAdaptor:
         request.log(
             uid=request.uid,
             start_time=time())
+        LOGGER.bind(request_id=request.uid)
 
     def end_request(self, request):
         """Flatten logged data and create Record"""

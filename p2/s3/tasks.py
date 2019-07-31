@@ -1,5 +1,4 @@
 """p2 S3 Tasks"""
-from logging import getLogger
 from shutil import copyfileobj
 from xml.etree import ElementTree
 
@@ -8,6 +7,7 @@ from django.contrib.postgres.fields.jsonb import KeyTextTransform
 from django.db.models import IntegerField
 from django.db.models.functions import Cast
 from guardian.shortcuts import assign_perm, get_objects_for_user
+from structlog import get_logger
 
 from p2.core.celery import CELERY_APP
 from p2.core.constants import ATTR_BLOB_HASH_MD5
@@ -17,13 +17,14 @@ from p2.s3.constants import (TAG_S3_MULTIPART_BLOB_PART,
                              TAG_S3_MULTIPART_BLOB_TARGET_BLOB,
                              TAG_S3_MULTIPART_BLOB_UPLOAD_ID, XML_NAMESPACE)
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
+
 
 @CELERY_APP.task
 def complete_multipart_upload(upload_id, user_pk, volume_pk, path):
     """Generator to merge all part-blobs together. Yields spaces while merging
     is running to keep request from timing out"""
-    LOGGER.debug("Assembling blob '%s'", path)
+    LOGGER.debug("Assembling blob", path=path)
     user = User.objects.get(pk=user_pk)
     volume = Volume.objects.get(pk=volume_pk)
     # Create the destination blob
@@ -40,7 +41,7 @@ def complete_multipart_upload(upload_id, user_pk, volume_pk, path):
                         user, destination_blob)
     else:
         destination_blob = blobs.first()
-        LOGGER.debug("Updating existing blob %s", destination_blob.uuid.hex)
+        LOGGER.debug("Updating existing blob", blob=destination_blob)
     # Go through all temporary blobs and combine them into one
     try:
         parts = get_objects_for_user(user, 'p2_core.change_blob').filter(**{
@@ -51,9 +52,9 @@ def complete_multipart_upload(upload_id, user_pk, volume_pk, path):
         parts = parts.annotate(
             part_number=Cast(KeyTextTransform(
                 TAG_S3_MULTIPART_BLOB_PART, 'tags'), IntegerField())).order_by('part_number')
-        LOGGER.debug("Found %d parts", len(parts))
+        LOGGER.debug("Found parts", count=len(parts))
         for index, part in enumerate(parts):
-            LOGGER.debug("Appending part %d", index)
+            LOGGER.debug("Appending part", index=index)
             copyfileobj(part, destination_blob)
         LOGGER.debug("Saving final blob")
         destination_blob.save()

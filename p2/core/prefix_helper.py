@@ -1,12 +1,12 @@
 """p2 core prefix helpers"""
 import posixpath
 import re
-from logging import getLogger
 from typing import List
 
 from guardian.shortcuts import get_objects_for_user
+from structlog import get_logger
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 SEPARATOR = posixpath.sep
 
 
@@ -134,9 +134,9 @@ class PrefixHelper:
         ).distinct("prefix")
         # Make max_level relative to base
         _max_level = self._base.count(SEPARATOR) + max_levels
-        LOGGER.debug("Finding prefixes with base '%s'", self._base)
+        LOGGER.debug("Finding prefixes with base", base=self._base)
         for blob in objects:
-            LOGGER.debug("Found '%s'", blob.prefix)
+            LOGGER.debug("Found prefix", prefix=blob.prefix)
             if blob.prefix == self._base:
                 LOGGER.debug("Prefix equals base, ignoring it")
                 continue

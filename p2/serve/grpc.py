@@ -1,10 +1,10 @@
 """Serve GRPC functionality"""
-from logging import getLogger
 from typing import List, Match, Optional, Tuple
 
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from guardian.shortcuts import get_anonymous_user, get_objects_for_user
+from structlog import get_logger
 
 from p2.core.constants import TAG_BLOB_HEADERS
 from p2.core.models import Blob
@@ -13,7 +13,7 @@ from p2.grpc.protos.serve_pb2_grpc import ServeServicer
 from p2.log.adaptor import LOG_ADAPTOR
 from p2.serve.models import ServeRule
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 # pylint: disable=too-few-public-methods
 class MockRequest:

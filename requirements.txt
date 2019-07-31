@@ -17,7 +17,7 @@ py-grpc-prometheus
 protobuf
 psycopg2
 packaging
-python-json-logger
+structlog
 cherrypy
 # API dependencies
 django-filter

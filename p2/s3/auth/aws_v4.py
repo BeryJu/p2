@@ -1,19 +1,19 @@
 """p2 s3 authentication mixin"""
 import hashlib
 import hmac
-from logging import getLogger
 from typing import Any, List, Optional
 from urllib.parse import quote
 
 from django.contrib.auth.models import User
 from django.http import HttpRequest, QueryDict
+from structlog import get_logger
 
 from p2.api.models import APIKey
 from p2.s3.auth.base import BaseAuth
 from p2.s3.errors import (AWSAccessDenied, AWSContentSignatureMismatch,
                           AWSSignatureMismatch)
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 class SignatureMismatch(Exception):
     """Exception raised when given Hash does not match request body's hash"""
@@ -185,7 +185,7 @@ class AWSV4Authentication(BaseAuth):
         # Build our own signature to compare
         secret_key = self._lookup_access_key(auth_request.access_key)
         if not secret_key:
-            LOGGER.debug("No secret key found for request %s", auth_request.access_key)
+            LOGGER.warning("No secret key found for request", access_key=auth_request.access_key)
             raise AWSAccessDenied
         signing_key = self._get_signature_key(secret_key.secret_key, auth_request)
         canonical_request = self._get_canonical_request(auth_request)
@@ -197,8 +197,8 @@ class AWSV4Authentication(BaseAuth):
         ])
         our_signature = self._sign(signing_key, string_to_sign).hexdigest()
         if auth_request.signature != our_signature:
-            LOGGER.debug("Canonical Request: '%s'", canonical_request)
-            LOGGER.debug("Ours: %s", our_signature)
-            LOGGER.debug("Theirs: %s", auth_request.signature)
+            LOGGER.warning("Canonical Request", canonical_request=canonical_request)
+            LOGGER.warning("Signatures", theirs=auth_request.signature,
+                           ours=our_signature)
             raise AWSSignatureMismatch
         return secret_key.user

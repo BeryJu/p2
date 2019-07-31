@@ -1,12 +1,11 @@
 """p2 Worker management command"""
 
-from logging import getLogger
-
 from django.core.management.base import BaseCommand
+from structlog import get_logger
 
 from p2.core.celery import CELERY_APP
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 
 class Command(BaseCommand):

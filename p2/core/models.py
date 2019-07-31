@@ -1,6 +1,5 @@
 """p2 Core models"""
 import posixpath
-from logging import getLogger
 
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.fields.jsonb import KeyTextTransform
@@ -12,6 +11,7 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django_prometheus.models import ExportModelOperationsMixin
+from structlog import get_logger
 
 from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
                                ATTR_BLOB_STAT_MTIME)
@@ -22,7 +22,7 @@ from p2.lib.models import TagModel, UUIDModel
 from p2.lib.reflection import class_to_path, path_to_class
 from p2.lib.reflection.manager import ControllerManager
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 STORAGE_MANAGER = ControllerManager('storage.controllers', lazy=True)
 COMPONENT_MANAGER = ControllerManager('component.controllers', lazy=True)
 
@@ -180,7 +180,7 @@ class Blob(ExportModelOperationsMixin('blob'), UUIDModel, TagModel):
             })
 
     def __str__(self):
-        return "<Blob %s://%s>" % (self.volume.name, self.path)
+        return "<Blob %s:/%s>" % (self.volume.name, self.path)
 
 
 class Storage(ExportModelOperationsMixin('storage'), UUIDModel, TagModel):

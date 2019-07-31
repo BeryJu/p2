@@ -1,15 +1,13 @@
 """p2 Webserver management command"""
 
-from logging import getLogger
-
 import cherrypy
 from django.core.management.base import BaseCommand
+from structlog import get_logger
 
 from p2.lib.config import CONFIG
 from p2.root.wsgi import application
 
-LOGGER = getLogger(__name__)
-
+LOGGER = get_logger()
 
 class Command(BaseCommand):
     """Run CherryPy webserver"""
@@ -30,5 +28,5 @@ class Command(BaseCommand):
         cherrypy.engine.start()
         for file in CONFIG.loaded_file:
             cherrypy.engine.autoreload.files.add(file)
-            LOGGER.info("Added '%s' to autoreload triggers", file)
+            LOGGER.info("Added file to autoreload triggers", file=file)
         cherrypy.engine.block()

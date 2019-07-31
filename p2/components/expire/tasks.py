@@ -1,12 +1,12 @@
 """expiry tasks"""
-from logging import getLogger
+from structlog import get_logger
 
 from p2.components.expire.controller import ExpiryController
 from p2.core.celery import CELERY_APP
 from p2.core.models import Component
 from p2.lib.reflection import class_to_path
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 @CELERY_APP.task(bind=True)
 # pylint: disable=unused-argument

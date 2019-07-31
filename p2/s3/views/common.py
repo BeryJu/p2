@@ -1,11 +1,11 @@
 """common s3 views"""
 import base64
 from hashlib import md5
-from logging import getLogger
 
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from guardian.shortcuts import get_objects_for_user
+from structlog import get_logger
 
 from p2.core.models import Blob, Volume
 from p2.s3.errors import (AWSBadDigest, AWSError, AWSInvalidDigest,
@@ -13,7 +13,9 @@ from p2.s3.errors import (AWSBadDigest, AWSError, AWSInvalidDigest,
 
 CONTENT_MD5_HEADER = 'HTTP_CONTENT_MD5'
 X_AMZ_ACL_HEADER = 'HTTP_X_AMZ_ACL'
-LOGGER = getLogger(__name__)
+
+
+LOGGER = get_logger()
 
 VALID_ACLS = ["private",
               "public-read",
@@ -38,8 +40,9 @@ class S3View(View):
             ours = base64.b64encode(hasher.digest()).decode('utf-8')
             if self.request.META.get(CONTENT_MD5_HEADER) != ours:
                 LOGGER.debug(self.request.body)
-                LOGGER.debug("Got bad digest: theirs %s vs ours %s",
-                             self.request.META.get(CONTENT_MD5_HEADER), ours)
+                LOGGER.debug("Got bad digest",
+                             theirs=self.request.META.get(CONTENT_MD5_HEADER),
+                             ours=ours)
                 raise AWSBadDigest
 
     def apply_acl_permissions(self):

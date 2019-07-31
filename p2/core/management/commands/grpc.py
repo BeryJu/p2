@@ -3,7 +3,6 @@
 import time
 from concurrent import futures
 from contextlib import contextmanager
-from logging import getLogger
 
 import grpc
 from django.core.management.base import BaseCommand
@@ -12,11 +11,12 @@ from grpc_reflection.v1alpha import reflection
 from prometheus_client import start_http_server
 from py_grpc_prometheus.prometheus_server_interceptor import \
     PromServerInterceptor
+from structlog import get_logger
 
 from p2.grpc.protos import serve_pb2, serve_pb2_grpc
 from p2.serve.grpc import Serve
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 

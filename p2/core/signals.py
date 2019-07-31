@@ -1,16 +1,16 @@
 """p2 signals"""
 import hashlib
-from logging import getLogger
 
 from django.core.signals import Signal
 from django.db.models.signals import post_save, pre_delete, pre_save
 from django.dispatch import receiver
+from structlog import get_logger
 
 from p2.core import constants
 from p2.core.models import Blob
 from p2.lib.hash import chunked_hasher_multiple
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 BLOB_PAYLOAD_UPDATED = Signal(providing_args=['blob'])
 BLOB_ACCESS = Signal(providing_args=['status_code', ''])
@@ -56,5 +56,5 @@ def blob_payload_hash(sender, blob, **kwargs):
         attr_name = getattr(constants, 'ATTR_BLOB_HASH_%s' % hash_name.upper())
         if attr_name not in blob.attributes or blob.attributes[attr_name] != hash_digest:
             blob.attributes[attr_name] = hash_digest
-            LOGGER.debug('Updated %s for %s to %s', hash_name, blob.uuid.hex, hash_digest)
+            LOGGER.debug("Updated blob hash", hash_name=hash_name, blob=blob, digest=hash_digest)
     blob.save()

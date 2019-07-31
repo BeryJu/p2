@@ -1,10 +1,10 @@
 """p2 local store controller"""
 import os
 from io import RawIOBase
-from logging import getLogger
 from shutil import copyfileobj
 
 import magic
+from structlog import get_logger
 
 from p2.core.constants import (ATTR_BLOB_IS_TEXT, ATTR_BLOB_MIME,
                                ATTR_BLOB_SIZE_BYTES)
@@ -12,7 +12,7 @@ from p2.core.models import Blob
 from p2.core.storages.base import StorageController
 from p2.storage.local.constants import TAG_ROOT_PATH
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 TEXT_CHARACTERS = str.encode("".join(list(map(chr, range(32, 127))) + list("\n\r\t\b")))
 
 class LocalStorageController(StorageController):
@@ -61,22 +61,20 @@ class LocalStorageController(StorageController):
             blob.attributes[ATTR_BLOB_MIME] = mime_type
             blob.attributes[ATTR_BLOB_IS_TEXT] = self.is_text(self._build_path(blob))
             blob.attributes[ATTR_BLOB_SIZE_BYTES] = str(size)
-            LOGGER.debug('Updated size to %d for %s', size, blob.uuid.hex)
+            LOGGER.debug('Updated size to Blob', size=size, blob=blob)
 
     def get_read_handle(self, blob: Blob) -> RawIOBase:
         fs_path = self._build_path(blob)
-        LOGGER.debug('RETR "%s"', blob.uuid)
+        LOGGER.debug('RETR "%s"', blob.uuid, file=fs_path)
         if os.path.exists(fs_path) and os.path.isfile(fs_path):
-            LOGGER.debug("  -> Opening '%s' for retrival.", fs_path)
             return open(fs_path, 'rb')
-        LOGGER.warning("File '%s' does not exist or is not a file.", fs_path)
+        LOGGER.warning("File does not exist or is not a file.", file=fs_path)
         return None
 
     def commit(self, blob: Blob, handle: RawIOBase):
         fs_path = self._build_path(blob)
         os.makedirs(os.path.dirname(fs_path), exist_ok=True)
-        LOGGER.debug('COMT "%s"', blob.uuid)
-        LOGGER.debug("  -> Opening '%s' for updating.", fs_path)
+        LOGGER.debug('COMT "%s"', blob.uuid, file=fs_path)
         with open(fs_path, 'wb') as _dest:
             return copyfileobj(handle, _dest)
 
@@ -86,7 +84,6 @@ class LocalStorageController(StorageController):
         # Not file_like, delete file if it exists
         if os.path.exists(fs_path) and os.path.isfile(fs_path):
             os.unlink(fs_path)
-            LOGGER.debug("  -> Deleted '%s'.", fs_path)
+            LOGGER.debug("Deleted file", file=fs_path)
         else:
-            LOGGER.warning(
-                "File '%s' does not exist during deletion attempt.", fs_path)
+            LOGGER.warning("File does not exist during deletion attempt.", file=fs_path)

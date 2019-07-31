@@ -1,15 +1,13 @@
 """p2 s3 routing middleware"""
-from logging import getLogger
-
 from django.http import HttpRequest
+from structlog import get_logger
 
 from p2.lib.config import CONFIG
 from p2.s3.auth.aws_v4 import AWSV4Authentication
 from p2.s3.errors import AWSError, AWSIncompleteBody, AWSMissingContentLength
 from p2.s3.http import AWSErrorView
 
-LOGGER = getLogger(__name__)
-
+LOGGER = get_logger()
 CONTENT_LENGTH_HEADER = 'CONTENT_LENGTH'
 
 # pylint: disable=too-few-public-methods
@@ -24,7 +22,7 @@ class S3RoutingMiddleware:
         """Catch AWS-specific exceptions and show them as XML response"""
         if CONFIG.y('debug'):
             LOGGER.exception(exception)
-            LOGGER.debug("Request Body: %s", request.body)
+            LOGGER.debug("Request Body ", body=request.body)
         if isinstance(exception, AWSError):
             return AWSErrorView(exception)
         return None
@@ -93,6 +91,6 @@ class S3RoutingMiddleware:
         response = self.get_response(request)
         if CONFIG.y('debug') and response.status_code > 300:
             if response['Content-Type'] == 'text/xml':
-                LOGGER.debug("Request Body: %s", request.body)
-                LOGGER.debug("Response Body: %s", response.content)
+                LOGGER.debug("Request Body", body=request.body)
+                LOGGER.debug("Response Body", body=response.content)
         return response

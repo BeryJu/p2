@@ -1,12 +1,13 @@
 """p2 expiry controller"""
-from logging import getLogger
 from time import time
+
+from structlog import get_logger
 
 from p2.components.expire.constants import TAG_EXPIRE_DATE
 from p2.core.components.base import ComponentController
 from p2.core.models import Blob
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 # pylint: disable=too-few-public-methods
 class ExpiryController(ComponentController):

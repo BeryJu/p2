@@ -1,9 +1,9 @@
 """p2 Serve Models"""
 import re
-from logging import getLogger
 from typing import Match, Optional
 
 from django.db import models
+from structlog import get_logger
 
 from p2.grpc.protos.serve_pb2 import ServeRequest
 from p2.lib.models import TagModel, UUIDModel
@@ -11,7 +11,7 @@ from p2.serve.constants import (TAG_SERVE_MATCH_HOST, TAG_SERVE_MATCH_META,
                                 TAG_SERVE_MATCH_PATH,
                                 TAG_SERVE_MATCH_PATH_RELATIVE)
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 class ServeRule(TagModel, UUIDModel):
     """ServeRule which converts a URL matching a regular expression toa database lookup"""

@@ -1,15 +1,16 @@
 """p2 replication controller"""
 import copy
-from logging import getLogger
 from shutil import copyfileobj
 from time import time
+
+from structlog import get_logger
 
 from p2.components.replication.constants import (TAG_BLOB_SOURCE_UUID,
                                                  TAG_REPLICATION_TARGET)
 from p2.core.components.base import ComponentController
 from p2.core.models import Blob, Volume
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 # pylint: disable=too-few-public-methods
 class ReplicationController(ComponentController):
@@ -25,15 +26,15 @@ class ReplicationController(ComponentController):
 
     def _get_target_blob(self, source_blob):
         target_volume = self.target_volume
-        # Check if there's a blob thats our source UUID as attribute
+        # Check if there's a blob that's our source UUID as attribute
         possible_targets = Blob.objects.filter(**{
             'volume': target_volume,
             'attributes__%s' % TAG_BLOB_SOURCE_UUID: source_blob.uuid.hex})
         if possible_targets.exists():
             target_blob = possible_targets.first()
-            LOGGER.debug("Found existing target blob: %s", target_blob.uuid.hex)
+            LOGGER.debug("Found existing target blob", target=target_blob.uuid.hex)
         else:
-            LOGGER.debug("Creating new replicated blob for %s", source_blob.uuid.hex)
+            LOGGER.debug("Creating new replicated blob", source=source_blob.uuid.hex)
             target_blob = Blob.objects.create(
                 path=source_blob.path,
                 volume=target_volume,
@@ -57,7 +58,7 @@ class ReplicationController(ComponentController):
 
     def metadata_update(self, blob):
         """Replicate metadata save"""
-        LOGGER.debug('Replicating::UpdateMetadata %s', blob.uuid.hex)
+        LOGGER.debug('Replicating::UpdateMetadata', blob=blob)
         target_blob = self._get_target_blob(blob)
         target_blob.path = blob.path
         for attr in ['path', 'prefix', 'attributes', 'tags']:
@@ -69,13 +70,13 @@ class ReplicationController(ComponentController):
 
     def payload_update(self, blob):
         """Replicate payload update"""
-        LOGGER.debug('Replicating::UpdatePayload %s', blob.uuid.hex)
+        LOGGER.debug('Replicating::UpdatePayload', blob=blob)
         target_blob = self._get_target_blob(blob)
         copyfileobj(blob, target_blob)
         return target_blob
 
     def delete(self, blob):
         """Delete remote blob"""
-        LOGGER.debug('Replicating::Delete %s', blob.uuid.hex)
+        LOGGER.debug('Replicating::Delete', blob=blob)
         target_blob = self._get_target_blob(blob)
         target_blob.delete()

@@ -1,57 +1,47 @@
 """p2 celery"""
 import os
-from logging import getLogger
 from logging.config import dictConfig
 
-import celery
+from celery import Celery
+from celery.signals import setup_logging, after_task_publish, task_prerun, task_postrun
 from django.conf import settings
+from structlog import get_logger
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "p2.core.settings")
 
-LOGGER = getLogger(__name__)
-
-
-class Celery(celery.Celery):
-    """Custom Celery class with Raven configured"""
-
-    # pylint: disable=method-hidden
-    def on_configure(self):
-        """Update raven client"""
-        # client = Client(settings.RAVEN_CONFIG.get('dsn'))
-        # # register a custom filter to filter out duplicate logs
-        # register_logger_signal(client)
-        # # hook into the Celery error handler
-        # register_signal(client)
+LOGGER = get_logger()
 
 # pylint: disable=unused-argument
-@celery.signals.setup_logging.connect
+@setup_logging.connect
 def config_loggers(*args, **kwags):
     """Apply logging settings from settings.py to celery"""
     dictConfig(settings.LOGGING)
 
 
 # pylint: disable=unused-argument
-@celery.signals.after_task_publish.connect
+@after_task_publish.connect
 def after_task_publish(sender=None, headers=None, body=None, **kwargs):
     """Log task_id after it was published"""
     info = headers if 'task' in headers else body
-    LOGGER.debug('%-40s published (name=%s)', info.get('id', ''), info.get('task', ''))
+    LOGGER.debug('Task published', task_id=info.get('id', ''), task_name=info.get('task', ''))
 
 
 # pylint: disable=unused-argument
-@celery.signals.task_prerun.connect
+@task_prerun.connect
 def task_prerun(task_id, task, *args, **kwargs):
     """Log task_id on worker"""
-    LOGGER.debug('%-40s started (name=%s)', task_id, task.__name__)
+    LOGGER.debug('Task started', task_id=task_id, task_name=task.__name__)
 
 
 # pylint: disable=unused-argument
-@celery.signals.task_postrun.connect
+@task_postrun.connect
 def task_postrun(task_id, task, *args, retval=None, state=None, **kwargs):
     """Log task_id on worker"""
-    LOGGER.debug('%-40s finished (name=%s, state=%s)',
-                 task_id, task.__name__, state)
+    LOGGER.debug('Task finished',
+                 task_id=task_id,
+                 task_name=task.__name__,
+                 state=state)
 
 
 CELERY_APP = Celery('p2')

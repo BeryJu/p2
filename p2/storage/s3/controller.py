@@ -1,17 +1,17 @@
 """p2 s3 store controller"""
 from io import RawIOBase
-from logging import getLogger
 from tempfile import SpooledTemporaryFile
 
 import boto3
 from botocore.exceptions import ClientError
+from structlog import get_logger
 
 from p2.core.models import Blob
 from p2.core.storages.base import StorageController
 from p2.storage.s3.constants import (TAG_ACCESS_KEY, TAG_ENDPOINT, TAG_REGION,
                                      TAG_SECRET_KEY)
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 class S3StorageController(StorageController):
     """S3 storage controller, save blobs as files"""

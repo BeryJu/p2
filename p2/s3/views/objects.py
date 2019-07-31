@@ -1,8 +1,7 @@
 """p2 S3 Object views"""
-from logging import getLogger
-
 from django.http.response import HttpResponse
 from guardian.shortcuts import assign_perm, get_objects_for_user
+from structlog import get_logger
 
 from p2.core.constants import ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES
 from p2.core.http import BlobResponse
@@ -12,7 +11,7 @@ from p2.s3.errors import AWSAccessDenied, AWSNoSuchBucket
 from p2.s3.views.common import S3View
 from p2.s3.views.multipart import MultipartUploadView
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 
 class ObjectView(S3View):

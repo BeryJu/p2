@@ -3,19 +3,19 @@ import os
 from collections import Mapping
 from contextlib import contextmanager
 from glob import glob
-from logging import getLogger
 from typing import Any
 
 import yaml
 from django.conf import ImproperlyConfigured
 from django.utils.autoreload import autoreload_started
+from structlog import get_logger
 
 SEARCH_PATHS = [
     'p2/lib/default.yml',
     '/etc/p2/config.yml',
     '',
 ] + glob('/etc/p2/config.d/*.yml', recursive=True)
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 ENVIRONMENT = os.getenv('P2_ENV', 'local')
 
 
@@ -81,7 +81,7 @@ class ConfigLoader:
             with open(path) as file:
                 try:
                     self.update(self.__config, yaml.safe_load(file))
-                    LOGGER.debug("Loaded %s")
+                    LOGGER.debug("Loaded config", file=path)
                     self.loaded_file.append(path)
                 except yaml.YAMLError as exc:
                     raise ImproperlyConfigured from exc

@@ -1,7 +1,7 @@
 """p2 sentry integration"""
-from logging import getLogger
+from structlog import get_logger
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 
 def before_send(event, hint):

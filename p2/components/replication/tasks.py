@@ -1,11 +1,11 @@
 """p2 replication component tasks"""
-from logging import getLogger
+from structlog import get_logger
 
 from p2.components.replication.controller import ReplicationController
 from p2.core.celery import CELERY_APP
 from p2.core.models import Blob, Volume
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 @CELERY_APP.task
 def replicate_metadata_update_task(source_blob_pk):

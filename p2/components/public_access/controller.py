@@ -1,12 +1,11 @@
 """p2 public_access controller"""
-from logging import getLogger
-
 from guardian.shortcuts import assign_perm
 from guardian.utils import get_anonymous_user
+from structlog import get_logger
 
 from p2.core.components.base import ComponentController
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 # pylint: disable=too-few-public-methods
 class PublicAccessController(ComponentController):

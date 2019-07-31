@@ -1,5 +1,5 @@
 """p2 quota controller"""
-from logging import getLogger
+from structlog import get_logger
 
 from p2.components.quota.constants import (ACTION_BLOCK, ACTION_EMAIL,
                                            ACTION_NOTHING, TAG_QUOTA_ACTION,
@@ -8,7 +8,7 @@ from p2.components.quota.exceptions import QuotaExceededException
 from p2.core.components.base import ComponentController
 from p2.core.constants import ATTR_BLOB_SIZE_BYTES
 
-LOGGER = getLogger(__name__)
+LOGGER = get_logger()
 
 # pylint: disable=too-few-public-methods
 class QuotaController(ComponentController):
