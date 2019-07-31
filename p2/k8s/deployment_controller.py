@@ -12,6 +12,7 @@ from kubernetes.client.models import (V1ObjectMeta,
                                       V2beta2ResourceMetricSource)
 from kubernetes.config import load_incluster_config, load_kube_config
 from kubernetes.config.config_exception import ConfigException
+from kubernetes.client.rest import ApiException
 from structlog import get_logger
 
 from p2.k8s.exceptions import DeploymentNotFound, InvalidDeploymentScale
@@ -55,9 +56,14 @@ class DeploymentController:
         self._client = ApiClient()
         self._apps_client = AppsV1Api(self._client)
         self._autoscaling_client = AutoscalingV2beta2Api(self._client)
-        self.name = self._find_deployments(selector)
         self._is_optional = optional
-        self._dependencies = dependencies or []
+        try:
+            self.name = self._find_deployments(selector)
+        except ApiException as exc:
+            LOGGER.warning("Failed to find deployment", error=exc)
+            return
+        self.dependencies = dependencies or []
+        self.dependency_scale_ration = dependency_scale_ration
 
     def _find_deployments(self, selector_value):
         """Find deployment by matching selector"""
