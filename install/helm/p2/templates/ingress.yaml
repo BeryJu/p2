@@ -28,7 +28,6 @@ spec:
 {{- end }}
   rules:
     {{- $fullname := include "p2.fullname" . -}}
-    {{- if .Values.ingress.serve.enabled -}}
     {{- range .Values.ingress.serve.hosts }}
     - host: {{ . | quote }}
       http:
@@ -38,7 +37,6 @@ spec:
               serviceName: {{ $fullname }}-tier0
               servicePort: http
     {{- end -}}
-    {{- end }}
     {{- range .Values.ingress.hosts }}
     - host: {{ . | quote }}
       http:

@@ -12,3 +12,4 @@ bumpversion
 unittest-xml-reporting
 grpcio-tools
 colorama
+pep8

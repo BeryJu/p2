@@ -1,30 +1,33 @@
 # Root dependencies
 django>=2.2
 django-guardian
-django-prometheus
-django-redis
-mozilla-django-oidc
-requests
-celery
-python-magic
-pytz
 pyyaml
-user-agents
-sentry-sdk
-grpcio
-grpcio-reflection
-py-grpc-prometheus
-protobuf
 psycopg2
-packaging
 structlog
 cherrypy
+# Monitoring
+django-prometheus
+py-grpc-prometheus
+# MIME Type
+python-magic
+# Task Queue & Cache
+celery
+django-redis
+# SSO
+mozilla-django-oidc
+# Error Handling
+sentry-sdk
+# Protobuf for tier0
+grpcio
+grpcio-reflection
+protobuf
 # API dependencies
 django-filter
 djangorestframework==3.9.4
 djangorestframework-guardian
 djangorestframework-jwt
 drf-yasg[validation]
+packaging
 # https://github.com/axnsan12/drf-yasg/issues/423
 ruamel.yaml>=0.15.34,<0.16.0
 # UI dependencies

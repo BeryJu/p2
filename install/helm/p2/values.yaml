@@ -26,6 +26,7 @@ config:
 deployment:
   webInstances: 2
   workerInstances: 1
+  # To disable tier0, set the values below to 0
   tier0Instances: 2
   grpcInstances: 1
 
@@ -36,7 +37,6 @@ postgresql:
 ingress:
   enabled: true
   serve:
-    enabled: true
     hosts:
       - "i.p2.local"
   hosts:

@@ -85,15 +85,14 @@ PASSWORD=$(cat $P2_PASSWORD_FILE)
 curl -fsSL -o p2_k3s_helm.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-helm.yaml"
 curl -fsSL -o p2_k3s_storage.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-storage.yaml"
 curl -fsSL -o p2_k3s_nginx.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-nginx-ingress.yaml"
-# curl -fsSL -o p2_k3s_cert.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-cert-manager.yaml"
 
 # Replace variable in Helm CRD
 sed -i "s|%HOST%|${HOST}|g" p2_k3s_helm.yaml
 if [ -n "$SERVE_HOST" ]; then
-    sed -i "s|%SERVE_ENABLED%|true|g" p2_k3s_helm.yaml
+    sed -i "s|%SERVE_INSTANCES%|${CPU_CORES}|g" p2_k3s_helm.yaml
     sed -i "s|%SERVE_HOST%|${SERVE_HOST}|g" p2_k3s_helm.yaml
 else
-    sed -i "s|%SERVE_ENABLED%|false|g" p2_k3s_helm.yaml
+    sed -i "s|%SERVE_INSTANCES%|0|g" p2_k3s_helm.yaml
 fi
 sed -i "s|%PASSWORD%|${PASSWORD}|g" p2_k3s_helm.yaml
 # Adjust webserver instances (1 instance per CPU)
@@ -102,8 +101,6 @@ sed -i "s|%WEB_INSTANCES%|${CPU_CORES}|g" p2_k3s_helm.yaml
 # Replace variable in Storage
 sed -i "s|%STORAGE_BASE%|${STORAGE_BASE}|g" p2_k3s_storage.yaml
 
-# Replace variable in cert-manager
-# sed -i "s|%LE_MAIL%|${LE_MAIL}|g" p2_k3s_cert.yaml
 
 # Run docker image pull in foreground to better show progress
 docker image pull docker.beryju.org/p2/server:$P2_VERSION
@@ -118,14 +115,7 @@ mv p2_k3s_storage.yaml /var/lib/rancher/k3s/server/manifests/p2-20-storage.yaml
 sleep 30
 mv p2_k3s_helm.yaml /var/lib/rancher/k3s/server/manifests/p2-30-helm.yaml
 
-# Only deploy cert-manager if LE_MAIL set
-# if [ -n "$LE_MAIL" ]; then
-#     mv p2_k3s_cert.yaml /var/lib/rancher/k3s/server/manifests/p2-40-cert.yaml
-# fi
-
 echo " * Your p2 instanace will be available at $INGRESS_HOST in a few minutes."
 echo " * You can use the username admin with password admin to login."
-
-# __wait_until_pods_ready
 
 rm -r "${TEMP_DIR}"
