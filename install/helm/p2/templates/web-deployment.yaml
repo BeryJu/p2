@@ -56,6 +56,17 @@ spec:
           env:
             - name: P2_COMPONENT
               value: web
+            - name: P2_PSQL_DBNAME
+              value: "{{ .Values.postgresql.postgresqlDatabase }}"
+            - name: P2_PSQL_USERNAME
+              value: "{{ .Values.postgresql.postgresqlUsername }}"
+            - name: P2_PSQL_HOST
+              value: "{{ .Release.Name }}-postgresql"
+            - name: P2_PSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-postgresql"
+                  key: postgresql-password
           ports:
             - name: http
               containerPort: 8000

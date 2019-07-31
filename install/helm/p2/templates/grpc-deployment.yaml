@@ -46,6 +46,18 @@ spec:
             - name: prometheus
               containerPort: 9102
               protocol: TCP
+          env:
+            - name: P2_PSQL_DBNAME
+              value: "{{ .Values.postgresql.postgresqlDatabase }}"
+            - name: P2_PSQL_USERNAME
+              value: "{{ .Values.postgresql.postgresqlUsername }}"
+            - name: P2_PSQL_HOST
+              value: "{{ .Release.Name }}-postgresql"
+            - name: P2_PSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-postgresql"
+                  key: postgresql-password
           volumeMounts:
             - mountPath: /etc/p2
               name: config-volume

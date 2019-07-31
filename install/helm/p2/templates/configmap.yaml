@@ -4,14 +4,6 @@ metadata:
   name: {{ include "p2.fullname" . }}-config
 data:
   config.yml: |
-    databases:
-      default:
-        name: "{{ .Values.postgresql.postgresqlDatabase }}"
-        user: "{{ .Values.postgresql.postgresqlUsername }}"
-        password: "{{ .Values.postgresql.postgresqlPassword }}"
-        host: "{{ .Release.Name }}-postgresql"
-        port: ''
-
     cache: "redis://:{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/0"
     message_queue:
       broker: "redis://:{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/1"

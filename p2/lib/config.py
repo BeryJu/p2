@@ -4,6 +4,7 @@ from collections import Mapping
 from contextlib import contextmanager
 from glob import glob
 from typing import Any
+from urllib.parse import urlparse
 
 import yaml
 from django.conf import ImproperlyConfigured
@@ -70,9 +71,9 @@ class ConfigLoader:
 
     def parse_uri(self, value):
         """Parse string values which start with a URI"""
-        # If value starts with env://, get variable from env
-        if value.startswith('env://'):
-            value = os.getenv(value.replace('env://', ''))
+        url = urlparse(value)
+        if url.scheme == 'env':
+            value = os.getenv(url.netloc, url.query)
         return value
 
     def update_from_file(self, path: str):

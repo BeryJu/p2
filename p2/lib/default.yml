@@ -1,10 +1,10 @@
 # This is the default configuration file
 databases:
   default:
-    name: p2
-    user: p2
-    password: ''
-    host: localhost
+    name: env://P2_PSQL_DBNAME
+    user: env://P2_PSQL_USERNAME
+    password: env://P2_PSQL_PASSWORD
+    host: env://P2_PSQL_HOST
 
 cache: redis://localhost/0
 message_queue:
