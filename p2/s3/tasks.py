@@ -1,5 +1,6 @@
 """p2 S3 Tasks"""
 from logging import getLogger
+from shutil import copyfileobj
 from xml.etree import ElementTree
 
 from django.contrib.auth.models import User
@@ -53,10 +54,10 @@ def complete_multipart_upload(upload_id, user_pk, volume_pk, path):
         LOGGER.debug("Found %d parts", len(parts))
         for index, part in enumerate(parts):
             LOGGER.debug("Appending part %d", index)
-            destination_blob.write(part.read())
+            copyfileobj(part, destination_blob)
         LOGGER.debug("Saving final blob")
         destination_blob.save()
-        LOGGER.debug("Deleteing parts")
+        LOGGER.debug("Deleting parts")
         parts.delete()
     except BlobException as exc:
         return str(exc)

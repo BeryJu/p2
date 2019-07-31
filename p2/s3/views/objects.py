@@ -8,8 +8,7 @@ from p2.core.constants import ATTR_BLOB_MIME, ATTR_BLOB_SIZE_BYTES
 from p2.core.http import BlobResponse
 from p2.core.models import Blob, Volume
 from p2.core.prefix_helper import make_absolute_path
-from p2.s3.errors import (AWSAccessDenied, AWSNoSuchBucket, AWSNoSuchKey,
-                          AWSNotImplemented)
+from p2.s3.errors import AWSAccessDenied, AWSNoSuchBucket
 from p2.s3.views.common import S3View
 from p2.s3.views.multipart import MultipartUploadView
 
@@ -40,11 +39,7 @@ class ObjectView(S3View):
 
     def head(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectHEAD.html"""
-        blobs = get_objects_for_user(request.user, 'view_blob', Blob).filter(
-            path=path, volume__name=bucket)
-        if not blobs.exists():
-            raise AWSNoSuchKey
-        blob = blobs.first()
+        blob = self.get_blob('view_blob', path=path, volume__name=bucket)
         # We're not using BlobResponse here since we only want the attributes
         response = HttpResponse(status=200)
         response['Content-Length'] = blob.attributes.get(ATTR_BLOB_SIZE_BYTES)
@@ -53,23 +48,13 @@ class ObjectView(S3View):
 
     def get(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectGET.html"""
-        blobs = get_objects_for_user(request.user, 'view_blob', Blob).filter(
-            path=path, volume__name=bucket)
-        if not blobs.exists():
-            raise AWSNoSuchKey
-        blob = blobs.first()
+        blob = self.get_blob('view_blob', path=path, volume__name=bucket)
         return BlobResponse(blob)
 
     def post(self, request, bucket, path):
         """Post handler"""
-        if 'select-type' in request.GET:
-            return self.select(request, bucket, path)
         # POST is handled by the MultipartUploadView
         return MultipartUploadView().dispatch(request, bucket, path)
-
-    def select(self, request, bucket, path):
-        """S3Select"""
-        raise AWSNotImplemented
 
     def put(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectPUT.html"""
@@ -103,10 +88,6 @@ class ObjectView(S3View):
 
     def delete(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectDELETE.html"""
-        blobs = get_objects_for_user(request.user, 'delete_blob', Blob).filter(
-            path=path, volume__name=bucket)
-        if not blobs.exists():
-            raise AWSNoSuchKey
-        blob = blobs.first()
+        blob = self.get_blob('delete_blob', path=path, volume__name=bucket)
         blob.delete()
         return HttpResponse(status=204)

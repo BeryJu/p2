@@ -5,8 +5,11 @@ from logging import getLogger
 
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from guardian.shortcuts import get_objects_for_user
 
-from p2.s3.errors import AWSBadDigest, AWSError, AWSInvalidDigest
+from p2.core.models import Blob, Volume
+from p2.s3.errors import (AWSBadDigest, AWSError, AWSInvalidDigest,
+                          AWSNoSuchBucket, AWSNoSuchKey)
 
 CONTENT_MD5_HEADER = 'HTTP_CONTENT_MD5'
 X_AMZ_ACL_HEADER = 'HTTP_X_AMZ_ACL'
@@ -46,6 +49,20 @@ class S3View(View):
             return
         if header not in VALID_ACLS:
             raise AWSError
+
+    def get_volume(self, perm, **lookup) -> Volume:
+        """Small wrapper to get volume and raise AWS Error if not found"""
+        volumes = get_objects_for_user(self.request.user, perm, Volume).filter(**lookup)
+        if not volumes.exists():
+            raise AWSNoSuchBucket
+        return volumes.first()
+
+    def get_blob(self, perm, **lookup) -> Blob:
+        """Small wrapper to get blob and raise AWS Error if not found"""
+        blobs = get_objects_for_user(self.request.user, perm, Blob).filter(**lookup)
+        if not blobs.exists():
+            raise AWSNoSuchKey
+        return blobs.first()
 
     @csrf_exempt
     def setup(self, *args, **kwargs):

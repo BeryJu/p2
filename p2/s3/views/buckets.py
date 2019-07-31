@@ -9,10 +9,9 @@ from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_SIZE_BYTES,
                                ATTR_BLOB_STAT_MTIME)
 from p2.core.models import Volume
 from p2.core.prefix_helper import PrefixHelper, make_absolute_prefix
-from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
                              XML_NAMESPACE)
-from p2.s3.errors import AWSAccessDenied, AWSNoSuchBucket
+from p2.s3.errors import AWSAccessDenied
 from p2.s3.http import XMLResponse
 from p2.s3.views.common import S3View
 
@@ -47,11 +46,7 @@ class BucketView(S3View):
         """Bucket List API Method"""
         # https://docs.aws.amazon.com/AmazonS3/latest/API/v2-RESTBucketGET.html
         root = ElementTree.Element("{%s}ListBucketResult" % XML_NAMESPACE)
-        volumes = get_objects_for_user(
-            self.request.user, 'p2_core.list_volume_contents').filter(name=bucket)
-        if not volumes.exists():
-            raise AWSNoSuchBucket
-        volume = volumes.first()
+        volume = self.get_volume('p2_core.list_volume_contents', name=bucket)
         requested_prefix = request.GET.get('prefix', '')
         blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
             prefix=make_absolute_prefix(requested_prefix),
@@ -120,6 +115,6 @@ class BucketView(S3View):
 
     def delete(self, request, bucket):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketDELETE.html"""
-        volume = get_object_for_user_or_404(request.user, 'p2_core.delete_volume', name=bucket)
+        volume = self.get_volume('p2_core.delete_volume', name=bucket)
         volume.delete()
         return HttpResponse(status=204)

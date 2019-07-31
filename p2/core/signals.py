@@ -8,6 +8,7 @@ from django.dispatch import receiver
 
 from p2.core import constants
 from p2.core.models import Blob
+from p2.lib.hash import chunked_hasher_multiple
 
 LOGGER = getLogger(__name__)
 
@@ -15,8 +16,6 @@ BLOB_PAYLOAD_UPDATED = Signal(providing_args=['blob'])
 BLOB_ACCESS = Signal(providing_args=['status_code', ''])
 BLOB_PRE_SAVE = Signal(providing_args=['blob'])
 BLOB_POST_SAVE = Signal(providing_args=['blob'])
-
-BUF_SIZE = 65536
 
 
 @receiver(pre_save, sender=Blob)
@@ -45,25 +44,17 @@ def blob_pre_delete(sender, instance, **kwargs):
 # pylint: disable=unused-argument
 def blob_payload_hash(sender, blob, **kwargs):
     """Add common hashes as attributes"""
-    hashes = {
-        'md5': hashlib.md5(),
-        'sha1': hashlib.sha1(),
-        'sha256': hashlib.sha256(),
-        'sha384': hashlib.sha384(),
-        'sha512': hashlib.sha512(),
-    }
-    # Check if any values were updated to prevent recursive saving
-    while True:
-        data = blob.read(BUF_SIZE)
-        if not data:
-            break
-        for hash_name in hashes:
-            hashes[hash_name].update(data)
-    for hash_name in hashes:
-        _hash = hashes[hash_name].hexdigest()
+    hashers = [
+        hashlib.md5(),
+        hashlib.sha1(),
+        hashlib.sha256(),
+        hashlib.sha384(),
+        hashlib.sha512(),
+    ]
+    hashes = chunked_hasher_multiple(hashers, blob)
+    for hash_name, hash_digest in hashes.items():
         attr_name = getattr(constants, 'ATTR_BLOB_HASH_%s' % hash_name.upper())
-        if attr_name not in blob.attributes or blob.attributes[attr_name] != _hash:
-            blob.attributes[attr_name] = _hash
-            LOGGER.debug('Updated %s for %s to %s',
-                         hash_name, blob.uuid.hex, _hash)
+        if attr_name not in blob.attributes or blob.attributes[attr_name] != hash_digest:
+            blob.attributes[attr_name] = hash_digest
+            LOGGER.debug('Updated %s for %s to %s', hash_name, blob.uuid.hex, hash_digest)
     blob.save()
