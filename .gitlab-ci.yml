@@ -13,6 +13,7 @@ variables:
   POSTGRES_PASSWORD: "EK-5jnKfjrGRm<77"
   P2_PSQL_DBNAME: p2
   P2_PSQL_USERNAME: p2
+  P2_PSQL_HOST: localhost
   P2_PSQL_PASSWORD: "EK-5jnKfjrGRm<77"
 
 cache:
