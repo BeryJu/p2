@@ -13,4 +13,5 @@ class P2K8sConfig(AppConfig):
 
     def ready(self):
         super().ready()
-        import_module('p2.k8s.deployment_controller')
+        import_module('p2.k8s.component_controller')
+        import_module('p2.k8s.ingress_controller')

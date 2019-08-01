@@ -77,9 +77,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'p2.api.permissions.CustomObjectPermissions',
     ),
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-    # ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ),
 }
 
 AUTHENTICATION_BACKENDS = [
