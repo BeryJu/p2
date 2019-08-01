@@ -55,13 +55,13 @@ urlpatterns = [
     path('core/storage/<uuid:pk>/delete/',
          storage.StorageDeleteView.as_view(), name='core-storage-delete'),
     # API - Keys
-    path('s3/access-key/',
+    path('api/access-key/',
          key.APIKeyListView.as_view(), name='api-key-list'),
-    path('s3/access-key/create/',
+    path('api/access-key/create/',
          key.APIKeyCreateView.as_view(), name='api-key-create'),
-    path('s3/access-key/<int:pk>/update/',
+    path('api/access-key/<int:pk>/update/',
          key.APIKeyUpdateView.as_view(), name='api-key-update'),
-    path('s3/access-key/<int:pk>/delete/',
+    path('api/access-key/<int:pk>/delete/',
          key.APIKeyDeleteView.as_view(), name='api-key-delete'),
     # Serve - Rules
     path('serve/rule/',

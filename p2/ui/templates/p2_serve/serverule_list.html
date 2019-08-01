@@ -47,5 +47,7 @@
     {% endfor %}
   </tbody>
 </table>
+{% if paginator.num_pages > 1 %}
 {% include 'blocks/pagination.html' %}
+{% endif %}
 {% endblock %}
