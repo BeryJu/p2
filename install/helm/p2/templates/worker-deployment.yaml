@@ -21,6 +21,7 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         k8s.p2.io/component: worker
     spec:
+      serviceAccountName: {{ include "p2.fullname" . }}-cni
       securityContext:
         fsGroup: 100
       volumes:
