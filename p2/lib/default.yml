@@ -1,15 +1,15 @@
 # This is the default configuration file
-databases:
-  default:
-    name: env://P2_PSQL_DBNAME
-    user: env://P2_PSQL_USERNAME
-    password: env://P2_PSQL_PASSWORD
-    host: env://P2_PSQL_HOST
+postgresql:
+  name: env://P2_PSQL_DBNAME
+  user: env://P2_PSQL_USERNAME
+  password: env://P2_PSQL_PASSWORD
+  host: env://P2_PSQL_HOST
 
-cache: redis://localhost/0
-message_queue:
-  broker: redis://localhost/1
-  results: redis://localhost/1
+redis:
+  hostname: env://P2_REDIS_HOST
+  password: env://P2_REDIS_PASSWORD
+  cache_db: 0
+  message_queue_db: 1
 
 debug: false
 

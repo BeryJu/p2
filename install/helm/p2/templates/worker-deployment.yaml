@@ -41,6 +41,13 @@ spec:
             - mountPath: /storage
               name: media-storage
           env:
+            - name: P2_REDIS_HOST
+              value: "{{ .Release.Name }}-redis-master"
+            - name: P2_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-redis"
+                  key: redis-password
             - name: P2_PSQL_DBNAME
               value: "{{ .Values.postgresql.postgresqlDatabase }}"
             - name: P2_PSQL_USERNAME

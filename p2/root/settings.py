@@ -92,14 +92,16 @@ AUTHENTICATION_BACKENDS = [
 CACHES = {
     "default": {
         "BACKEND": "django_prometheus.cache.backends.redis.RedisCache",
-        "LOCATION": CONFIG.get('cache'),
+        "LOCATION": f"rediss://{CONFIG.y('redis.host')}:6379/{CONFIG.y('redis.cache_db')}",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": CONFIG.y('redis.password')
         }
     }
 }
 DJANGO_REDIS_IGNORE_EXCEPTIONS = True
 DJANGO_REDIS_LOG_IGNORED_EXCEPTIONS = True
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
 if os.getenv('P2_COMPONENT', "") == "web":
@@ -113,8 +115,12 @@ CELERY_TASK_SOFT_TIME_LIMIT = 600
 CELERY_BEAT_SCHEDULE = {}
 CELERY_CREATE_MISSING_QUEUES = True
 CELERY_TASK_DEFAULT_QUEUE = 'p2'
-CELERY_BROKER_URL = CONFIG.y('message_queue.broker')
-CELERY_RESULT_BACKEND = CONFIG.y('message_queue.results')
+CELERY_BROKER_URL = (f"redis://:{CONFIG.y('redis.password')}@{CONFIG.y('redis.host')}"
+                     f":6379/{CONFIG.y('redis.message_queue_db')}")
+CELERY_BROKER_USE_SSL = True
+CELERY_REDIS_BACKEND_USE_SSL = True
+CELERY_RESULT_BACKEND = (f"redis://:{CONFIG.y('redis.password')}@{CONFIG.y('redis.host')}"
+                         f":6379/{CONFIG.y('redis.message_queue_db')}")
 CELERY_IMPORTS = (
     'p2.core.tasks',
     'p2.log.tasks',
@@ -220,16 +226,15 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 536870912
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {}
-for db_alias, db_config in CONFIG.get('databases').items():
-    DATABASES[db_alias] = {
+DATABASES = {
+    'default': {
         'ENGINE': 'django_prometheus.db.backends.postgresql',
-        'HOST': db_config.get('host'),
-        'NAME': db_config.get('name'),
-        'USER': db_config.get('user'),
-        'PASSWORD': db_config.get('password'),
-        'OPTIONS': db_config.get('options', {}),
+        'HOST': CONFIG.y('postgresql.host'),
+        'NAME': CONFIG.y('postgresql.name'),
+        'USER': CONFIG.y('postgresql.user'),
+        'PASSWORD': CONFIG.y('postgresql.password'),
     }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

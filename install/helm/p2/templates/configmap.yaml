@@ -4,11 +4,6 @@ metadata:
   name: {{ include "p2.fullname" . }}-config
 data:
   config.yml: |
-    cache: "redis://:{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/0"
-    message_queue:
-      broker: "redis://:{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/1"
-      results: "redis://:{{ .Values.redis.password }}@{{ .Release.Name }}-redis-master/1"
-
     debug: false
 
     error_report_enabled: {{ .Values.config.error_reporting }}
