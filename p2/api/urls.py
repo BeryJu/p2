@@ -4,12 +4,14 @@ from django.urls import include, path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework.routers import DefaultRouter
-from p2.k8s.api.views import ScaleAPIViewSet
+from rest_framework_jwt.views import (obtain_jwt_token, refresh_jwt_token,
+                                      verify_jwt_token)
+
 from p2.api.permissions import CustomObjectPermissions
 from p2.api.viewsets import APIKeyViewSet, UserViewSet
 from p2.core.api.viewsets import BlobViewSet, StorageViewSet, VolumeViewSet
+from p2.k8s.api.views import ScaleAPIViewSet
 from p2.serve.api.viewsets import ServeRuleViewSet
-from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify_jwt_token
 
 INFO = openapi.Info(
     title="p2 API",

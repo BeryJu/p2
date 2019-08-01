@@ -10,3 +10,7 @@ class InvalidDeploymentScale(K8sException):
 
 class DeploymentNotFound(K8sException):
     """Deployment not found"""
+
+
+class DomainAlreadyConfigured(K8sException):
+    """Domain is already configured in this ingress"""
