@@ -2,8 +2,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.views.generic import ListView
-from guardian.shortcuts import get_objects_for_user
 from guardian.mixins import PermissionListMixin
+from guardian.shortcuts import get_objects_for_user
 
 from p2.core.models import Blob, Volume
 from p2.ui.constants import CACHE_KEY_BLOB_COUNT
