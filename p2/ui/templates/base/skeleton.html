@@ -9,16 +9,15 @@
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'fontawesome/css/font-awesome.min.css' %}" >
     <link rel="stylesheet" href="{% static 'p2/css/p2.css' %}">
-    <!-- <link rel="stylesheet" href="{% static 'dropzone/css/dropzone.min.css' %}"> -->
     <link rel="icon" type="image/png" href="{% static 'p2/img/icon.png' %}">
     <title>{% trans 'p²' %}</title>
     {% block head %}
     {% endblock %}
   </head>
   <body>
+    <script src="{% static 'jquery/jquery.min.js'%}"></script>
     {% block body %}
     {% endblock %}
-    <script src="{% static 'jquery/jquery.min.js'%}"></script>
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'dropzone/js/dropzone.min.js' %}"></script>
     <script src="{% static 'p2/js/p2.js' %}"></script>

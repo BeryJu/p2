@@ -18,20 +18,35 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item {% model_app %}">
-          <a href="{% url 'p2_ui:index' %}" class="nav-link">Home</a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="storageDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {% trans 'Storage' %}
+          </a>
+          <div class="dropdown-menu" aria-labelledby="storageDropdown">
+            <a href="{% url 'p2_ui:core-volume-list' %}" class="dropdown-item">{% trans 'Volumes' %}</a>
+            <a href="{% url 'p2_ui:core-storage-list' %}" class="dropdown-item">{% trans 'Storage' %}</a>
+          </div>
         </li>
-        <li class="nav-item {% model_app 'p2_core:Volume' %}">
-          <a href="{% url 'p2_ui:core-volume-list' %}" class="nav-link">{% trans 'Volumes' %}</a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="accessDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            {% trans 'Access' %}
+          </a>
+          <div class="dropdown-menu" aria-labelledby="accessDropdown">
+            <a href="{% url 'p2_ui:api-key-list' %}" class="dropdown-item">{% trans "API Keys" %}</a>
+            <a href="{% url 'p2_ui:serve-rule-list' %}" class="dropdown-item">{% trans 'tier0 Policies' %}</a>
+          </div>
         </li>
-        <li class="nav-item {% model_app 'p2_core:Storage' %}">
-          <a href="{% url 'p2_ui:core-storage-list' %}" class="nav-link">{% trans 'Storage' %}</a>
-        </li>
-        <li class="nav-item {% model_app 'p2_api' %}">
-          <a href="{% url 'p2_ui:api-key-list' %}" class="nav-link">{% trans "API Keys" %}</a>
-        </li>
-        <li class="nav-item {% model_app 'p2_serve' %}">
-          <a href="{% url 'p2_ui:serve-rule-list' %}" class="nav-link">{% trans 'Serve Rules' %}</a>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="systemDropdown" role="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+            {% trans 'System' %}
+          </a>
+          <div class="dropdown-menu" aria-labelledby="systemDropdown">
+            <a href="#" class="dropdown-item">{% trans "Features" %}</a>
+            <a href="#" class="dropdown-item">{% trans "Scaling" %}</a>
+            <a href="#" class="dropdown-item">{% trans 'Domains' %}</a>
+          </div>
         </li>
       </ul>
       <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
