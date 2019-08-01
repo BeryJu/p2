@@ -1,0 +1,9 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: p2-fallback-ingress
+  namespace: prod-p2
+spec:
+  backend:
+    serviceName: p2-web
+    servicePort: http

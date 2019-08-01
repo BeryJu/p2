@@ -9,16 +9,12 @@ spec:
   targetNamespace: p2
   valuesContent: |-
     deployment:
-      webInstances: %WEB_INSTANCES%
-      tier0Instances: %SERVE_INSTANCES%
-      grpcInstances: 1
+      webInstances: 1
+      workerInstances: 1
+      tier0Instances: 0
+      grpcInstances: 0
     ingress:
-      enabled: true
-      hosts:
-        - "%HOST%"
-      serve:
-        hosts:
-          - "%SERVE_HOST%"
+      enabled: false
     postgresql:
       postgresqlDatabase: p2
       postgresqlUsername: p2

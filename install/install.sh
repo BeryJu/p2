@@ -3,12 +3,9 @@
 # p2 Install script
 # Installs and updates a p2 instance using k3s and docker
 # Supported enviormnet variables:
-# - HOST: Hostname under which the  will be accessible
-# - SERVE_HOST: Optional; Hostname under which p2 will serve files.
 # - STORAGE_BASE: Base directory in which p2 data will be storeed
-# - LE_MAIL: Optional; Let's Encrypt E-Mail. If this is not set, Let's Encrypt is not enabled.
 
-K3S_VERSION="0.6.1"
+K3S_VERSION="0.7.0"
 P2_VERSION="0.7.4"
 export INSTALL_K3S_EXEC="--docker --no-deploy traefik"
 
@@ -66,7 +63,6 @@ bash install.k3s.sh > /dev/null 2>&1
 
 STORAGE_BASE="${STORAGE_BASE:-/srv/p2}"
 P2_PASSWORD_FILE="${STORAGE_BASE}/password"
-CPU_CORES=$(grep -c ^processor /proc/cpuinfo)
 
 # Make sure storage directories exist
 mkdir -p "${STORAGE_BASE}"
@@ -85,22 +81,10 @@ PASSWORD=$(cat $P2_PASSWORD_FILE)
 curl -fsSL -o p2_k3s_helm.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-helm.yaml"
 curl -fsSL -o p2_k3s_storage.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-storage.yaml"
 curl -fsSL -o p2_k3s_nginx.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-nginx-ingress.yaml"
+curl -fsSL -o p2_k3s_all_ingress.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-all-ingress.yaml"
 
-# Replace variable in Helm CRD
-sed -i "s|%HOST%|${HOST}|g" p2_k3s_helm.yaml
-if [ -n "$SERVE_HOST" ]; then
-    sed -i "s|%SERVE_INSTANCES%|${CPU_CORES}|g" p2_k3s_helm.yaml
-    sed -i "s|%SERVE_HOST%|${SERVE_HOST}|g" p2_k3s_helm.yaml
-else
-    sed -i "s|%SERVE_INSTANCES%|0|g" p2_k3s_helm.yaml
-fi
 sed -i "s|%PASSWORD%|${PASSWORD}|g" p2_k3s_helm.yaml
-# Adjust webserver instances (1 instance per CPU)
-sed -i "s|%WEB_INSTANCES%|${CPU_CORES}|g" p2_k3s_helm.yaml
-
-# Replace variable in Storage
 sed -i "s|%STORAGE_BASE%|${STORAGE_BASE}|g" p2_k3s_storage.yaml
-
 
 # Run docker image pull in foreground to better show progress
 docker image pull docker.beryju.org/p2/server:$P2_VERSION
@@ -114,8 +98,9 @@ sleep 30
 mv p2_k3s_storage.yaml /var/lib/rancher/k3s/server/manifests/p2-20-storage.yaml
 sleep 30
 mv p2_k3s_helm.yaml /var/lib/rancher/k3s/server/manifests/p2-30-helm.yaml
+mv p2_k3s_all_ingress.yaml /var/lib/rancher/k3s/server/manifests/p2-31-all-ingress.yaml
 
-echo " * Your p2 instanace will be available at $INGRESS_HOST in a few minutes."
+echo " * Your p2 instanace will be available on port 443 in a few minutes."
 echo " * You can use the username admin with password admin to login."
 
 rm -r "${TEMP_DIR}"
