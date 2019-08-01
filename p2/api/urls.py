@@ -4,7 +4,7 @@ from django.urls import include, path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework.routers import DefaultRouter
-
+from p2.k8s.api.views import ScaleAPIViewSet
 from p2.api.permissions import CustomObjectPermissions
 from p2.api.viewsets import APIKeyViewSet, UserViewSet
 from p2.core.api.viewsets import BlobViewSet, StorageViewSet, VolumeViewSet
@@ -31,6 +31,7 @@ ROUTER.register('core/volume', VolumeViewSet)
 ROUTER.register('core/storage', StorageViewSet)
 ROUTER.register('system/user', UserViewSet)
 ROUTER.register('system/key', APIKeyViewSet)
+ROUTER.register('system/scale', ScaleAPIViewSet, basename='k8s')
 ROUTER.register('tier0/policy', ServeRuleViewSet)
 
 app_name = 'p2_api'

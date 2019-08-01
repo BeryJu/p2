@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import datetime
-import logging
 import os
 import sys
 
@@ -23,9 +22,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 from p2 import __version__
 from p2.lib.config import CONFIG
 from p2.lib.sentry import before_send
-
-LOGGER = logging.getLogger(__name__)
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -78,6 +74,8 @@ REST_FRAMEWORK = {
         'p2.api.permissions.CustomObjectPermissions',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
 }
@@ -91,8 +89,9 @@ AUTHENTICATION_BACKENDS = [
 # Redis settings
 CACHES = {
     "default": {
-        "BACKEND": "django_prometheus.cache.backends.redis.RedisCache",
-        "LOCATION": f"rediss://{CONFIG.y('redis.host')}:6379/{CONFIG.y('redis.cache_db')}",
+        # "BACKEND": "django_prometheus.cache.backends.redis.RedisCache",
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{CONFIG.y('redis.host')}:6379/{CONFIG.y('redis.cache_db')}",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "PASSWORD": CONFIG.y('redis.password')
@@ -117,8 +116,6 @@ CELERY_CREATE_MISSING_QUEUES = True
 CELERY_TASK_DEFAULT_QUEUE = 'p2'
 CELERY_BROKER_URL = (f"redis://:{CONFIG.y('redis.password')}@{CONFIG.y('redis.host')}"
                      f":6379/{CONFIG.y('redis.message_queue_db')}")
-CELERY_BROKER_USE_SSL = True
-CELERY_REDIS_BACKEND_USE_SSL = True
 CELERY_RESULT_BACKEND = (f"redis://:{CONFIG.y('redis.password')}@{CONFIG.y('redis.host')}"
                          f":6379/{CONFIG.y('redis.message_queue_db')}")
 CELERY_IMPORTS = (

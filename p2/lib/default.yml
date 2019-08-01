@@ -6,7 +6,7 @@ postgresql:
   host: env://P2_PSQL_HOST
 
 redis:
-  hostname: env://P2_REDIS_HOST
+  host: env://P2_REDIS_HOST
   password: env://P2_REDIS_PASSWORD
   cache_db: 0
   message_queue_db: 1
