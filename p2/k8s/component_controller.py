@@ -1,4 +1,4 @@
-"""p2 k8s deployment controller"""
+"""p2 k8s component controller"""
 from math import ceil
 from typing import List
 
@@ -13,13 +13,13 @@ from kubernetes.client.models import (V1ObjectMeta,
 from kubernetes.client.rest import ApiException
 from structlog import get_logger
 
-from p2.k8s.api import FIELD_MANAGER, MANAGED_BY, APIHelper
 from p2.k8s.exceptions import DeploymentNotFound, InvalidDeploymentScale
+from p2.k8s.helper import FIELD_MANAGER, MANAGED_BY, APIHelper
 
 LOGGER = get_logger()
 DEPLOYMENT_SELECTOR = 'k8s.p2.io/deployment'
 
-class DeploymentController(APIHelper):
+class ComponentController(APIHelper):
     """Controls whether a feature is enabled/disabled, the scale of it and
     Horizontal autoscaling."""
 
@@ -34,7 +34,7 @@ class DeploymentController(APIHelper):
 
     def __init__(self, selector,
                  optional=False,
-                 dependencies: List['DeploymentController'] = None,
+                 dependencies: List['ComponentController'] = None,
                  dependency_scale_ration=1):
         super().__init__()
         self._apps_client = AppsV1Api(self._client)
@@ -137,8 +137,8 @@ class DeploymentController(APIHelper):
                      deployment=self.name)
         return response
 
-WEB_DEPLOYMENT = DeploymentController("web")
-STATIC_DEPLOYMENT = DeploymentController("static")
-GRPC_DEPLOYMENT = DeploymentController("grpc", optional=True, dependency_scale_ration=0.2)
-TIER0_DEPLOYMENT = DeploymentController("tier0", optional=True, dependencies=[GRPC_DEPLOYMENT])
-WORKER_DEPLOYMENT = DeploymentController("worker")
+WEB_DEPLOYMENT = ComponentController("web")
+STATIC_DEPLOYMENT = ComponentController("static")
+GRPC_DEPLOYMENT = ComponentController("grpc", optional=True, dependency_scale_ration=0.2)
+TIER0_DEPLOYMENT = ComponentController("tier0", optional=True, dependencies=[GRPC_DEPLOYMENT])
+WORKER_DEPLOYMENT = ComponentController("worker")
