@@ -6,9 +6,10 @@ from typing import List
 from guardian.shortcuts import get_objects_for_user
 from structlog import get_logger
 
+from p2.core.constants import ATTR_BLOB_IS_FOLDER
+
 LOGGER = get_logger()
 SEPARATOR = posixpath.sep
-
 
 def make_absolute_path(path):
     """Ensure prefix is absolute:
@@ -58,8 +59,11 @@ class VirtualPrefix:
         return hash(('absolute_path', self.absolute_path,
                      'volume', self.volume))
 
+    def __repr__(self):
+        return self.__str__()
+
     def __str__(self):
-        return "<VirtualPrefix '%s' for Blob %r>" % (self.absolute_path, self.blob)
+        return f"<VirtualPrefix '{self.absolute_path}' for Blob {self.blob}>"
 
 class PrefixHelper:
     """Get List of prefixes for a volume"""
@@ -93,7 +97,10 @@ class PrefixHelper:
         prefix_object = VirtualPrefix()
         prefix_object.blob = blob
         prefix_object.volume = self._volume
-        prefix_object.absolute_path = blob.prefix
+        if ATTR_BLOB_IS_FOLDER in blob.attributes:
+            prefix_object.absolute_path = blob.path
+        else:
+            prefix_object.absolute_path = blob.prefix
         prefix_object.relative_path = prefix_object.relative_to(self._base)
         return prefix_object
 
@@ -128,23 +135,30 @@ class PrefixHelper:
     def collect(self, max_levels=0):
         """Get Prefixes for user, optionally filtering out prefixes
         not starting with `base`"""
-        objects = get_objects_for_user(self._user, 'p2_core.view_blob').filter(
+        base_lookup = get_objects_for_user(self._user, 'p2_core.view_blob').filter(
             volume=self._volume,
-            prefix__startswith=self._base,
-        ).distinct("prefix")
+            prefix__startswith=self._base)
+        file_objects = base_lookup.distinct("prefix")
+        folder_objects = base_lookup.filter(attributes__has_key=ATTR_BLOB_IS_FOLDER)
+        objects = file_objects.union(folder_objects)
+
         # Make max_level relative to base
         _max_level = self._base.count(SEPARATOR) + max_levels
         LOGGER.debug("Finding prefixes with base", base=self._base)
         for blob in objects:
-            LOGGER.debug("Found prefix", prefix=blob.prefix)
-            if blob.prefix == self._base:
-                LOGGER.debug("Prefix equals base, ignoring it")
-                continue
-            if max_levels and blob.prefix.count(SEPARATOR) > _max_level:
-                # Max levels is set, so ignore prefixes that have more separators than we want
-                LOGGER.debug("Max levels exceeded, adding intermediate prefix")
-                intermediate = self._get_intermediate_prefix(blob)
-                if intermediate not in self._prefixes:
-                    self.prefixes.append(intermediate)
+            v_prefix = self._prefix_for_blob(blob)
+            if ATTR_BLOB_IS_FOLDER in blob.attributes and blob.prefix == self._base:
+                if v_prefix not in self._prefixes:
+                    LOGGER.debug('Adding v_prefix', v_prefix=v_prefix)
+                    self._prefixes.append(v_prefix)
             else:
-                self._prefixes.append(self._prefix_for_blob(blob))
+                if blob.prefix == self._base:
+                    LOGGER.debug("Prefix equals base, ignoring it", prefix=blob.prefix)
+                    continue
+                if max_levels and blob.prefix.count(SEPARATOR) > _max_level:
+                    # Max levels is set, so ignore prefixes that have more separators than we want
+                    LOGGER.debug("Making intermediate prefix", v_prefix=v_prefix)
+                    v_prefix = self._get_intermediate_prefix(blob)
+                if v_prefix not in self._prefixes:
+                    LOGGER.debug('Adding v_prefix', v_prefix=v_prefix)
+                    self._prefixes.append(v_prefix)

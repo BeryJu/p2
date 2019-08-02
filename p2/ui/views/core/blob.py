@@ -13,6 +13,7 @@ from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import (get_objects_for_user, get_perms_for_model,
                                 get_users_with_perms)
 
+from p2.core.constants import ATTR_BLOB_IS_FOLDER
 from p2.core.forms import BlobForm
 from p2.core.http import BlobResponse
 from p2.core.models import Blob
@@ -35,7 +36,9 @@ class FileBrowserView(LoginRequiredMixin, TemplateView):
         prefix = make_absolute_prefix(self.request.GET.get('prefix', '/'))
         blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
             prefix=prefix,
-            volume=context['volume']).order_by('path')
+            volume=context['volume']).order_by('path').exclude(
+                attributes__has_key=ATTR_BLOB_IS_FOLDER
+            )
 
         helper = PrefixHelper(self.request.user, context['volume'], prefix)
         if prefix != '/':
