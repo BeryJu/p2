@@ -56,7 +56,10 @@ class WSGILogger:
         if environ.get('HTTP_HOST').startswith('kubernetes-healthcheck-host'):
             # Don't log kubernetes health/readiness requests
             return
-        LOGGER.info(environ.get('PATH_INFO', ''),
+        query_string = ''
+        if environ.get('QUERY_STRING') != '':
+            query_string = f"?{environ.get('QUERY_STRING')}"
+        LOGGER.info(f"{environ.get('PATH_INFO', '')}{query_string}",
                     host=host,
                     method=environ.get('REQUEST_METHOD', ''),
                     protocol=environ.get('SERVER_PROTOCOL', ''),
