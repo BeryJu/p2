@@ -8,7 +8,7 @@ from p2.core.constants import (ATTR_BLOB_IS_FOLDER, ATTR_BLOB_MIME,
 from p2.core.http import BlobResponse
 from p2.core.models import Blob, Volume
 from p2.core.prefix_helper import make_absolute_path, make_absolute_prefix
-from p2.s3.errors import AWSAccessDenied, AWSNoSuchBucket
+from p2.s3.errors import AWSAccessDenied, AWSNoSuchBucket, AWSNoSuchKey
 from p2.s3.views.common import S3View
 from p2.s3.views.multipart import MultipartUploadView
 
@@ -65,19 +65,11 @@ class ObjectView(S3View):
         # Check if part of a multipart upload
         if 'uploadId' in request.GET:
             return MultipartUploadView().dispatch(request, bucket, path)
-        blobs = Blob.objects.filter(
-            path=path,
-            volume=self.volume)
-        if blobs.exists():
-            blob = blobs.first()
-            # Blob exists, user can't change it -> Access Denied
-            if not request.user.has_perm('p2_core_change_blob', blob):
-                raise AWSAccessDenied
-            # Blob exists, user can change it -> Update payload
-            blob = blobs.first()
+        try:
+            blob = self.get_blob('change_blob', path=path, volume=self.volume)
             blob.write(request.body)
             blob.save()
-        else:
+        except AWSNoSuchKey:
             if not request.user.has_perm('p2_core.add_blob'):
                 raise AWSAccessDenied
             # Blob doesn't exist, user can create
