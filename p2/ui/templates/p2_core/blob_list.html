@@ -13,10 +13,10 @@
           <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-volume-detail' pk=volume.pk %}?prefix=/">{{ volume.name }}</a></li>
           {% for crumb in breadcrumbs %}
             {% if not forloop.last %}
-              <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}?prefix={{ crumb.prefix }}">{{ crumb.title|truncatechars:160 }}</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'p2_ui:core-blob-list' pk=volume.pk %}?prefix={{ crumb.full }}">{{ crumb.part|truncatechars:160 }}</a></li>
             {% endif %}
             {% if forloop.last %}
-              <li class="breadcrumb-item active" aria-current="page">{{ crumb.title|truncatechars:160 }}</li>
+              <li class="breadcrumb-item active" aria-current="page">{{ crumb.part|truncatechars:160 }}</li>
             {% endif %}
           {% endfor %}
         </ol>
@@ -32,28 +32,20 @@
             </tr>
           </thead>
           <tbody>
-            {% if objects.number == 1 %}
-            {% for prefix in prefixes %}
+            {% for object in object_list %}
             <tr>
               <td>
-                <i class="fa fa-folder" aria-hidden="true"></i>
-                <a href="?prefix={{ prefix.absolute_path }}">
-                  {{ prefix.relative_path|truncatechars:160 }}
+                {% if 'blob.p2.io/is_folder' in object.attributes %}
+                <a href="?prefix={{ object.path }}">
+                  <i class="fa fa-folder" aria-hidden="true"></i>
+                  {{ object.filename|truncatechars:160 }}
                 </a>
-              </td>
-              <td>-</td>
-              <td></td>
-            </tr>
-            {% endfor %}
-            {% endif %}
-            {% for object in objects %}
-            {% if object.filename %}
-            <tr>
-              <td>
+                {% else %}
                 <a href="{% url 'p2_ui:core-blob-detail' pk=object.pk %}">
                   <i class="fa fa-file" aria-hidden="true"></i>
                   {{ object.filename|truncatechars:160 }}
                 </a>
+                {% endif %}
               </td>
               <td>{{ object|get_attribute:"p2.core.constants.ATTR_BLOB_SIZE_BYTES"|filesizeformat }}</td>
               <td>
@@ -68,7 +60,6 @@
                 </a>
               </td>
             </tr>
-            {% endif %}
             {% endfor %}
           </tbody>
         </table>

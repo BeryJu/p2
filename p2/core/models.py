@@ -101,7 +101,9 @@ class Blob(ExportModelOperationsMixin('blob'), UUIDModel, TagModel):
     @property
     def filename(self):
         """Return only the filename part of self.path"""
-        return posixpath.basename(self.path)
+        if ATTR_BLOB_IS_FOLDER not in self.attributes:
+            return posixpath.basename(self.path)
+        return posixpath.basename(posixpath.normpath(self.path))
 
     def _open_read_handle(self):
         if not self._reading_handle:

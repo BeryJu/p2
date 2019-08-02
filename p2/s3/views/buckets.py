@@ -8,7 +8,7 @@ from guardian.shortcuts import assign_perm, get_objects_for_user
 from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_IS_FOLDER,
                                ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_MTIME)
 from p2.core.models import Volume
-from p2.core.prefix_helper import PrefixHelper, make_absolute_prefix
+from p2.core.prefix_helper import make_absolute_prefix
 from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
                              XML_NAMESPACE)
 from p2.s3.errors import AWSAccessDenied
@@ -62,12 +62,13 @@ class BucketView(S3View):
         root = ElementTree.Element("{%s}ListBucketResult" % XML_NAMESPACE)
         volume = self.get_volume('p2_core.list_volume_contents', name=bucket)
         requested_prefix = request.GET.get('prefix', '')
-        blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
-            prefix=make_absolute_prefix(requested_prefix),
+        base_lookup = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
+            # make_absolute_prefix(requested_prefix),
             volume=volume,
-        ).order_by('path').exclude(
-            attributes__has_key=ATTR_BLOB_IS_FOLDER)
-        # Folders are filtered out here since they are managed by PrefixHelper
+        ).order_by('path')
+
+        blobs = base_lookup.exclude(attributes__has_key=ATTR_BLOB_IS_FOLDER)
+        folders = base_lookup.filter(attributes__has_key=ATTR_BLOB_IS_FOLDER)
 
         max_keys = int(self.request.GET.get('max-keys', 100))
         encoding_type = self.request.GET.get('encoding-type', 'url')
@@ -94,13 +95,13 @@ class BucketView(S3View):
 
         # append CommonPrefixes
         common_prefixes = ElementTree.Element("CommonPrefixes")
-        helper = PrefixHelper(request.user, volume, make_absolute_prefix(requested_prefix))
-        # Disable intermediate prefixes since that's handled by the client
-        helper.collect(max_levels=-1)
+        # helper = PrefixHelper(request.user, volume, make_absolute_prefix(requested_prefix))
+        # # Disable intermediate prefixes since that's handled by the client
+        # helper.collect(max_levels=-1)
 
-        for virtual_prefix in helper.prefixes:
-            ElementTree.SubElement(
-                common_prefixes, 'Prefix').text = virtual_prefix.absolute_path[1:]
+        # for virtual_prefix in helper.prefixes:
+        for blob in folders:
+            ElementTree.SubElement(common_prefixes, 'Prefix').text = blob.filename
 
         if common_prefixes:
             root.append(common_prefixes)

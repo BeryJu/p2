@@ -1,19 +1,16 @@
 """Blob Views"""
+import posixpath
 from collections import OrderedDict
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.paginator import Paginator
 from django.shortcuts import reverse
 from django.utils.translation import gettext as _
-from django.views.generic import (DeleteView, DetailView, TemplateView,
-                                  UpdateView)
-from guardian.mixins import PermissionRequiredMixin
-from guardian.shortcuts import (get_objects_for_user, get_perms_for_model,
-                                get_users_with_perms)
+from django.views.generic import DeleteView, DetailView, ListView, UpdateView
+from guardian.mixins import PermissionListMixin, PermissionRequiredMixin
+from guardian.shortcuts import get_perms_for_model, get_users_with_perms
 
-from p2.core.constants import ATTR_BLOB_IS_FOLDER
 from p2.core.forms import BlobForm
 from p2.core.http import BlobResponse
 from p2.core.models import Blob
@@ -21,39 +18,54 @@ from p2.core.prefix_helper import PrefixHelper, make_absolute_prefix
 from p2.lib.shortcuts import get_object_for_user_or_404
 
 
-class FileBrowserView(LoginRequiredMixin, TemplateView):
+class FileBrowserView(LoginRequiredMixin, PermissionListMixin, ListView):
     """List all blobs a user has access to"""
 
     template_name = 'p2_core/blob_list.html'
     model = Blob
+    permission_required = 'p2_core.view_blob'
+    ordering = 'path'
+    paginate_by = 20
+
+    prefix = ''
+
+    def get_queryset(self):
+        self.prefix = make_absolute_prefix(self.request.GET.get('prefix', '/'))
+        volume = get_object_for_user_or_404(
+            self.request.user, 'p2_core.use_volume', pk=self.kwargs.get('pk'))
+        return super().get_queryset().filter(
+            prefix=self.prefix,
+            volume=volume)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['volume'] = get_object_for_user_or_404(
+        kwargs['volume'] = get_object_for_user_or_404(
             self.request.user, 'p2_core.use_volume', pk=self.kwargs.get('pk'))
+        kwargs['breadcrumbs'] = []
+        current_total = []
+        # Remove first slash so we don't get an empty leading breadcrumb
+        for path_part in self.prefix[1:].split(posixpath.sep):
+            current_total.append(path_part)
+            kwargs['breadcrumbs'].append({
+                'part': path_part,
+                'full': '/'.join(current_total)
+            })
+        return super().get_context_data(**kwargs)
 
-        # Get list of blobs with matching prefix
-        prefix = make_absolute_prefix(self.request.GET.get('prefix', '/'))
-        blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
-            prefix=prefix,
-            volume=context['volume']).order_by('path').exclude(
-                attributes__has_key=ATTR_BLOB_IS_FOLDER
-            )
 
-        helper = PrefixHelper(self.request.user, context['volume'], prefix)
-        if prefix != '/':
-            helper.add_up_prefix()
-        helper.collect(max_levels=1)
-        context['prefixes'] = helper.prefixes
-        context['breadcrumbs'] = helper.get_breadcrumbs()
+    #     helper = PrefixHelper(self.request.user, context['volume'], prefix)
+    #     if prefix != '/':
+    #         helper.add_up_prefix()
+    #     helper.collect(max_levels=1)
+    #     context['prefixes'] = helper.prefixes
+    #     context['breadcrumbs'] = helper.get_breadcrumbs()
 
-        page = self.request.GET.get('page', 1)
-        objects_per_page = 20
+    #     page = self.request.GET.get('page', 1)
+    #     objects_per_page = 20
 
-        paginator = Paginator(blobs, objects_per_page)
-        context['objects'] = paginator.get_page(page)
+    #     paginator = Paginator(blobs, objects_per_page)
+    #     context['objects'] = paginator.get_page(page)
 
-        return context
+        # return context
 
 class BlobDetailView(PermissionRequiredMixin, DetailView):
     """View Blob Details"""
