@@ -63,7 +63,7 @@ class BucketView(S3View):
         volume = self.get_volume('p2_core.list_volume_contents', name=bucket)
         requested_prefix = request.GET.get('prefix', '')
         base_lookup = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
-            # make_absolute_prefix(requested_prefix),
+            prefix=make_absolute_prefix(requested_prefix),
             volume=volume,
         ).order_by('path')
 

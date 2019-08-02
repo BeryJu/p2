@@ -39,7 +39,6 @@ class S3View(View):
             hasher.update(self.request.body)
             ours = base64.b64encode(hasher.digest()).decode('utf-8')
             if self.request.META.get(CONTENT_MD5_HEADER) != ours:
-                LOGGER.debug(self.request.body)
                 LOGGER.debug("Got bad digest",
                              theirs=self.request.META.get(CONTENT_MD5_HEADER),
                              ours=ours)

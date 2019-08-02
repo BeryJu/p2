@@ -1,5 +1,6 @@
 """Serve GRPC functionality"""
 from typing import List, Match, Optional, Tuple
+from urllib.parse import unquote
 
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
@@ -86,7 +87,7 @@ class Serve(ServeServicer):
     def RetrieveFile(self, request: ServeRequest, context) -> ServeReply:
         mock_request = MockRequest(request)
         mock_request.user = self.get_user(request)
-        mock_request.path = request.url
+        mock_request.path = unquote(request.url)
         LOG_ADAPTOR.start_request(mock_request)
         blob = self.get_blob_from_rule(request)
         LOG_ADAPTOR.end_request(mock_request)

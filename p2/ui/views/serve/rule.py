@@ -1,4 +1,6 @@
 """serve rule views"""
+from urllib.parse import unquote
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import \
@@ -101,8 +103,7 @@ class ServeRuleDebugView(PermissionRequiredMixin, FormView):
     def form_valid(self, form: ServeRuleDebugForm):
         _mw = Serve()
         request = ServeRequest(
-            url=form.cleaned_data.get('path')
-        )
+            url=unquote(form.cleaned_data.get('path')))
         rule = self.get_object()
         match_object = rule.matches(request) or {}
         if not match_object:
