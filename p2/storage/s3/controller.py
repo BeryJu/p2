@@ -54,12 +54,12 @@ class S3StorageController(StorageController):
     def get_read_handle(self, blob: Blob) -> RawIOBase:
         _handle = SpooledTemporaryFile()
         self._ensure_bucket_exists(blob.volume.name)
-        self._client.download_fileobj(blob.volume.name, blob.path[1:], _handle)
+        self._client.download_fileobj(blob.volume.name, blob.path, _handle)
         return _handle
 
     def commit(self, blob: Blob, handle: RawIOBase):
         self._ensure_bucket_exists(blob.volume.name)
-        self._client.upload_fileobj(handle, blob.volume.name, blob.path[1:])
+        self._client.upload_fileobj(handle, blob.volume.name, blob.path)
 
     def delete(self, blob: Blob):
         self._ensure_bucket_exists(blob.volume.name)

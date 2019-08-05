@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import datetime
-import logging
 import os
 import sys
 
@@ -23,9 +22,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 from p2 import __version__
 from p2.lib.config import CONFIG
 from p2.lib.sentry import before_send
-
-LOGGER = logging.getLogger(__name__)
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
