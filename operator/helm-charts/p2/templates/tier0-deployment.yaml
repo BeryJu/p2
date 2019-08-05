@@ -28,7 +28,7 @@ spec:
       serviceAccountName: {{ include "p2.fullname" . }}-tier0
       containers:
         - name: {{ .Chart.Name }}-tier0
-          image: "docker.beryju.org/p2/tier0:{{ .Values.image.tag }}"
+          image: "docker.beryju.org/p2/tier0:{{ .Values.version }}"
           imagePullPolicy: IfNotPresent
           command: ['/tier0']
           args: ['server']

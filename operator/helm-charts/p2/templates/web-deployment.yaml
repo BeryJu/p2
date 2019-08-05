@@ -35,7 +35,7 @@ spec:
             claimName: {{ include "p2.fullname" . }}-pvc-app-storage
       initContainers:
         - name: p2-database-migrations
-          image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
+          image: "docker.beryju.org/p2/server:{{ .Values.version }}"
           command:
             - ./manage.py
           args:

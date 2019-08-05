@@ -1,15 +1,15 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ include "p2.fullname" . }}-worker
+  name: {{ include "p2.fullname" . }}-grpc
   labels:
     app.kubernetes.io/name: {{ include "p2.name" . }}
     helm.sh/chart: {{ include "p2.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
-    k8s.p2.io/deployment: worker
+    k8s.p2.io/deployment: grpc
 spec:
-  replicas: {{ .Values.deployment.workerInstances }}
+  replicas: {{ .Values.deployment.grpcInstances }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "p2.name" . }}
@@ -19,7 +19,10 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "p2.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
-        k8s.p2.io/component: worker
+        k8s.p2.io/component: grpc
+      annotations:
+        prometheus.io/scrape: "true"
+        field.cattle.io/workloadMetrics: '[{"path":"/metrics","port":9102,"schema":"HTTP"}]'
     spec:
       securityContext:
         fsGroup: 100
@@ -32,9 +35,17 @@ spec:
             claimName: {{ include "p2.fullname" . }}-pvc-app-storage
       containers:
         - name: {{ .Chart.Name }}
-          image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
+          image: "docker.beryju.org/p2/server:{{ .Values.version }}"
           imagePullPolicy: IfNotPresent
-          command: ["./manage.py", "worker"]
+          command: ["./manage.py"]
+          args: ["grpc"]
+          ports:
+            - name: grpc
+              containerPort: 50051
+              protocol: TCP
+            - name: prometheus
+              containerPort: 9102
+              protocol: TCP
           volumeMounts:
             - mountPath: /etc/p2
               name: config-volume
@@ -42,8 +53,8 @@ spec:
               name: media-storage
           resources:
             requests:
-              cpu: 100m
-              memory: 350M
+              cpu: 500m
+              memory: 200M
             limits:
-              cpu: 200m
-              memory: 425M
+              cpu: 1000m
+              memory: 250M

@@ -1,0 +1,51 @@
+apiVersion: k8s.beryju.org/v1alpha1
+kind: P2
+metadata:
+  name: example-p2
+spec:
+  version: 0.7.6
+
+  config:
+    # Optionally specify fixed secret_key, otherwise generated automatically
+    # secret_key: _k*@6h2u2@q-dku57hhgzb7tnx*ba9wodcb^s9g0j59@=y(@_o
+
+    # Enable error reporting (errors are sent to sentry.beryju.org)
+    error_reporting: true
+
+    # Only allow single sign-on, configured below
+    external_auth_only: false
+
+    # OIDC Configuration
+    # Callback URL: <base url>/_/oidc/callback/
+    oidc:
+      enabled: false
+      client_id: ""
+      client_secret: ""
+      auth_url: ""
+      token_url: ""
+      user_url: ""
+
+  deployment:
+    webInstances: 2
+    workerInstances: 1
+    # To disable tier0, set the values below to 0
+    tier0Instances: 2
+    grpcInstances: 1
+
+  postgresql:
+    postgresqlUsername: p2
+    postgresqlDatabase: p2
+
+  ingress:
+    enabled: true
+    serve:
+      hosts:
+        - "i.p2.local"
+    hosts:
+      - "p2.local"
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - i.p2.local
+    #      - p2.local
+
