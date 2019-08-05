@@ -1,4 +1,5 @@
 """serve rule views"""
+from io import StringIO
 from urllib.parse import unquote
 
 from django.contrib import messages
@@ -108,8 +109,11 @@ class ServeRuleDebugView(PermissionRequiredMixin, FormView):
         match_object = rule.matches(request) or {}
         if not match_object:
             return self.form_invalid(form)
-        with hijack_log() as log_output:
-            lookup = _mw.rule_lookup(request, self.get_object(), match_object)
+        try:
+            with hijack_log() as log_output:
+                lookup = _mw.rule_lookup(request, self.get_object(), match_object)
+        except Exception as exc:  # pylint: disable=broad-except
+            log_output = StringIO(str(exc))
         blob = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(**lookup)
         log_output.write(f"Found object {blob}\n")
         log_output.seek(0)

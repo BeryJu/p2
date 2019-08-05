@@ -45,7 +45,7 @@ class ImageController(ComponentController):
         for key, value in raw_exif.items():
             if key not in ExifTags.TAGS:
                 continue
-            if not isinstance(value, str)
+            if not isinstance(value, str):
                 continue
             tag_name = ExifTags.TAGS[key]
             if tag_name not in allowed_tags:

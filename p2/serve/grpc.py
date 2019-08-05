@@ -19,7 +19,7 @@ from p2.serve.models import ServeRule
 LOGGER = getLogger(__name__)
 
 @contextmanager
-def hijack_log():
+def hijack_log() -> StringIO:
     """Temporarily add a StringIO Output handler to the logger to retrieve log messages"""
     output = StringIO()
     stream = StreamHandler(output)
@@ -82,13 +82,16 @@ class Serve(ServeServicer):
             regex_match = rule.matches(request)
             if regex_match:
                 LOGGER.debug("Rule %s matched", rule)
-                lookups = self.rule_lookup(request, rule, regex_match)
-                blobs = get_objects_for_user(
-                    self.get_user(request), 'p2_core.view_blob').filter(**lookups)
-                if not blobs.exists():
-                    LOGGER.debug("No blob found matching ")
-                    continue
-                return blobs.first()
+                try:
+                    lookups = self.rule_lookup(request, rule, regex_match)
+                    blobs = get_objects_for_user(
+                        self.get_user(request), 'p2_core.view_blob').filter(**lookups)
+                    if not blobs.exists():
+                        LOGGER.debug("No blob found matching ")
+                        continue
+                    return blobs.first()
+                except IndexError as exc:
+                    LOGGER.warning(exc)
         return None
 
     def RetrieveFile(self, request: ServeRequest, context) -> ServeReply:
