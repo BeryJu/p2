@@ -7,6 +7,7 @@ from kubernetes.client.models import (ExtensionsV1beta1HTTPIngressPath,
                                       ExtensionsV1beta1Ingress,
                                       ExtensionsV1beta1IngressBackend,
                                       ExtensionsV1beta1IngressRule)
+from kubernetes.client.rest import ApiException
 from structlog import get_logger
 
 from p2.k8s.exceptions import DomainAlreadyConfigured
@@ -27,7 +28,11 @@ class IngressController(APIHelper):
         super().__init__()
         self._extensions_client = ExtensionsV1beta1Api(self._client)
         self._core_client = CoreV1Api(self._client)
-        self._name = self._find_ingress()
+        try:
+            self._name = self._find_ingress()
+        except ApiException as exc:
+            LOGGER.warning("Failed to find ingress", error=exc)
+            return
 
     def _find_ingress(self) -> str:
         ingress = self._extensions_client.list_namespaced_ingress(
