@@ -8,6 +8,7 @@ rules:
   - ""
   resources:
   - namespaces
+  - pods
   verbs:
   - get
 - apiGroups:
@@ -39,6 +40,13 @@ rules:
   resources:
   - deployments
   - statefulsets
+  verbs:
+  - '*'
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - rolebindings
+  - roles
   verbs:
   - '*'
 - apiGroups:
