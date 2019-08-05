@@ -88,9 +88,8 @@ class Blob(ExportModelOperationsMixin('blob'), UUIDModel, TagModel):
     @staticmethod
     def from_uploaded_file(file, volume, prefix=posixpath.sep):
         """Create Blob instance from Django's UploadedFile"""
-        prefix = posixpath.join(prefix, file.name)
         blob = Blob(
-            path=prefix + file.name,
+            path=posixpath.join(prefix, file.name),
             volume=volume)
         for chunk in file.chunks():
             blob.write(chunk)
