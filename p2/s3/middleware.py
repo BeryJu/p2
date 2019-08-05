@@ -1,4 +1,5 @@
 """p2 s3 routing middleware"""
+from django.contrib.auth.signals import user_logged_in
 from django.http import HttpRequest
 from structlog import get_logger
 
@@ -80,6 +81,10 @@ class S3RoutingMiddleware:
                     handler = AWSV4Authentication(request)
                     user = handler.validate()
                     request.user = user
+                    # since we don't use django's auth.login, we
+                    # send the signal ourselves
+                    # this also updates user.last_login
+                    user_logged_in.send(sender=self, request=request, user=user)
             except AWSError as exc:
                 return self.process_exception(request, exc)
             # AWS Views don't have CSRF Tokens, hence we use csrf_exempt

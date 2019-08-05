@@ -13,8 +13,8 @@ from django.utils.translation import gettext as _
 from django_prometheus.models import ExportModelOperationsMixin
 from structlog import get_logger
 
-from p2.core.constants import (ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_CTIME,
-                               ATTR_BLOB_STAT_MTIME)
+from p2.core.constants import (ATTR_BLOB_IS_FOLDER, ATTR_BLOB_SIZE_BYTES,
+                               ATTR_BLOB_STAT_CTIME, ATTR_BLOB_STAT_MTIME)
 from p2.core.prefix_helper import make_absolute_path, make_absolute_prefix
 from p2.core.tasks import signal_marshall
 from p2.core.validators import validate_blob_path
@@ -54,7 +54,7 @@ class Volume(ExportModelOperationsMixin('volume'), UUIDModel, TagModel):
         return None
 
     def __str__(self):
-        return "Volume %s on %s" % (self.name, self.storage)
+        return f"Volume {self.name} on {self.storage.name}"
 
     class Meta:
 
@@ -88,9 +88,8 @@ class Blob(ExportModelOperationsMixin('blob'), UUIDModel, TagModel):
     @staticmethod
     def from_uploaded_file(file, volume, prefix=posixpath.sep):
         """Create Blob instance from Django's UploadedFile"""
-        prefix = posixpath.join(prefix, file.name)
         blob = Blob(
-            path=prefix + file.name,
+            path=posixpath.join(prefix, file.name),
             volume=volume)
         for chunk in file.chunks():
             blob.write(chunk)
@@ -101,7 +100,9 @@ class Blob(ExportModelOperationsMixin('blob'), UUIDModel, TagModel):
     @property
     def filename(self):
         """Return only the filename part of self.path"""
-        return posixpath.basename(self.path)
+        if ATTR_BLOB_IS_FOLDER not in self.attributes:
+            return posixpath.basename(self.path)
+        return posixpath.basename(posixpath.normpath(self.path))
 
     def _open_read_handle(self):
         if not self._reading_handle:
@@ -144,6 +145,8 @@ class Blob(ExportModelOperationsMixin('blob'), UUIDModel, TagModel):
 
     def __update_prefix(self):
         self.prefix = make_absolute_prefix(posixpath.dirname(self.path))
+        if ATTR_BLOB_IS_FOLDER in self.attributes:
+            self.path = make_absolute_prefix(self.path)
 
     def __failsafe_path(self):
         """Make sure no path collisions can happen"""
@@ -180,7 +183,7 @@ class Blob(ExportModelOperationsMixin('blob'), UUIDModel, TagModel):
             })
 
     def __str__(self):
-        return "<Blob %s:/%s>" % (self.volume.name, self.path)
+        return f"{self.volume.name}:/{self.path}"
 
 
 class Storage(ExportModelOperationsMixin('storage'), UUIDModel, TagModel):
@@ -203,7 +206,7 @@ class Storage(ExportModelOperationsMixin('storage'), UUIDModel, TagModel):
         return self.controller.get_required_tags()
 
     def __str__(self):
-        return "Storage %s" % self.name
+        return f"Storage {self.name}"
 
     class Meta:
 
@@ -236,7 +239,7 @@ class Component(ExportModelOperationsMixin('component'), UUIDModel, TagModel):
         return self._controller_instance
 
     def __str__(self):
-        return "%s for %s" % (self.controller.__class__.__name__, self.volume.name)
+        return f"{self.controller.__class__.__name__} for {self.volume.name}"
 
     class Meta:
 

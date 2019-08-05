@@ -40,4 +40,4 @@ def initial_full_replication(volume_pk):
     source_volume = Volume.objects.get(pk=volume_pk)
     replication_component = source_volume.component(ReplicationController)
     assert replication_component, "ReplicationController not configured"
-    replication_component.controller.full_replication()
+    replication_component.controller.full_replication(source_volume)

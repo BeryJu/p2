@@ -33,6 +33,7 @@
             {% trans 'Access' %}
           </a>
           <div class="dropdown-menu" aria-labelledby="accessDropdown">
+            <a href="{% url 'p2_ui:iam-users-list' %}" class="dropdown-item">{% trans "Users" %}</a>
             <a href="{% url 'p2_ui:api-key-list' %}" class="dropdown-item">{% trans "API Keys" %}</a>
             <a href="{% url 'p2_ui:serve-rule-list' %}" class="dropdown-item">{% trans 'tier0 Policies' %}</a>
           </div>

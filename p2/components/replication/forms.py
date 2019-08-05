@@ -12,10 +12,14 @@ class ReplicationForm(ComponentForm):
     """Replication form"""
 
     # TODO: Filter permissions
-    # TODO: Fix loading of this
     target = forms.ModelChoiceField(queryset=Volume.objects.all())
     offset = forms.IntegerField(min_value=0)
     ignore_if = forms.CharField(required=False)
+
+    def load(self, instance):
+        super().load(instance)
+        self.fields['target'].initial = Volume.objects.get(
+            pk=instance.tags.get(TAG_REPLICATION_TARGET))
 
     class Meta(ComponentFormMeta):
 

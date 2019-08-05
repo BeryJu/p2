@@ -1,4 +1,7 @@
 """serve rule views"""
+from io import StringIO
+from urllib.parse import unquote
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.mixins import \
@@ -14,7 +17,7 @@ from p2.grpc.protos.serve_pb2 import ServeRequest
 from p2.lib.shortcuts import get_object_for_user_or_404
 from p2.lib.views import CreateAssignPermView
 from p2.serve.forms import ServeRuleDebugForm, ServeRuleForm
-from p2.serve.grpc import Serve
+from p2.serve.grpc import Serve, hijack_log
 from p2.serve.models import ServeRule
 
 
@@ -101,19 +104,23 @@ class ServeRuleDebugView(PermissionRequiredMixin, FormView):
     def form_valid(self, form: ServeRuleDebugForm):
         _mw = Serve()
         request = ServeRequest(
-            url=form.cleaned_data.get('path')
-        )
+            url=unquote(form.cleaned_data.get('path')))
         rule = self.get_object()
         match_object = rule.matches(request) or {}
         if not match_object:
             return self.form_invalid(form)
-        lookup, messages = _mw.rule_lookup(request, self.get_object(), match_object)
+        try:
+            with hijack_log() as log_output:
+                lookup = _mw.rule_lookup(request, self.get_object(), match_object)
+        except Exception as exc:  # pylint: disable=broad-except
+            log_output = StringIO(str(exc))
         blob = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(**lookup)
-        messages.append("Found object %r" % blob)
+        log_output.write(f"Found object {blob}\n")
+        log_output.seek(0)
         form = ServeRuleDebugForm(
             data={
                 'path': form.cleaned_data.get('path'),
-                'result': '\n'.join(messages)
+                'result': log_output.read()
             }
         )
         return self.form_invalid(form)

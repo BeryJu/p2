@@ -65,7 +65,7 @@ class LocalStorageController(StorageController):
 
     def get_read_handle(self, blob: Blob) -> RawIOBase:
         fs_path = self._build_path(blob)
-        LOGGER.debug('RETR "%s"', blob.uuid, file=fs_path)
+        LOGGER.debug('LocalStorageController::Retrieve', blob=blob, file=fs_path)
         if os.path.exists(fs_path) and os.path.isfile(fs_path):
             return open(fs_path, 'rb')
         LOGGER.warning("File does not exist or is not a file.", file=fs_path)
@@ -74,7 +74,7 @@ class LocalStorageController(StorageController):
     def commit(self, blob: Blob, handle: RawIOBase):
         fs_path = self._build_path(blob)
         os.makedirs(os.path.dirname(fs_path), exist_ok=True)
-        LOGGER.debug('COMT "%s"', blob.uuid, file=fs_path)
+        LOGGER.debug('LocalStorageController::Commit', blob=blob, file=fs_path)
         with open(fs_path, 'wb') as _dest:
             return copyfileobj(handle, _dest)
 
@@ -84,6 +84,6 @@ class LocalStorageController(StorageController):
         # Not file_like, delete file if it exists
         if os.path.exists(fs_path) and os.path.isfile(fs_path):
             os.unlink(fs_path)
-            LOGGER.debug("Deleted file", file=fs_path)
+            LOGGER.debug("LocalStorageController::Delete", file=fs_path)
         else:
             LOGGER.warning("File does not exist during deletion attempt.", file=fs_path)

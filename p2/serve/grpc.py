@@ -1,10 +1,13 @@
 """Serve GRPC functionality"""
-from typing import List, Match, Optional, Tuple
+from contextlib import contextmanager
+from io import StringIO
+from logging import Formatter, StreamHandler, getLogger
+from typing import List, Match, Optional
+from urllib.parse import unquote
 
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from guardian.shortcuts import get_anonymous_user, get_objects_for_user
-from structlog import get_logger
 
 from p2.core.constants import TAG_BLOB_HEADERS
 from p2.core.models import Blob
@@ -13,7 +16,18 @@ from p2.grpc.protos.serve_pb2_grpc import ServeServicer
 from p2.log.adaptor import LOG_ADAPTOR
 from p2.serve.models import ServeRule
 
-LOGGER = get_logger()
+LOGGER = getLogger(__name__)
+
+@contextmanager
+def hijack_log() -> StringIO:
+    """Temporarily add a StringIO Output handler to the logger to retrieve log messages"""
+    output = StringIO()
+    stream = StreamHandler(output)
+    formatter = Formatter('%(message)s')
+    stream.setFormatter(formatter)
+    LOGGER.addHandler(stream)
+    yield output
+    LOGGER.removeHandler(stream)
 
 # pylint: disable=too-few-public-methods
 class MockRequest:
@@ -35,14 +49,11 @@ class MockRequest:
 class Serve(ServeServicer):
     """GRPC Service for Serve Application"""
 
-    def rule_lookup(self, request: ServeRequest, rule: ServeRule,
-                    match: Match) -> Tuple[List[str], List[str]]:
+    def rule_lookup(self, request: ServeRequest, rule: ServeRule, match: Match) -> List[str]:
         """Build blob lookup from rule"""
         lookups = {}
-        # FIXME: Capture LOGGER output instead of returning a message array
-        debug_messages = []
         for lookup_token in rule.blob_query.split('&'):
-            debug_messages.append("Found new token '%s'" % lookup_token)
+            LOGGER.debug("Found new token '%s'", lookup_token)
             lookup_key, lookup_value = lookup_token.split('=')
             lookups[lookup_key] = lookup_value.format(
                 path=request.url,
@@ -51,9 +62,9 @@ class Serve(ServeServicer):
                 meta=request.headers,
                 match=match,
             )
-            debug_messages.append("Formatted to '%s'='%s'" % (lookup_key, lookups[lookup_key]))
-        debug_messages.append("Final lookup %r" % lookups)
-        return lookups, debug_messages
+            LOGGER.debug("Formatted to '%s'='%s'", lookup_key, lookups[lookup_key])
+        LOGGER.debug("Final lookup %r", lookups)
+        return lookups
 
     def get_user(self, request: ServeRequest) -> User:
         """Get user from cookie"""
@@ -71,22 +82,22 @@ class Serve(ServeServicer):
             regex_match = rule.matches(request)
             if regex_match:
                 LOGGER.debug("Rule %s matched", rule)
-                lookups, messages = self.rule_lookup(request, rule, regex_match)
-                # Output debug messages on log
-                for msg in messages:
-                    LOGGER.debug(msg)
-                blobs = get_objects_for_user(
-                    self.get_user(request), 'p2_core.view_blob').filter(**lookups)
-                if not blobs.exists():
-                    LOGGER.debug("No blob found matching ")
-                    continue
-                return blobs.first()
+                try:
+                    lookups = self.rule_lookup(request, rule, regex_match)
+                    blobs = get_objects_for_user(
+                        self.get_user(request), 'p2_core.view_blob').filter(**lookups)
+                    if not blobs.exists():
+                        LOGGER.debug("No blob found matching ")
+                        continue
+                    return blobs.first()
+                except IndexError as exc:
+                    LOGGER.warning(exc)
         return None
 
     def RetrieveFile(self, request: ServeRequest, context) -> ServeReply:
         mock_request = MockRequest(request)
         mock_request.user = self.get_user(request)
-        mock_request.path = request.url
+        mock_request.path = unquote(request.url)
         LOG_ADAPTOR.start_request(mock_request)
         blob = self.get_blob_from_rule(request)
         LOG_ADAPTOR.end_request(mock_request)

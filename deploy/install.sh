@@ -2,12 +2,10 @@
 
 # p2 Install script
 # Installs and updates a p2 instance using k3s and docker
-# Supported enviormnet variables:
-# - STORAGE_BASE: Base directory in which p2 data will be storeed
 
-K3S_VERSION="0.7.0"
-P2_VERSION="0.7.4"
-export INSTALL_K3S_EXEC="--docker --no-deploy traefik"
+K3S_VERSION="0.6.1"
+P2_VERSION="0.7.6"
+export INSTALL_K3S_EXEC="--docker"
 
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
@@ -62,45 +60,14 @@ curl -fsSL "https://raw.githubusercontent.com/rancher/k3s/v${K3S_VERSION}/instal
 bash install.k3s.sh > /dev/null 2>&1
 
 STORAGE_BASE="${STORAGE_BASE:-/srv/p2}"
-P2_PASSWORD_FILE="${STORAGE_BASE}/password"
-
 # Make sure storage directories exist
 mkdir -p "${STORAGE_BASE}"
-
-# Check if password has been generated, generate if not
-if [[ ! -f "$P2_PASSWORD_FILE" ]]; then
-    openssl rand -hex 48 > "$P2_PASSWORD_FILE"
-fi
-# Make sure Password file can only be read by root
-chown root: "$P2_PASSWORD_FILE"
-chmod 600 "$P2_PASSWORD_FILE"
-
-PASSWORD=$(cat $P2_PASSWORD_FILE)
-
-# Download Helm Chart CRD for k3s, replace values and install
-curl -fsSL -o p2_k3s_helm.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-helm.yaml"
 curl -fsSL -o p2_k3s_storage.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-storage.yaml"
-curl -fsSL -o p2_k3s_nginx.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-nginx-ingress.yaml"
-curl -fsSL -o p2_k3s_all_ingress.yaml "https://git.beryju.org/BeryJu.org/p2/raw/version/${P2_VERSION}/install/k3s-all-ingress.yaml"
-
-sed -i "s|%PASSWORD%|${PASSWORD}|g" p2_k3s_helm.yaml
 sed -i "s|%STORAGE_BASE%|${STORAGE_BASE}|g" p2_k3s_storage.yaml
-
-# Run docker image pull in foreground to better show progress
-docker image pull docker.beryju.org/p2/server:$P2_VERSION
-docker image pull docker.beryju.org/p2/tier0:$P2_VERSION
-docker image pull bitnami/postgresql:10.6.0
-docker image pull bitnami/redis:4.0.11
-
-sleep 30
-mv p2_k3s_nginx.yaml /var/lib/rancher/k3s/server/manifests/p2-10-nginx.yaml
-sleep 30
 mv p2_k3s_storage.yaml /var/lib/rancher/k3s/server/manifests/p2-20-storage.yaml
 sleep 30
-mv p2_k3s_helm.yaml /var/lib/rancher/k3s/server/manifests/p2-30-helm.yaml
-mv p2_k3s_all_ingress.yaml /var/lib/rancher/k3s/server/manifests/p2-31-all-ingress.yaml
-
-echo " * Your p2 instanace will be available on port 443 in a few minutes."
-echo " * You can use the username admin with password admin to login."
+# TODO: Download crd and operator
+# echo " * Your p2 instanace will be available at $INGRESS_HOST in a few minutes."
+# echo " * You can use the username admin with password admin to login."
 
 rm -r "${TEMP_DIR}"

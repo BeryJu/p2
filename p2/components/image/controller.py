@@ -43,10 +43,12 @@ class ImageController(ComponentController):
         allowed_tags = self.instance.tags.get(TAG_IMAGE_EXIF_TAGS, [])
         attributes = {}
         for key, value in raw_exif.items():
+            if key not in ExifTags.TAGS:
+                continue
+            if not isinstance(value, str):
+                continue
             tag_name = ExifTags.TAGS[key]
-            if key not in ExifTags.TAGS or \
-                    not isinstance(value, str) or \
-                    tag_name not in allowed_tags:
+            if tag_name not in allowed_tags:
                 continue
             attributes['blob.p2.io/exif/%s' % ExifTags.TAGS[key]] = value
         return attributes

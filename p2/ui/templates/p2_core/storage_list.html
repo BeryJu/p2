@@ -14,9 +14,8 @@
     <tr>
       <th>{% trans 'Name' %}</th>
       <th>{% trans 'Controller' %}</th>
-      <th>{% trans 'Edit' %}</th>
-      <th>{% trans 'Delete' %}</th>
-      </td>
+      <th>{% trans 'Actions' %}</th>
+    </tr>
   </thead>
   <tbody>
     {% for object in object_list %}
@@ -31,8 +30,6 @@
         <a class="btn btn-primary" href="{% url 'p2_ui:core-storage-update' pk=object.pk %}">
           <i class="fa fa-pencil text-light" aria-hidden="true"></i>
         </a>
-      </td>
-      <td>
         <a class="btn btn-danger" href="{% url 'p2_ui:core-storage-delete' pk=object.pk %}">
           <i class="fa fa-trash text-light" aria-hidden="true"></i>
         </a>
@@ -41,5 +38,7 @@
     {% endfor %}
   </tbody>
 </table>
+{% if paginator.num_pages > 1 %}
 {% include 'blocks/pagination.html' %}
+{% endif %}
 {% endblock %}

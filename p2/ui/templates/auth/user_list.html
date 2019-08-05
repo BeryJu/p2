@@ -4,8 +4,8 @@
 
 {% block content %}
 <h2>
-  {% trans 'Log Adaptors' %}
-  <a class="btn btn-success" href="{% url 'p2_ui:log-adaptor-create' %}">
+  {% trans "Users" %}
+  <a class="btn btn-success" href="{% url 'p2_ui:iam-users-create' %}">
     <i class="fa fa-plus text-light" aria-hidden="true"></i>
   </a>
 </h2>
@@ -13,27 +13,28 @@
   <thead class="thead-dark">
     <tr>
       <th>{% trans 'Name' %}</th>
-      <th>{% trans 'Controller' %}</th>
-      <th>{% trans 'Edit' %}</th>
-      <th>{% trans 'Delete' %}</th>
-      </td>
+      <th>{% trans 'Password set?' %}</th>
+      <th>{% trans 'Date Created' %}</th>
+      <th>{% trans 'Last Login' %}</th>
+      <th>{% trans 'Actions' %}</th>
+    </tr>
   </thead>
   <tbody>
     {% for object in object_list %}
     <tr>
+      <td>{{ object.username }}</td>
+      <td>{{ object.has_usable_password }}</td>
+      <td>{{ object.date_joined }}</td>
+      <td>{{ object.last_login }}</td>
       <td>
-          {{ object.name }}
-      </td>
-      <td>{{ object.controller_path }}</td>
-      <td>
-        <a class="btn btn-primary" href="{% url 'p2_ui:log-adaptor-update' pk=object.pk %}">
+        <a class="btn btn-primary" href="{% url 'p2_ui:iam-users-update' pk=object.pk %}">
           <i class="fa fa-pencil text-light" aria-hidden="true"></i>
         </a>
-      </td>
-      <td>
-        <a class="btn btn-danger" href="{% url 'p2_ui:log-adaptor-delete' pk=object.pk %}">
+        {% if object != request.user %}
+        <a class="btn btn-danger" href="{% url 'p2_ui:iam-users-delete' pk=object.pk %}">
           <i class="fa fa-trash text-light" aria-hidden="true"></i>
         </a>
+        {% endif %}
       </td>
     </tr>
     {% endfor %}

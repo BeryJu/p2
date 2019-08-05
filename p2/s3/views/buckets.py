@@ -5,10 +5,10 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse
 from guardian.shortcuts import assign_perm, get_objects_for_user
 
-from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_SIZE_BYTES,
-                               ATTR_BLOB_STAT_MTIME)
+from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_IS_FOLDER,
+                               ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_MTIME)
 from p2.core.models import Volume
-from p2.core.prefix_helper import PrefixHelper, make_absolute_prefix
+from p2.core.prefix_helper import make_absolute_prefix
 from p2.s3.constants import (TAG_S3_DEFAULT_STORAGE, TAG_S3_STORAGE_CLASS,
                              XML_NAMESPACE)
 from p2.s3.errors import AWSAccessDenied
@@ -41,6 +41,20 @@ class BucketView(S3View):
         ElementTree.SubElement(root, "Status").text = "Disabled"
         return XMLResponse(root)
 
+    def _etree_for_blob(self, blob):
+        """Create ElementTree Object for blob"""
+        content = ElementTree.Element("Contents")
+        ElementTree.SubElement(content, "Key").text = blob.path[1:]
+        ElementTree.SubElement(
+            content, "LastModified").text = blob.attributes.get(ATTR_BLOB_STAT_MTIME)
+        ElementTree.SubElement(
+            content, "ETag").text = blob.attributes.get(ATTR_BLOB_HASH_MD5)
+        ElementTree.SubElement(content, "Size").text = str(
+            blob.attributes.get(ATTR_BLOB_SIZE_BYTES, 0))
+        ElementTree.SubElement(content, "StorageClass").text = \
+            blob.volume.storage.controller.tags.get(TAG_S3_STORAGE_CLASS, 'default')
+        return content
+
     # pylint: disable=too-many-locals
     def handler_list(self, request, bucket):
         """Bucket List API Method"""
@@ -48,10 +62,13 @@ class BucketView(S3View):
         root = ElementTree.Element("{%s}ListBucketResult" % XML_NAMESPACE)
         volume = self.get_volume('p2_core.list_volume_contents', name=bucket)
         requested_prefix = request.GET.get('prefix', '')
-        blobs = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
+        base_lookup = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
             prefix=make_absolute_prefix(requested_prefix),
             volume=volume,
         ).order_by('path')
+
+        blobs = base_lookup.exclude(attributes__has_key=ATTR_BLOB_IS_FOLDER)
+        folders = base_lookup.filter(attributes__has_key=ATTR_BLOB_IS_FOLDER)
 
         max_keys = int(self.request.GET.get('max-keys', 100))
         encoding_type = self.request.GET.get('encoding-type', 'url')
@@ -67,29 +84,24 @@ class BucketView(S3View):
         ElementTree.SubElement(root, "EncodingType").text = encoding_type
         ElementTree.SubElement(root, "IsTruncated").text = str(is_truncated).lower()
 
-        # append all blobs
-        for blob in paginator.page(1):
-            content = ElementTree.Element("Contents")
-            ElementTree.SubElement(content, "Key").text = blob.path[1:]
-            ElementTree.SubElement(
-                content, "LastModified").text = blob.attributes.get(ATTR_BLOB_STAT_MTIME)
-            ElementTree.SubElement(
-                content, "ETag").text = blob.attributes.get(ATTR_BLOB_HASH_MD5)
-            ElementTree.SubElement(content, "Size").text = str(
-                blob.attributes.get(ATTR_BLOB_SIZE_BYTES, 0))
-            ElementTree.SubElement(content, "StorageClass").text = \
-                blob.volume.storage.controller.tags.get(TAG_S3_STORAGE_CLASS, 'default')
-            root.append(content)
+        if blobs:
+            for blob in paginator.page(1):
+                root.append(self._etree_for_blob(blob))
+        if not blobs and requested_prefix != '':
+            # If we're in a sub-directory which has no blobs, we need to add
+            # the directory blob as content
+            directory_blob = self.get_blob('view_blob', path=make_absolute_prefix(requested_prefix))
+            root.append(self._etree_for_blob(directory_blob))
 
         # append CommonPrefixes
         common_prefixes = ElementTree.Element("CommonPrefixes")
-        helper = PrefixHelper(request.user, volume, make_absolute_prefix(requested_prefix))
-        # Disable intermediate prefixes since that's handled by the client
-        helper.collect(max_levels=-1)
+        # helper = PrefixHelper(request.user, volume, make_absolute_prefix(requested_prefix))
+        # # Disable intermediate prefixes since that's handled by the client
+        # helper.collect(max_levels=-1)
 
-        for virtual_prefix in helper.prefixes:
-            ElementTree.SubElement(
-                common_prefixes, 'Prefix').text = virtual_prefix.absolute_path[1:] + "/"
+        # for virtual_prefix in helper.prefixes:
+        for blob in folders:
+            ElementTree.SubElement(common_prefixes, 'Prefix').text = blob.filename
 
         if common_prefixes:
             root.append(common_prefixes)

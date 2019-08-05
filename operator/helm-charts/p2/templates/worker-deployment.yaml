@@ -1,15 +1,15 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: {{ include "p2.fullname" . }}-grpc
+  name: {{ include "p2.fullname" . }}-worker
   labels:
     app.kubernetes.io/name: {{ include "p2.name" . }}
     helm.sh/chart: {{ include "p2.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
-    k8s.p2.io/deployment: grpc
+    k8s.p2.io/deployment: worker
 spec:
-  replicas: {{ .Values.deployment.grpcInstances }}
+  replicas: {{ .Values.deployment.workerInstances }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "p2.name" . }}
@@ -19,10 +19,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "p2.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
-        k8s.p2.io/component: grpc
-      annotations:
-        prometheus.io/scrape: "true"
-        field.cattle.io/workloadMetrics: '[{"path":"/metrics","port":9102,"schema":"HTTP"}]'
+        k8s.p2.io/component: worker
     spec:
       serviceAccountName: {{ include "p2.fullname" . }}-cni
       securityContext:
@@ -36,17 +33,14 @@ spec:
             claimName: {{ include "p2.fullname" . }}-pvc-app-storage
       containers:
         - name: {{ .Chart.Name }}
-          image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
+          image: "docker.beryju.org/p2/server:{{ .Values.version }}"
           imagePullPolicy: IfNotPresent
-          command: ["./manage.py"]
-          args: ["grpc"]
-          ports:
-            - name: grpc
-              containerPort: 50051
-              protocol: TCP
-            - name: prometheus
-              containerPort: 9102
-              protocol: TCP
+          command: ["./manage.py", "worker"]
+          volumeMounts:
+            - mountPath: /etc/p2
+              name: config-volume
+            - mountPath: /storage
+              name: media-storage
           env:
             - name: P2_REDIS_HOST
               value: "{{ .Release.Name }}-redis-master"
@@ -66,15 +60,10 @@ spec:
                 secretKeyRef:
                   name: "{{ .Release.Name }}-postgresql"
                   key: postgresql-password
-          volumeMounts:
-            - mountPath: /etc/p2
-              name: config-volume
-            - mountPath: /storage
-              name: media-storage
           resources:
             requests:
-              cpu: 500m
-              memory: 200M
+              cpu: 100m
+              memory: 350M
             limits:
-              cpu: 1000m
-              memory: 250M
+              cpu: 200m
+              memory: 425M
