@@ -24,8 +24,4 @@ data:
     #   user_url: ""
     oidc: {{ toYaml .Values.config.oidc | nindent 6 }}
 
-    {{- if .Values.config.secret_key }}
-    secret_key: {{ .Values.config.secret_key }}
-    {{- else }}
-    secret_key: {{ randAlphaNum 50 }}
-    {{- end }}
+    secret_key: env://P2_SECRET_KEY

@@ -60,6 +60,11 @@ spec:
                 secretKeyRef:
                   name: "{{ .Release.Name }}-postgresql"
                   key: postgresql-password
+            - name: P2_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ template "p2.fullname" . }}"
+                  key: secret_key
           resources:
             requests:
               cpu: 100m
