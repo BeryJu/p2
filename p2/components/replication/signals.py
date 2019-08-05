@@ -1,11 +1,12 @@
 """Replication signals"""
 
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
 from p2.components.replication.constants import TAG_REPLICATION_OFFSET
 from p2.components.replication.controller import ReplicationController
-from p2.components.replication.tasks import (replicate_delete_task,
+from p2.components.replication.tasks import (initial_full_replication,
+                                             replicate_delete_task,
                                              replicate_metadata_update_task,
                                              replicate_payload_update_task)
 from p2.core.models import Blob, Component
@@ -35,9 +36,9 @@ def payload_updated_replication(sender, blob, **kwargs):
             countdown=int(replication_component.tags.get(TAG_REPLICATION_OFFSET, 0)))
 
 
-@receiver(post_delete, sender=Blob)
+@receiver(pre_delete, sender=Blob)
 # pylint: disable=unused-argument
-def blob_post_delete(sender, instance, **kwargs):
+def blob_pre_delete(sender, instance, **kwargs):
     """Delete target blob"""
     replication_component = instance.volume.component(ReplicationController)
     if replication_component:
@@ -51,4 +52,4 @@ def blob_post_delete(sender, instance, **kwargs):
 def component_post_save(sender, instance, **kwargs):
     """Trigger initial sync after we've been saved"""
     if instance.controller_path == class_to_path(ReplicationController):
-        instance.controller.full_replication()
+        initial_full_replication.delay(instance.volume.pk)

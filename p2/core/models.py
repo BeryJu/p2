@@ -183,7 +183,7 @@ class Blob(ExportModelOperationsMixin('blob'), UUIDModel, TagModel):
             })
 
     def __str__(self):
-        return f"<Blob {self.volume.name}:/{self.path}>"
+        return f"{self.volume.name}:/{self.path}"
 
 
 class Storage(ExportModelOperationsMixin('storage'), UUIDModel, TagModel):
