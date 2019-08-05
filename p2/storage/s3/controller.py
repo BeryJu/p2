@@ -8,7 +8,8 @@ from structlog import get_logger
 
 from p2.core.models import Blob
 from p2.core.storages.base import StorageController
-from p2.storage.s3.constants import (TAG_ACCESS_KEY, TAG_ENDPOINT, TAG_REGION,
+from p2.storage.s3.constants import (TAG_ACCESS_KEY, TAG_ENDPOINT,
+                                     TAG_ENDPOINT_SSL_VERIFY, TAG_REGION,
                                      TAG_SECRET_KEY)
 
 LOGGER = get_logger()
@@ -24,7 +25,8 @@ class S3StorageController(StorageController):
             aws_access_key_id=self.instance.tags.get(TAG_ACCESS_KEY),
             aws_secret_access_key=self.instance.tags.get(TAG_SECRET_KEY),
             endpoint_url=self.instance.tags.get(TAG_ENDPOINT, None),
-            region_name=self.instance.tags.get(TAG_REGION))
+            region_name=self.instance.tags.get(TAG_REGION),
+            verify=self.instance.tags.get(TAG_ENDPOINT_SSL_VERIFY, True))
 
     def get_required_tags(self):
         return [
