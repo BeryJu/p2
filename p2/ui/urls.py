@@ -4,6 +4,7 @@ from django.urls import path
 from p2.ui.views import general
 from p2.ui.views.api import key
 from p2.ui.views.core import blob, component, storage, volume
+from p2.ui.views.iam import users
 from p2.ui.views.serve import rule
 
 app_name = 'p2_ui'
@@ -54,6 +55,15 @@ urlpatterns = [
          storage.StorageUpdateView.as_view(), name='core-storage-update'),
     path('core/storage/<uuid:pk>/delete/',
          storage.StorageDeleteView.as_view(), name='core-storage-delete'),
+    # API - Keys
+    path('iam/users/',
+         users.UserListView.as_view(), name='iam-users-list'),
+    path('iam/users/create/',
+         users.UserCreateView.as_view(), name='iam-users-create'),
+    path('iam/users/<int:pk>/update/',
+         users.UserUpdateView.as_view(), name='iam-users-update'),
+    path('iam/users/<int:pk>/delete/',
+         users.UserDeleteView.as_view(), name='iam-users-delete'),
     # API - Keys
     path('api/access-key/',
          key.APIKeyListView.as_view(), name='api-key-list'),
