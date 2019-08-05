@@ -15,9 +15,8 @@
       <th>{% trans 'Name' %}</th>
       <th>{% trans 'User' %}</th>
       <th>{% trans 'Access Key' %}</th>
-      <th>{% trans 'Edit' %}</th>
-      <th>{% trans 'Delete' %}</th>
-      </td>
+      <th>{% trans 'Actions' %}</th>
+    </tr>
   </thead>
   <tbody>
     {% for object in object_list %}
@@ -29,8 +28,6 @@
         <a class="btn btn-primary" href="{% url 'p2_ui:api-key-update' pk=object.pk %}">
           <i class="fa fa-pencil text-light" aria-hidden="true"></i>
         </a>
-      </td>
-      <td>
         <a class="btn btn-danger" href="{% url 'p2_ui:api-key-delete' pk=object.pk %}">
           <i class="fa fa-trash text-light" aria-hidden="true"></i>
         </a>
