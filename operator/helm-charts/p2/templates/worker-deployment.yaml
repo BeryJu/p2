@@ -41,6 +41,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "p2.fullname" . }}-config
+              prefix: P2_
           env:
             - name: P2_REDIS__HOST
               value: "{{ .Release.Name }}-redis-master"
