@@ -26,10 +26,18 @@ def model_app(context, expected=''):
         return "active" if expected_app == app and expected_model == object_name else ""
     return "active" if app == expected else ""
 
+
 @register.simple_tag
 def config(key, default=None):
     """Get config value"""
     return CONFIG.y(key, default=default)
+
+
+@register.simple_tag
+def config_bool(key, default=None):
+    """Get config value (casted to bool)"""
+    return CONFIG.y_bool(key, default=default)
+
 
 @register.filter
 def model_verbose_name(model):
@@ -37,6 +45,7 @@ def model_verbose_name(model):
     if isinstance(model, Model):
         model = model.__class__
     return model._meta.verbose_name
+
 
 @register.filter
 def get_attribute(blob, path):
@@ -50,6 +59,7 @@ def startswith(text, starts):
     if isinstance(text, str):
         return text.startswith(starts)
     return False
+
 
 @register.filter('json')
 def json_pretty(obj):
