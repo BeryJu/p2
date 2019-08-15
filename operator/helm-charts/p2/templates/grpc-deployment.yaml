@@ -78,8 +78,8 @@ spec:
               name: media-storage
           resources:
             requests:
-              cpu: 500m
+              cpu: 150m
               memory: 200M
             limits:
-              cpu: 1000m
+              cpu: 300m
               memory: 250M

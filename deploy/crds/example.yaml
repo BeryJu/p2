@@ -1,3 +1,4 @@
+---
 apiVersion: k8s.beryju.org/v1alpha1
 kind: P2
 metadata:
@@ -5,10 +6,13 @@ metadata:
 spec:
   version: 0.7.6
 
-  config:
-    # Optionally specify fixed secret_key, otherwise generated automatically
-    # secret_key: _k*@6h2u2@q-dku57hhgzb7tnx*ba9wodcb^s9g0j59@=y(@_o
+  secret_key: "r-9k#x4tkk2e8%=(9hf#^v4&=5z2)^gzn^)l*_=z+&0a97kwd8"
+  redis:
+    password: "ThisIsNotASecurePassword!"
+  postgresql:
+    postgresqlPassword: "ThisIsNotASecurePassword!"
 
+  config:
     # Enable error reporting (errors are sent to sentry.beryju.org)
     error_reporting: true
 
@@ -26,15 +30,11 @@ spec:
       user_url: ""
 
   deployment:
-    webInstances: 2
+    webInstances: 1
     workerInstances: 1
     # To disable tier0, set the values below to 0
     tier0Instances: 2
     grpcInstances: 1
-
-  postgresql:
-    postgresqlUsername: p2
-    postgresqlDatabase: p2
 
   ingress:
     enabled: true
@@ -44,7 +44,7 @@ spec:
     hosts:
       - "p2.local"
     tls:
-     - secretName: chart-example-tls
+     - secretName: example-p2-tls
        hosts:
          - i.p2.local
          - p2.local
