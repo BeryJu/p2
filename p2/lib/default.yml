@@ -1,13 +1,13 @@
 # This is the default configuration file
 postgresql:
-  name: env://P2_PSQL_DBNAME
-  user: env://P2_PSQL_USERNAME
-  password: env://P2_PSQL_PASSWORD
-  host: env://P2_PSQL_HOST
+  host: localhost
+  name: p2
+  user: postgres
+  password: ''
 
 redis:
-  host: env://P2_REDIS_HOST
-  password: env://P2_REDIS_PASSWORD
+  host: localhost
+  password: ''
   cache_db: 0
   message_queue_db: 1
 

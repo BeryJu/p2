@@ -28,9 +28,6 @@ spec:
       securityContext:
         fsGroup: 100
       volumes:
-        - name: config-volume
-          configMap:
-            name: {{ include "p2.fullname" . }}-config
         - name: media-storage
           persistentVolumeClaim:
             claimName: {{ include "p2.fullname" . }}-pvc-app-storage
@@ -41,14 +38,24 @@ spec:
             - ./manage.py
           args:
             - migrate
+          envFrom:
+            - configMapRef:
+                name: {{ include "p2.fullname" . }}-config
           env:
-            - name: P2_PSQL_DBNAME
+            - name: P2_REDIS__HOST
+              value: "{{ .Release.Name }}-redis-master"
+            - name: P2_REDIS__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-redis"
+                  key: redis-password
+            - name: P2_POSTGRESQL__NAME
               value: "{{ .Values.postgresql.postgresqlDatabase }}"
-            - name: P2_PSQL_USERNAME
+            - name: P2_POSTGRESQL__USER
               value: "{{ .Values.postgresql.postgresqlUsername }}"
-            - name: P2_PSQL_HOST
+            - name: P2_POSTGRESQL__HOST
               value: "{{ .Release.Name }}-postgresql"
-            - name: P2_PSQL_PASSWORD
+            - name: P2_POSTGRESQL__PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: "{{ .Release.Name }}-postgresql"
@@ -59,8 +66,6 @@ spec:
                   name: "{{ template "p2.fullname" . }}"
                   key: secret_key
           volumeMounts:
-            - mountPath: /etc/p2
-              name: config-volume
             - mountPath: /storage
               name: media-storage
       containers:
@@ -71,6 +76,9 @@ spec:
             - ./manage.py
           args:
             - web
+          envFrom:
+            - configMapRef:
+                name: {{ include "p2.fullname" . }}-config
           env:
             - name: P2_COMPONENT
               value: web
@@ -81,13 +89,13 @@ spec:
                 secretKeyRef:
                   name: "{{ .Release.Name }}-redis"
                   key: redis-password
-            - name: P2_PSQL_DBNAME
+            - name: P2_POSTGRESQL__NAME
               value: "{{ .Values.postgresql.postgresqlDatabase }}"
-            - name: P2_PSQL_USERNAME
+            - name: P2_POSTGRESQL__USER
               value: "{{ .Values.postgresql.postgresqlUsername }}"
-            - name: P2_PSQL_HOST
+            - name: P2_POSTGRESQL__HOST
               value: "{{ .Release.Name }}-postgresql"
-            - name: P2_PSQL_PASSWORD
+            - name: P2_POSTGRESQL__PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: "{{ .Release.Name }}-postgresql"
@@ -100,8 +108,6 @@ spec:
               containerPort: 9102
               protocol: TCP
           volumeMounts:
-            - mountPath: /etc/p2
-              name: config-volume
             - mountPath: /storage
               name: media-storage
           livenessProbe:
