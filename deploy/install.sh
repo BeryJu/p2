@@ -3,7 +3,7 @@
 # p2 Install script
 # Installs and updates a p2 instance using k3s and docker
 
-P2_VERSION="0.7.6"
+P2_VERSION="0.8.0-rc1"
 
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
