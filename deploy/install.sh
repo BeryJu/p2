@@ -3,9 +3,7 @@
 # p2 Install script
 # Installs and updates a p2 instance using k3s and docker
 
-K3S_VERSION="0.6.1"
 P2_VERSION="0.7.6"
-export INSTALL_K3S_EXEC="--docker"
 
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
@@ -56,7 +54,7 @@ function __wait_until_pods_ready() {
 curl -fsSL https://get.docker.com -o install.docker.sh
 bash install.docker.sh > /dev/null 2>&1
 # Make sure K3s is installed
-curl -fsSL "https://raw.githubusercontent.com/rancher/k3s/v${K3S_VERSION}/install.sh" -o install.k3s.sh
+curl -sfL https://get.k3s.io -o install.k3s.sh
 bash install.k3s.sh > /dev/null 2>&1
 
 STORAGE_BASE="${STORAGE_BASE:-/srv/p2}"
