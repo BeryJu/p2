@@ -24,7 +24,6 @@ spec:
         prometheus.io/scrape: "true"
         field.cattle.io/workloadMetrics: '[{"path":"/metrics","port":9102,"schema":"HTTP"}]'
     spec:
-      serviceAccountName: {{ include "p2.fullname" . }}-cni
       securityContext:
         fsGroup: 100
       volumes:

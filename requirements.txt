@@ -5,8 +5,6 @@ pyyaml
 psycopg2
 structlog
 cherrypy
-# K8s integration
-kubernetes
 # Monitoring
 django-prometheus
 py-grpc-prometheus

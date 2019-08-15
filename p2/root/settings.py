@@ -142,7 +142,6 @@ INSTALLED_APPS = [
     'p2.serve.apps.P2ServeConfig',
     'p2.log.apps.P2LogConfig',
     'p2.ui.apps.P2UIConfig',
-    'p2.k8s.apps.P2K8sConfig',
     # p2 - Components
     'p2.components.quota.apps.P2QuotaComponentConfig',
     'p2.components.image.apps.P2ImageComponentConfig',
