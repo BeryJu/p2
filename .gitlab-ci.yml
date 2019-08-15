@@ -4,7 +4,6 @@ stages:
   - build-dev-image
   - test
   - build
-  - package
 image: docker.beryju.org/p2/dev:latest
 
 variables:
@@ -82,6 +81,7 @@ pylint:
   - redis:latest
 coverage:
   script:
+    - env
     - coverage run manage.py test
     - coverage report
     - coverage html
@@ -146,31 +146,15 @@ build-p2-tier0:
   only:
     - tags
     - /^version/.*$/
-
-package-helm:
-  image: debian:stretch-slim
-  stage: package
+build-p2-operator:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   before_script:
-    - apt update && apt install -y curl
-    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
+    - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - helm init --client-only
-    - helm dependency build install/helm/p2
-    - helm package install/helm/p2
-  artifacts:
-    paths:
-      - p2-*.tgz
-    expire_in: 1 week
+    - /kaniko/executor --context $CI_PROJECT_DIR/operator --dockerfile $CI_PROJECT_DIR/operator/build/Dockerfile --destination docker.beryju.org/p2/operator:latest --destination docker.beryju.org/p2/operator:0.7.6
   only:
     - tags
     - /^version/.*$/
-
-# Manual tasks
-# build-protos:
-#   stage: manual
-#   script:
-#     - python -m grpc_tools.protoc -I=. --python_out=p2/grpc/ --grpc_python_out=p2/grpc/ protos/*
-#     - protoc -I=. protos/*.proto --go_out=plugins=grpc:tier0/internal/
-#     # - sed -i -E 's/^\(import.*_pb2\)/from . \1/' p2/grpc/protos/*.py
-#   only:
-#     - never

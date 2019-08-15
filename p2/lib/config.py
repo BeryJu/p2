@@ -62,6 +62,7 @@ class ConfigLoader:
                 if isinstance(value, str):
                     value = self.parse_uri(value)
                 root[key] = value
+        LOGGER.debug("Current config", config=root)
         return root
 
     def parse_uri(self, value):
@@ -107,7 +108,7 @@ class ConfigLoader:
             idx += 1
         if idx > 0:
             LOGGER.debug("Loaded environment variables", count=idx)
-            self.update_from_dict(outer)
+            self.update(self.__config, outer)
 
     @contextmanager
     # pylint: disable=invalid-name
