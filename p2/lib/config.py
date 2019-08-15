@@ -1,9 +1,10 @@
-"""supervisr core config loader"""
+"""p2 core config loader"""
 import os
 from collections import Mapping
 from contextlib import contextmanager
 from glob import glob
 from typing import Any
+from urllib.parse import urlparse
 
 import yaml
 from django.conf import ImproperlyConfigured
@@ -16,16 +17,19 @@ SEARCH_PATHS = [
     '',
 ] + glob('/etc/p2/config.d/*.yml', recursive=True)
 LOGGER = get_logger()
-ENVIRONMENT = os.getenv('P2_ENV', 'local')
+ENV_PREFIX = 'P2'
+ENVIRONMENT = os.getenv(f'{ENV_PREFIX}_ENV', 'local')
 
 
 class ConfigLoader:
-    """Search through SEARCH_PATHS and load configuration"""
+    """Search through SEARCH_PATHS and load configuration. Environment variables starting with
+    `ENV_PREFIX` are also applied.
+
+    A variable like P2_POSTGRESQL__HOST would translate to postgresql.host"""
 
     loaded_file = []
 
     __config = {}
-    __context_default = None
     __sub_dicts = []
 
     def __init__(self):
@@ -47,15 +51,7 @@ class ConfigLoader:
                     if os.path.isfile(env_file) and os.path.exists(env_file):
                         # Update config with env file
                         self.update_from_file(env_file)
-        self.handle_secret_key()
-
-    def handle_secret_key(self):
-        """Handle `secret_key_file`"""
-        if 'secret_key_file' in self.__config:
-            secret_key_file = self.__config.get('secret_key_file')
-            if os.path.isfile(secret_key_file) and os.path.exists(secret_key_file):
-                with open(secret_key_file) as file:
-                    self.__config['secret_key'] = file.read().replace('\n', '')
+        self.update_from_env()
 
     def update(self, root, updatee):
         """Recursively update dictionary"""
@@ -70,9 +66,9 @@ class ConfigLoader:
 
     def parse_uri(self, value):
         """Parse string values which start with a URI"""
-        # If value starts with env://, get variable from env
-        if value.startswith('env://'):
-            value = os.getenv(value.replace('env://', ''))
+        url = urlparse(value)
+        if url.scheme == 'env':
+            value = os.getenv(url.netloc, url.query)
         return value
 
     def update_from_file(self, path: str):
@@ -92,12 +88,26 @@ class ConfigLoader:
         """Update config from dict"""
         self.__config.update(update)
 
-    @contextmanager
-    def default(self, value: Any):
-        """Contextmanage that sets default"""
-        self.__context_default = value
-        yield
-        self.__context_default = None
+    def update_from_env(self):
+        """Check environment variables"""
+        outer = {}
+        idx = 0
+        for key, value in os.environ.items():
+            if not key.startswith(ENV_PREFIX):
+                continue
+            relative_key = key.replace(f"{ENV_PREFIX}_", '').replace('__', '.').lower()
+            # Recursively convert path from a.b.c into outer[a][b][c]
+            current_obj = outer
+            dot_parts = relative_key.split('.')
+            for dot_part in dot_parts[:-1]:
+                if dot_part not in current_obj:
+                    current_obj[dot_part] = {}
+                current_obj = current_obj[dot_part]
+            current_obj[dot_parts[-1]] = value
+            idx += 1
+        if idx > 0:
+            LOGGER.debug("Loaded environment variables", count=idx)
+            self.update(self.__config, outer)
 
     @contextmanager
     # pylint: disable=invalid-name
@@ -107,15 +117,6 @@ class ConfigLoader:
         yield
         self.__sub_dicts.pop()
 
-    def get(self, key: str, default=None) -> Any:
-        """Get value from loaded config file"""
-        if default is None:
-            default = self.__context_default
-        config_copy = self.__config
-        for sub in self.__sub_dicts:
-            config_copy = config_copy.get(sub, None)
-        return config_copy.get(key, default)
-
     @property
     def raw(self) -> dict:
         """Get raw config dictionary"""
@@ -124,8 +125,6 @@ class ConfigLoader:
     # pylint: disable=invalid-name
     def y(self, path: str, default=None, sep='.') -> Any:
         """Access attribute by using yaml path"""
-        if default is None:
-            default = self.__context_default
         # Walk sub_dicts before parsing path
         root = self.raw
         for sub in self.__sub_dicts:
@@ -138,10 +137,14 @@ class ConfigLoader:
                 return default
         return root
 
+    def y_bool(self, path: str, default=False) -> bool:
+        """Wrapper for y that converts value into boolean"""
+        return str(self.y(path, default)).lower() == 'true'
+
 CONFIG = ConfigLoader()
 
 # pylint: disable=unused-argument
-def signal_handler(sender, **kwargs):
+def signal_handler(sender, **_):
     """Add all loaded config files to autoreload watcher"""
     for path in CONFIG.loaded_file:
         sender.watch_file(path)

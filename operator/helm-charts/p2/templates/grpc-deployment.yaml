@@ -27,18 +27,17 @@ spec:
       securityContext:
         fsGroup: 100
       volumes:
-        - name: config-volume
-          configMap:
-            name: {{ include "p2.fullname" . }}-config
         - name: media-storage
           persistentVolumeClaim:
             claimName: {{ include "p2.fullname" . }}-pvc-app-storage
       containers:
         - name: {{ .Chart.Name }}
-          image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
+          image: "docker.beryju.org/p2/server:{{ .Values.version }}"
           imagePullPolicy: IfNotPresent
-          command: ["./manage.py"]
-          args: ["grpc"]
+          command:
+            - ./manage.py
+          args:
+            - grpc
           ports:
             - name: grpc
               containerPort: 50051
@@ -46,15 +45,40 @@ spec:
             - name: prometheus
               containerPort: 9102
               protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "p2.fullname" . }}-config
+          env:
+            - name: P2_REDIS__HOST
+              value: "{{ .Release.Name }}-redis-master"
+            - name: P2_REDIS__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-redis"
+                  key: redis-password
+            - name: P2_POSTGRESQL__NAME
+              value: "{{ .Values.postgresql.postgresqlDatabase }}"
+            - name: P2_POSTGRESQL__USER
+              value: "{{ .Values.postgresql.postgresqlUsername }}"
+            - name: P2_POSTGRESQL__HOST
+              value: "{{ .Release.Name }}-postgresql"
+            - name: P2_POSTGRESQL__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-postgresql"
+                  key: postgresql-password
+            - name: P2_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ template "p2.fullname" . }}"
+                  key: secret_key
           volumeMounts:
-            - mountPath: /etc/p2
-              name: config-volume
             - mountPath: /storage
               name: media-storage
           resources:
             requests:
-              cpu: 500m
+              cpu: 150m
               memory: 200M
             limits:
-              cpu: 1000m
+              cpu: 300m
               memory: 250M

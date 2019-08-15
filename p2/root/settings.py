@@ -27,10 +27,10 @@ from p2.lib.sentry import before_send
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = CONFIG.get('secret_key',
-                        '48e9z8tw=_z0e#m*x70&)u%cgo8#=16uzdze&i8q=*#**)@cp&')  # noqa Debug
+SECRET_KEY = CONFIG.y('secret_key',
+                      '48e9z8tw=_z0e#m*x70&)u%cgo8#=16uzdze&i8q=*#**)@cp&')  # noqa Debug
 
-DEBUG = CONFIG.get('debug')
+DEBUG = CONFIG.y_bool('debug')
 TEST = any('test' in arg for arg in sys.argv)
 CORS_ORIGIN_ALLOW_ALL = DEBUG
 
@@ -73,9 +73,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'p2.api.permissions.CustomObjectPermissions',
     ),
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-    # ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ),
 }
 
 AUTHENTICATION_BACKENDS = [
@@ -87,15 +89,18 @@ AUTHENTICATION_BACKENDS = [
 # Redis settings
 CACHES = {
     "default": {
-        "BACKEND": "django_prometheus.cache.backends.redis.RedisCache",
-        "LOCATION": CONFIG.get('cache'),
+        # "BACKEND": "django_prometheus.cache.backends.redis.RedisCache",
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{CONFIG.y('redis.host')}:6379/{CONFIG.y('redis.cache_db')}",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": CONFIG.y('redis.password')
         }
     }
 }
 DJANGO_REDIS_IGNORE_EXCEPTIONS = True
 DJANGO_REDIS_LOG_IGNORED_EXCEPTIONS = True
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
 if os.getenv('P2_COMPONENT', "") == "web":
@@ -109,8 +114,10 @@ CELERY_TASK_SOFT_TIME_LIMIT = 600
 CELERY_BEAT_SCHEDULE = {}
 CELERY_CREATE_MISSING_QUEUES = True
 CELERY_TASK_DEFAULT_QUEUE = 'p2'
-CELERY_BROKER_URL = CONFIG.y('message_queue.broker')
-CELERY_RESULT_BACKEND = CONFIG.y('message_queue.results')
+CELERY_BROKER_URL = (f"redis://:{CONFIG.y('redis.password')}@{CONFIG.y('redis.host')}"
+                     f":6379/{CONFIG.y('redis.message_queue_db')}")
+CELERY_RESULT_BACKEND = (f"redis://:{CONFIG.y('redis.password')}@{CONFIG.y('redis.host')}"
+                         f":6379/{CONFIG.y('redis.message_queue_db')}")
 CELERY_IMPORTS = (
     'p2.core.tasks',
     'p2.log.tasks',
@@ -159,7 +166,7 @@ LOGIN_REDIRECT_URL = '/'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Authentication - OIDC
-OIDC_ENABLED = CONFIG.y('oidc.enabled')
+OIDC_ENABLED = CONFIG.y_bool('oidc.enabled')
 OIDC_RP_CLIENT_ID = CONFIG.y('oidc.client_id')
 OIDC_RP_CLIENT_SECRET = CONFIG.y('oidc.client_secret')
 OIDC_OP_AUTHORIZATION_ENDPOINT = CONFIG.y('oidc.auth_url')
@@ -215,16 +222,15 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 536870912
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {}
-for db_alias, db_config in CONFIG.get('databases').items():
-    DATABASES[db_alias] = {
+DATABASES = {
+    'default': {
         'ENGINE': 'django_prometheus.db.backends.postgresql',
-        'HOST': db_config.get('host'),
-        'NAME': db_config.get('name'),
-        'USER': db_config.get('user'),
-        'PASSWORD': db_config.get('password'),
-        'OPTIONS': db_config.get('options', {}),
+        'HOST': CONFIG.y('postgresql.host'),
+        'NAME': CONFIG.y('postgresql.name'),
+        'USER': CONFIG.y('postgresql.user'),
+        'PASSWORD': CONFIG.y('postgresql.password'),
     }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

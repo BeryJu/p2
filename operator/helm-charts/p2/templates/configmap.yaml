@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "p2.fullname" . }}-config
+data:
+  P2_DEBUG: 'false'
+  P2_ERROR_REPORT_ENABLED: {{ .Values.config.error_reporting | quote }}
+  P2_S3__BASE_DOMAIN: {{ (index .Values.ingress.hosts 0) | quote }}
+  # Set this to true if you only want to use external authentication
+  P2_EXTERNAL_AUTH_ONLY: {{ .Values.config.external_auth_only | quote }}
+  # Callback URL: <base url>/_/oidc/callback/
+  {{- if .Values.config.oidc.enabled -}}
+  P2_OIDC__ENABLED: 'true'
+  P2_OIDC__CLIENT_ID: '{{ .Values.config.oidc.client_id }}'
+  P2_OIDC__CLIENT_SECRET: '{{ .Values.config.oidc.client_secret }}'
+  P2_OIDC__AUTH_URL: '{{ .Values.config.oidc.auth_url }}'
+  P2_OIDC__TOKEN_URL: '{{ .Values.config.oidc.token_url }}'
+  P2_OIDC__USER_URL: '{{ .Values.config.oidc.user_url }}'
+  {{ end }}
