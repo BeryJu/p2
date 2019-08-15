@@ -62,7 +62,6 @@ class ConfigLoader:
                 if isinstance(value, str):
                     value = self.parse_uri(value)
                 root[key] = value
-        LOGGER.debug("Current config", config=root)
         return root
 
     def parse_uri(self, value):
