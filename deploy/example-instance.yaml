@@ -4,7 +4,7 @@ kind: P2
 metadata:
   name: example-p2
 spec:
-  version: 0.7.6
+  version: 0.8.0rc1
 
   secret_key: "r-9k#x4tkk2e8%=(9hf#^v4&=5z2)^gzn^)l*_=z+&0a97kwd8"
   redis:
