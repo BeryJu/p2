@@ -9,9 +9,11 @@ data:
   # Set this to true if you only want to use external authentication
   P2_EXTERNAL_AUTH_ONLY: {{ .Values.config.external_auth_only | quote }}
   # Callback URL: <base url>/_/oidc/callback/
-  # P2_OIDC__ENABLED: 'false'
-  # P2_OIDC__CLIENT_ID: ''
-  # P2_OIDC__CLIENT_SECRET: ''
-  # P2_OIDC__AUTH_URL: ''
-  # P2_OIDC__TOKEN_URL: ''
-  # P2_OIDC__USER_URL: ''
+  {{- if .Values.config.oidc.enabled -}}
+  P2_OIDC__ENABLED: 'true'
+  P2_OIDC__CLIENT_ID: '{{ .Values.config.oidc.client_id }}'
+  P2_OIDC__CLIENT_SECRET: '{{ .Values.config.oidc.client_secret }}'
+  P2_OIDC__AUTH_URL: '{{ .Values.config.oidc.auth_url }}'
+  P2_OIDC__TOKEN_URL: '{{ .Values.config.oidc.token_url }}'
+  P2_OIDC__USER_URL: '{{ .Values.config.oidc.user_url }}'
+  {{ end }}
