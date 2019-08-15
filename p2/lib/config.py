@@ -117,13 +117,6 @@ class ConfigLoader:
         yield
         self.__sub_dicts.pop()
 
-    def get(self, key: str, default=None) -> Any:
-        """Get value from loaded config file"""
-        config_copy = self.__config
-        for sub in self.__sub_dicts:
-            config_copy = config_copy.get(sub, None)
-        return config_copy.get(key, default)
-
     @property
     def raw(self) -> dict:
         """Get raw config dictionary"""
@@ -143,6 +136,10 @@ class ConfigLoader:
             else:
                 return default
         return root
+
+    def y_bool(self, path: str, default=False) -> bool:
+        """Wrapper for y that converts value into boolean"""
+        return str(self.y(path, default)).lower() == 'true'
 
 CONFIG = ConfigLoader()
 

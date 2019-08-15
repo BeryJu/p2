@@ -70,7 +70,7 @@ spec:
               name: media-storage
       containers:
         - name: {{ .Chart.Name }}
-          image: "docker.beryju.org/p2/server:{{ .Values.image.tag }}"
+          image: "docker.beryju.org/p2/server:{{ .Values.version }}"
           imagePullPolicy: IfNotPresent
           command:
             - ./manage.py

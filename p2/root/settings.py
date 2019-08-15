@@ -27,10 +27,10 @@ from p2.lib.sentry import before_send
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = CONFIG.get('secret_key',
-                        '48e9z8tw=_z0e#m*x70&)u%cgo8#=16uzdze&i8q=*#**)@cp&')  # noqa Debug
+SECRET_KEY = CONFIG.y('secret_key',
+                      '48e9z8tw=_z0e#m*x70&)u%cgo8#=16uzdze&i8q=*#**)@cp&')  # noqa Debug
 
-DEBUG = CONFIG.get('debug')
+DEBUG = CONFIG.y_bool('debug')
 TEST = any('test' in arg for arg in sys.argv)
 CORS_ORIGIN_ALLOW_ALL = DEBUG
 
@@ -167,7 +167,7 @@ LOGIN_REDIRECT_URL = '/'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Authentication - OIDC
-OIDC_ENABLED = CONFIG.y('oidc.enabled')
+OIDC_ENABLED = CONFIG.y_bool('oidc.enabled')
 OIDC_RP_CLIENT_ID = CONFIG.y('oidc.client_id')
 OIDC_RP_CLIENT_SECRET = CONFIG.y('oidc.client_secret')
 OIDC_OP_AUTHORIZATION_ENDPOINT = CONFIG.y('oidc.auth_url')

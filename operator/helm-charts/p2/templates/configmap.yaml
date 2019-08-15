@@ -4,14 +4,14 @@ metadata:
   name: {{ include "p2.fullname" . }}-config
 data:
   P2_DEBUG: 'false'
-  P2_ERROR_REPORT_ENABLED: {{ .Values.config.error_reporting }}
+  P2_ERROR_REPORT_ENABLED: {{ .Values.config.error_reporting | quote }}
   P2_S3__BASE_DOMAIN: {{ (index .Values.ingress.hosts 0) | quote }}
   # Set this to true if you only want to use external authentication
-  P2_EXTERNAL_AUTH_ONLY: {{ .Values.config.external_auth_only }}
+  P2_EXTERNAL_AUTH_ONLY: {{ .Values.config.external_auth_only | quote }}
   # Callback URL: <base url>/_/oidc/callback/
-  # P2_OIDC__ENABLED: false
-  # P2_OIDC__CLIENT_ID: ""
-  # P2_OIDC__CLIENT_SECRET: ""
-  # P2_OIDC__AUTH_URL: ""
-  # P2_OIDC__TOKEN_URL: ""
-  # P2_OIDC__USER_URL: ""
+  # P2_OIDC__ENABLED: 'false'
+  # P2_OIDC__CLIENT_ID: ''
+  # P2_OIDC__CLIENT_SECRET: ''
+  # P2_OIDC__AUTH_URL: ''
+  # P2_OIDC__TOKEN_URL: ''
+  # P2_OIDC__USER_URL: ''
