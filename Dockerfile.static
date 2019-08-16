@@ -6,6 +6,9 @@ COPY ./requirements.txt /app/
 
 WORKDIR /app/
 
+ENV P2_POSTGRESQL__USER=p2
+# CI Password, same as in .gitlab-ci.yml
+ENV P2_POSTGRESQL__PASSWORD="EK-5jnKfjrGRm<77"
 RUN ./manage.py collectstatic --no-input
 
 FROM nginx:latest

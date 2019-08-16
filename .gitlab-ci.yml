@@ -13,11 +13,6 @@ variables:
   P2_POSTGRESQL__USER: p2
   P2_POSTGRESQL__PASSWORD: "EK-5jnKfjrGRm<77"
 
-cache:
-  key: ${CI_JOB_STAGE}
-  paths:
-     - /cache/
-
 before_script:
   # Ensure all dependencies are installed, even those not included in p2/base
   - pip install -r requirements.txt
@@ -118,7 +113,7 @@ build-p2-server:
   only:
     - tags
     - /^version/.*$/
-build-p2-static:
+build-static:
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:debug
@@ -134,7 +129,7 @@ build-p2-static:
   services:
     - postgres:latest
     - redis:latest
-build-p2-tier0:
+build-tier0:
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:debug
@@ -146,7 +141,7 @@ build-p2-tier0:
   only:
     - tags
     - /^version/.*$/
-build-p2-operator:
+build-operator:
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:debug
