@@ -4,13 +4,13 @@ To migrate from pyazo to p2, we're going to use the S3-API to mass-import Blobs 
 
 ## Prerequisites
 
-*   A pyazo install (any version)
-*   A full-configured p2 install (0.1.16+)
-*   Enough free Space to store all of pyazo's Blobs
-    *   Check with the following command on the Server pyazo is running on
-        *   du -sh /usr/share/pyazo/media
-*   An Administrative Account on the pyazo Server
-*   An API Key in p2
+* A pyazo install (any version)
+* A full-configured p2 install (0.1.16+)
+* Enough free Space to store all of pyazo's Blobs
+    * Check with the following command on the Server pyazo is running on
+        * du -sh /usr/share/pyazo/media
+* An Administrative Account on the pyazo Server
+* An API Key in p2
 
 Recommended, but not required:
 
@@ -67,8 +67,7 @@ Depending on which setting you used for `default_return_view`, you can create a
 | Setting in pyazo | Tags | Blob Query |
 |---|---|---|
 |`view_md5` | `serve.p2.io/match/path/relative: ([A-Fa-f0-9]{32})(\.?[a-zA-Z0-9]*)` | `attributes__blob.p2.io/hash/md5={path_relative}&volume__name=images` |
-| `view_sha512_short` | `serve.p2.io/match/path/relative: ([A-Fa-f0-9]{16})(\.?[a-zA-Z0-9]*)` | `attributes__blob.p2.io/hash/sha512__startswith={path_relative}&volume__name=images`
- |
+| `view_sha512_short` | `serve.p2.io/match/path/relative: ([A-Fa-f0-9]{16})(\.?[a-zA-Z0-9]*)` | `attributes__blob.p2.io/hash/sha512__startswith={path_relative}&volume__name=images` |
 | `view_sha256` | `serve.p2.io/match/path/relative: ([A-Fa-f0-9]{64})(\.?[a-zA-Z0-9]*)` | `attributes__blob.p2.io/hash/sha256={path_relative}&volume__name=images` |
 | `view_sha512` | `serve.p2.io/match/path/relative: ([A-Fa-f0-9]{128})(\.?[a-zA-Z0-9]*)` | `attributes__blob.p2.io/hash/sha512={path_relative}&volume__name=images` |
 

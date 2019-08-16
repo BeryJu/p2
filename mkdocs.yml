@@ -16,3 +16,6 @@ nav:
 repo_url: https://git.beryju.org/BeryJu.org/p2
 theme:
   name: bootstrap4
+
+extra_css:
+  - css/custom.css

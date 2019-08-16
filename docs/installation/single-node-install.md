@@ -6,7 +6,7 @@ Since p2 is built with Kubernetes integration, the only supported method to run 
 
 ### Hardware
 
-|  | With tier0 | Without tier0 |
+|  | Without tier0 | With tier0 |
 |--|------------|---------------|
 | CPU | 2 Cores | 2 Cores |
 | RAM | 2 GB | 4 GB |
@@ -37,7 +37,7 @@ This tool allows Kubernetes to dynamically allocate "Volumes", pointing to a loc
 wget https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
 ```
 
-The default base-path is `/opt/local-path-provisioner`. If you wish to change that path, download the YAML file and edit it to your needs.
+The default base-path is `/opt/local-path-provisioner`. If you wish to change that path, edit the manifest to your needs.
 
 Once you're done, apply the manifest with this command: `kubectl apply -f local-path-storage.yaml`.
 
