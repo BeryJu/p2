@@ -158,3 +158,15 @@ build-p2-operator:
   only:
     - tags
     - /^version/.*$/
+build-docs:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/docs/Dockerfile --destination docker.beryju.org/p2/docs:latest --destination docker.beryju.org/p2/docs:0.8.0-rc1
+  only:
+    - tags
+    - /^version/.*$/
