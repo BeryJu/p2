@@ -6,7 +6,7 @@ metadata:
   name: example-p2
 spec:
   # Version of p2 to run. Can be set to a static version of `latest`, but downgrades are not supported.
-  version: 0.8.0-rc1
+  version: 0.8.0-rc2
 
   # Secret key used to sign cookies, etc. Should be at least 50 characters long.
   # Use something like https://passwordsgenerator.net/ to generate this

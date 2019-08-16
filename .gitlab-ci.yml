@@ -25,7 +25,7 @@ create-base-image:
   before_script:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.base --destination docker.beryju.org/p2/base:latest --destination docker.beryju.org/p2/base:0.8.0-rc1
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.base --destination docker.beryju.org/p2/base:latest --destination docker.beryju.org/p2/base:0.8.0-rc2
   stage: build-base-image
   only:
     refs:
@@ -39,7 +39,7 @@ build-dev-image:
   before_script:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.dev --destination docker.beryju.org/p2/dev:latest --destination docker.beryju.org/p2/dev:0.8.0-rc1
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.dev --destination docker.beryju.org/p2/dev:latest --destination docker.beryju.org/p2/dev:0.8.0-rc2
   stage: build-dev-image
   only:
     refs:
@@ -109,7 +109,7 @@ build-p2-server:
   before_script:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination docker.beryju.org/p2/server:latest --destination docker.beryju.org/p2/server:0.8.0-rc1
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination docker.beryju.org/p2/server:latest --destination docker.beryju.org/p2/server:0.8.0-rc2
   only:
     - tags
     - /^version/.*$/
@@ -121,7 +121,7 @@ build-static:
   before_script:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.static --destination docker.beryju.org/p2/static:latest --destination docker.beryju.org/p2/static:0.8.0-rc1
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile.static --destination docker.beryju.org/p2/static:latest --destination docker.beryju.org/p2/static:0.8.0-rc2
   only:
     - tags
     - /^version/.*$/
@@ -137,7 +137,7 @@ build-tier0:
   before_script:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR/tier0 --dockerfile $CI_PROJECT_DIR/tier0/Dockerfile --destination docker.beryju.org/p2/tier0:latest --destination docker.beryju.org/p2/tier0:0.8.0-rc1
+    - /kaniko/executor --context $CI_PROJECT_DIR/tier0 --dockerfile $CI_PROJECT_DIR/tier0/Dockerfile --destination docker.beryju.org/p2/tier0:latest --destination docker.beryju.org/p2/tier0:0.8.0-rc2
   only:
     - tags
     - /^version/.*$/
@@ -149,7 +149,7 @@ build-operator:
   before_script:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR/operator --dockerfile $CI_PROJECT_DIR/operator/build/Dockerfile --destination docker.beryju.org/p2/operator:latest --destination docker.beryju.org/p2/operator:0.8.0-rc1
+    - /kaniko/executor --context $CI_PROJECT_DIR/operator --dockerfile $CI_PROJECT_DIR/operator/build/Dockerfile --destination docker.beryju.org/p2/operator:latest --destination docker.beryju.org/p2/operator:0.8.0-rc2
   only:
     - tags
     - /^version/.*$/
@@ -161,7 +161,7 @@ build-docs:
   before_script:
     - echo "{\"auths\":{\"docker.beryju.org\":{\"auth\":\"$DOCKER_AUTH\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/docs/Dockerfile --destination docker.beryju.org/p2/docs:latest --destination docker.beryju.org/p2/docs:0.8.0-rc1
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/docs/Dockerfile --destination docker.beryju.org/p2/docs:latest --destination docker.beryju.org/p2/docs:0.8.0-rc2
   only:
     - tags
     - /^version/.*$/
