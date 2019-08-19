@@ -8,8 +8,8 @@ To migrate from pyazo to p2, we're going to use the S3-API to mass-import Blobs 
 * A full-configured p2 install (0.1.16+)
 * Enough free Space to store all of pyazo's Blobs
     * Check with the following command on the Server pyazo is running on
-        * du -sh /usr/share/pyazo/media
-* An Administrative Account on the pyazo Server
+        * `du -sh /usr/share/pyazo/media`
+* Administrative shell access on the pyazo Server
 * An API Key in p2
 
 Recommended, but not required:

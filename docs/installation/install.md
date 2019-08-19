@@ -15,7 +15,7 @@ p2-operator-5bc6bcf5c7-qtsp2   1/1     Running   0          98s
 
 ## Instance
 
-Now to create the actual p2 instance, download [example](https://git.beryju.org/BeryJu.org/p2/raw/master/deploy/example-instance.yaml) instance definition and change it to your needs.
+Now to create the actual p2 instance, download the [example](https://git.beryju.org/BeryJu.org/p2/raw/master/deploy/example-instance.yaml) instance definition and change it to your needs.
 
 After you've change the YAML to your liking, create the instance with the following command:
 
