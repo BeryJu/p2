@@ -73,9 +73,16 @@ spec:
           image: "docker.beryju.org/p2/server:{{ .Values.version }}"
           imagePullPolicy: IfNotPresent
           command:
-            - ./manage.py
+            - uwsgi
           args:
-            - web
+            - --http 0.0.0.0:8000
+            - --wsgi-file p2/root/wsgi.py
+            - --master
+            - --processes 24
+            - --threads 2
+            - --offload-threads 4
+            - --stats 0.0.0.0:8001
+            - --stats-http
           envFrom:
             - configMapRef:
                 name: {{ include "p2.fullname" . }}-config
@@ -105,6 +112,9 @@ spec:
             - name: http
               containerPort: 8000
               protocol: TCP
+            - name: uwsgiStats
+              containerPort: 8000
+              protocol: TCP
             - name: prometheus
               containerPort: 9102
               protocol: TCP
@@ -112,23 +122,13 @@ spec:
             - mountPath: /storage
               name: media-storage
           livenessProbe:
-            initialDelaySeconds: 10
-            timeoutSeconds: 5
             httpGet:
               path: /
-              port: http
-              httpHeaders:
-                - name: Host
-                  value: kubernetes-healthcheck-host
+              port: uwsgiStats
           readinessProbe:
-            initialDelaySeconds: 10
-            timeoutSeconds: 5
             httpGet:
               path: /
-              port: http
-              httpHeaders:
-                - name: Host
-                  value: kubernetes-healthcheck-host
+              port: uwsgiStats
           resources:
             requests:
               cpu: 100m

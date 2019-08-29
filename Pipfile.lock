@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "44fc2ee856faf78cc4e4a35a9f1c61e018073a62cce7f6ee336e7e95af12eb87"
+            "sha256": "d187fedd1253b3b584d4cf77bc08c0fc5b3be22e95c09d8bf12387ac69643f77"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -36,13 +36,6 @@
                 "sha256:f0b870f674851ecbfbbbd364d6b5cbdff9dcedbc7f3f5e18a6891057f21fe399"
             ],
             "version": "==19.1.0"
-        },
-        "backports.functools-lru-cache": {
-            "hashes": [
-                "sha256:9d98697f088eb1b0fa451391f91afb5e3ebde16bbdb272819fd091151fda4f1a",
-                "sha256:f0b0e4eba956de51238e17573b7087e852dfe9854afd2e9c873f73fc0ca0a6dd"
-            ],
-            "version": "==1.5"
         },
         "billiard": {
             "hashes": [
@@ -120,21 +113,6 @@
                 "sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"
             ],
             "version": "==3.0.4"
-        },
-        "cheroot": {
-            "hashes": [
-                "sha256:5f1692d8444a988b76c54f795f96689ade3ae8294681f8aa222360326f2c7928",
-                "sha256:b824f9961eb447809badeb051820a05770354e2f9ae5c355eecc21f22633c217"
-            ],
-            "version": "==6.5.6"
-        },
-        "cherrypy": {
-            "hashes": [
-                "sha256:48de31ba3db04c5354a0fcf8acf21a9c5190380013afca746d50237c9ebe70f0",
-                "sha256:641b51570158dd301da5d569085c04fe7f2cc98474d103f8137d8dbe36b2f6e7"
-            ],
-            "index": "pypi",
-            "version": "==18.1.2"
         },
         "coreapi": {
             "hashes": [
@@ -332,13 +310,6 @@
             ],
             "version": "==1.1.0"
         },
-        "jaraco.functools": {
-            "hashes": [
-                "sha256:35ba944f52b1a7beee8843a5aa6752d1d5b79893eeb7770ea98be6b637bf9345",
-                "sha256:e9e377644cee5f6f9128b4dab1631fca74981236e95a255f80e4292bcd2b5284"
-            ],
-            "version": "==2.0"
-        },
         "jinja2": {
             "hashes": [
                 "sha256:065c4f02ebe7f7cf559e49ee5a95fb800a9e4528727aec6f24402a5374c65013",
@@ -457,13 +428,6 @@
             ],
             "index": "pypi",
             "version": "==5.2.0"
-        },
-        "portend": {
-            "hashes": [
-                "sha256:19dc27bfb3c72471bd30a235a4d5fbefef8a7e31cab367744b5d87a205e7bfd9",
-                "sha256:d2dca12e585ce29fc357b31ce424a27c16e2d485029252bbf8ddcc9696207976"
-            ],
-            "version": "==2.5"
         },
         "prometheus-client": {
             "hashes": [
@@ -668,13 +632,6 @@
             ],
             "version": "==2.4.3"
         },
-        "tempora": {
-            "hashes": [
-                "sha256:cb60b1d2b1664104e307f8e5269d7f4acdb077c82e35cd57246ae14a3427d2d6",
-                "sha256:d28a03d2f64ee81aec6e6bff374127ef306fe00c1b7e27c7ff1618344221a699"
-            ],
-            "version": "==1.14.1"
-        },
         "uritemplate": {
             "hashes": [
                 "sha256:01c69f4fe8ed503b2951bef85d996a9d22434d2431584b5b107b2981ff416fbd",
@@ -704,13 +661,6 @@
                 "sha256:ea4947cc56d1fd6f2095c8d543ee25dad966f78692528e68b4fada11ba3f98af"
             ],
             "version": "==1.3.0"
-        },
-        "zc.lockfile": {
-            "hashes": [
-                "sha256:307ad78227e48be260e64896ec8886edc7eae22d8ec53e4d528ab5537a83203b",
-                "sha256:cc33599b549f0c8a248cb72f3bf32d77712de1ff7ee8814312eb6456b42c015f"
-            ],
-            "version": "==2.0"
         },
         "zipp": {
             "hashes": [
