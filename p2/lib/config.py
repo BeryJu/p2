@@ -141,6 +141,7 @@ class ConfigLoader:
         """Wrapper for y that converts value into boolean"""
         return str(self.y(path, default)).lower() == 'true'
 
+
 CONFIG = ConfigLoader()
 
 # pylint: disable=unused-argument
@@ -148,4 +149,6 @@ def signal_handler(sender, **_):
     """Add all loaded config files to autoreload watcher"""
     for path in CONFIG.loaded_file:
         sender.watch_file(path)
+
+
 autoreload_started.connect(signal_handler)

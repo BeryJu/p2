@@ -67,4 +67,5 @@ class WSGILogger:
                     size=content_length / 1000 if content_length > 0 else '-',
                     runtime=kwargs.get('runtime'))
 
+
 application = WSGILogger(get_wsgi_application())

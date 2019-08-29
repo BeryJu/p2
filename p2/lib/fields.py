@@ -6,12 +6,10 @@ from django.utils.translation import gettext_lazy as _
 
 class InvalidYAMLInput(str):
     """Invalid YAML String type"""
-    pass
 
 
 class YAMLString(str):
     """YAML String type"""
-    pass
 
 
 class YAMLField(forms.CharField):

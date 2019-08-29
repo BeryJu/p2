@@ -16,6 +16,7 @@ class LogAdaptor:
     def start_request(self, request):
         """Add unique ID to request and create logging method"""
         request.uid = uuid4().hex
+
         def request_logger(**kwargs):
             if request.uid not in self.__cache:
                 self.__cache[request.uid] = []
@@ -37,5 +38,6 @@ class LogAdaptor:
         if hasattr(request, 'resolver_match') and request.resolver_match:
             flattened['app'] = request.resolver_match.app_name
         # write_log_record.delay(dict(flattened))
+
 
 LOG_ADAPTOR = LogAdaptor()

@@ -1,5 +1,4 @@
 """p2 core http responses"""
-
 from wsgiref.util import FileWrapper
 
 from django.http import StreamingHttpResponse
@@ -13,5 +12,5 @@ class BlobResponse(StreamingHttpResponse):
 
     def __init__(self, blob: Blob, chunk_size=8192):
         super().__init__(FileWrapper(blob, chunk_size))
-        self['Content-Length'] = blob.attributes.get(ATTR_BLOB_SIZE_BYTES)
+        self['Content-Length'] = blob.attributes.get(ATTR_BLOB_SIZE_BYTES, 0)
         self['Content-Type'] = blob.attributes.get(ATTR_BLOB_MIME, 'text/plain')

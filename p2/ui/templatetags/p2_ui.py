@@ -8,6 +8,7 @@ from django.shortcuts import reverse
 from p2.lib.config import CONFIG
 from p2.lib.reflection import path_to_class
 
+# pylint: disable=invalid-name
 register = template.Library()
 
 

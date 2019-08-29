@@ -16,6 +16,8 @@ unittest-xml-reporting = "*"
 grpcio-tools = "*"
 colorama = "*"
 pep8 = "*"
+autopep8 = "*"
+uwsgitop = "*"
 
 [packages]
 django-guardian = "*"
@@ -43,6 +45,7 @@ PyYAML = "*"
 CherryPy = "*"
 "ruamel.yaml" = "<0.16.0,>=0.15.34"
 Pillow = "==5.2.0"
+uwsgi = "*"
 
 [requires]
 python_version = "3.7"

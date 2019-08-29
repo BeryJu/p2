@@ -44,7 +44,6 @@ class MockRequest:
 
     def log(self, **kwargs):
         """Stub for p2.log's request logger"""
-        pass
 
 class Serve(ServeServicer):
     """GRPC Service for Serve Application"""

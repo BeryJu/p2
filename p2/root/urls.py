@@ -12,6 +12,7 @@ admin.site.site_title = 'p2'
 admin.site.login = RedirectView.as_view(
     pattern_name='p2_ui:index', permanent=True, query_string=True)
 
+# pylint: disable=invalid-name
 handler500 = ServerErrorView.as_view()
 
 # S3 URLs get routed via middleware

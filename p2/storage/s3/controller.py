@@ -37,7 +37,6 @@ class S3StorageController(StorageController):
 
     def collect_attributes(self, blob: Blob):
         """Collect attributes such as size and mime type"""
-        pass
 
     def _ensure_bucket_exists(self, name):
         """Ensure bucket exists before we attempt any object operations"""
