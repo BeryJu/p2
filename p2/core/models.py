@@ -30,7 +30,7 @@ COMPONENT_MANAGER = ControllerManager('component.controllers', lazy=True)
 class Volume(ExportModelOperationsMixin('volume'), UUIDModel, TagModel):
     """Folder-like object, holding a collection of blobs"""
 
-    name = models.SlugField(unique=True)
+    name = models.SlugField(unique=True, max_length=63)
     storage = models.ForeignKey('Storage', on_delete=models.CASCADE)
 
     @cached_property
