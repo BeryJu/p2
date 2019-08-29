@@ -175,12 +175,12 @@ OIDC_OP_USER_ENDPOINT = CONFIG.y('oidc.user_url')
 OIDC_USERNAME_ALGO = 'p2.root.oidc.generate_username'
 
 MIDDLEWARE = [
-    'p2.core.middleware.HealthCheckMiddleware',
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
-    'p2.log.middleware.StartRequestMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'p2.s3.middleware.S3RoutingMiddleware',
+    'p2.core.middleware.HealthCheckMiddleware',
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
+    'p2.log.middleware.StartRequestMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
@@ -286,7 +286,7 @@ structlog.configure_once(
         structlog.stdlib.PositionalArgumentsFormatter(),
         structlog.processors.TimeStamper(),
         structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
+        # structlog.processors.format_exc_info,
         structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
     ],
     context_class=structlog.threadlocal.wrap_dict(dict),

@@ -4,6 +4,7 @@ from xml.etree import ElementTree
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from guardian.shortcuts import assign_perm, get_objects_for_user
+from structlog import get_logger
 
 from p2.core.constants import (ATTR_BLOB_HASH_MD5, ATTR_BLOB_IS_FOLDER,
                                ATTR_BLOB_SIZE_BYTES, ATTR_BLOB_STAT_MTIME)
@@ -15,6 +16,7 @@ from p2.s3.errors import AWSAccessDenied
 from p2.s3.http import XMLResponse
 from p2.s3.views.common import S3View
 
+LOGGER = get_logger()
 
 class BucketView(S3View):
     """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketOps.html"""
@@ -65,7 +67,7 @@ class BucketView(S3View):
         base_lookup = get_objects_for_user(self.request.user, 'p2_core.view_blob').filter(
             prefix=make_absolute_prefix(requested_prefix),
             volume=volume,
-        ).order_by('path')
+        ).order_by('path').select_related('volume__storage')
 
         blobs = base_lookup.exclude(attributes__has_key=ATTR_BLOB_IS_FOLDER)
         folders = base_lookup.filter(attributes__has_key=ATTR_BLOB_IS_FOLDER)
@@ -114,6 +116,8 @@ class BucketView(S3View):
             'tags__%s' % TAG_S3_DEFAULT_STORAGE: True
         })
         if not storages.exists():
+            LOGGER.warning(("No Storage marked as default. Add the Tag '%s: true'"
+                            " to a storage instance."), TAG_S3_DEFAULT_STORAGE)
             raise AWSAccessDenied
         if not request.user.has_perm('p2_core.add_volume'):
             raise AWSAccessDenied

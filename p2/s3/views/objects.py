@@ -1,4 +1,5 @@
 """p2 S3 Object views"""
+from django.core.cache import cache
 from django.http.response import HttpResponse
 from guardian.shortcuts import assign_perm, get_objects_for_user
 from structlog import get_logger
@@ -43,17 +44,27 @@ class ObjectView(S3View):
 
     def head(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectHEAD.html"""
-        blob = self.get_blob('view_blob', path=path, volume__name=bucket)
+        # blob = self.get_blob('view_blob', path=path, volume__name=bucket)
+        # We can't use self.get_blob here, since this endpoint needs to return
+        # a blank 404 response when the key wasn't found.
+        blobs = get_objects_for_user(self.request.user, 'view_blob', Blob).filter(
+            path=path, volume__name=bucket)
+        if not blobs.exists():
+            return HttpResponse(status=404)
         # We're not using BlobResponse here since we only want the attributes
         response = HttpResponse(status=200)
-        response['Content-Length'] = blob.attributes.get(ATTR_BLOB_SIZE_BYTES)
-        response['Content-Type'] = blob.attributes.get(ATTR_BLOB_MIME, 'text/plain')
+        response['Content-Length'] = blobs.first().attributes.get(ATTR_BLOB_SIZE_BYTES, 0)
+        response['Content-Type'] = blobs.first().attributes.get(ATTR_BLOB_MIME, 'text/plain')
         return response
 
     def get(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectGET.html"""
-        blob = self.get_blob('view_blob', path=path, volume__name=bucket)
-        return BlobResponse(blob)
+        cache_key = f"{self.request.user.pk}:{bucket}/{path}"
+        cached_data = cache.get(cache_key)
+        if not cached_data:
+            cached_data = self.get_blob('view_blob', path=path, volume__name=bucket)
+            cache.set(cache_key, cached_data)
+        return BlobResponse(cached_data)
 
     def post(self, request, bucket, path):
         """Post handler"""
@@ -87,6 +98,8 @@ class ObjectView(S3View):
 
     def delete(self, request, bucket, path):
         """https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectDELETE.html"""
-        blob = self.get_blob('delete_blob', path=path, volume__name=bucket)
-        blob.delete()
+        blobs = get_objects_for_user(self.request.user, 'delete_blob', Blob).filter(
+            path=path, volume__name=bucket)
+        if blobs.exists():
+            blobs.delete()
         return HttpResponse(status=204)

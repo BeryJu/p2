@@ -22,8 +22,8 @@ class S3RoutingMiddleware:
     def process_exception(self, request: HttpRequest, exception):
         """Catch AWS-specific exceptions and show them as XML response"""
         if CONFIG.y_bool('debug'):
-            LOGGER.exception(exception)
-            LOGGER.debug("Request Body ", body=request.body)
+            LOGGER.exception("S3 Error", error=exception)
+            # LOGGER.debug("Request Body ", body=request.body)
         if isinstance(exception, AWSError):
             return AWSErrorView(exception)
         return None
@@ -94,8 +94,8 @@ class S3RoutingMiddleware:
                 # Set SECURE_PROXY_SSL_HEADER so SecurityMiddleware doesn't return a 302
                 request.META['HTTP_X_FORWARDED_PROTO'] = 'https'
         response = self.get_response(request)
-        if CONFIG.y_bool('debug') and response.status_code > 300:
-            if response['Content-Type'] == 'text/xml':
-                LOGGER.debug("Request Body", body=request.body)
-                LOGGER.debug("Response Body", body=response.content)
+        # if CONFIG.y_bool('debug') and response.status_code > 300:
+        #     if response['Content-Type'] == 'text/xml':
+        #         LOGGER.debug("Request Body", body=request.body)
+        #         LOGGER.debug("Response Body", body=response.content)
         return response
