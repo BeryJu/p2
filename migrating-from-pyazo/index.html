@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <script>
+	// Hack for scrolling window when linking to anchor tag with fixed nav header
+        var shiftWindow = function() { scrollBy(0, -75) };
+        window.addEventListener("hashchange", shiftWindow);
+        function load() { if (window.location.hash) shiftWindow(); }
+      </script>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Migrating from pyazo - p2 Docs</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+    <link href="../css/custom.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/http.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="../js/base.js"></script> 
+    </head>
+
+    <body class="">
+
+      <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+	<div class="container">
+	<a class="navbar-brand" href="..">p2 Docs</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample04" aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+	</button>
+
+	<div class="collapse navbar-collapse">
+          <!-- Main navigation -->
+          <nav class="nav">
+            <ul class="navbar-nav">
+              <li >
+                <a class="nav-link" href="..">Home</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a href="#" role="button" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="nav-dropdown-Installation">Installation <b class="caret"></b></a>
+                <div class="dropdown-menu" aria-labelledby="nav-dropdown-Installation">
+                  
+<a href="../installation/single-node-install/" class="dropdown-item">Single-Node Installation</a>
+                  
+<a href="../installation/install/" class="dropdown-item">Installation</a>
+                </div>
+              </li>
+              <li class="nav-item dropdown">
+                <a href="#" role="button" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="nav-dropdown-Components">Components <b class="caret"></b></a>
+                <div class="dropdown-menu" aria-labelledby="nav-dropdown-Components">
+                  
+<a href="../components/image-attribute-scanning/" class="dropdown-item">Image-attribute Scanning</a>
+                  
+<a href="../components/quota/" class="dropdown-item">Quota</a>
+                  
+<a href="../components/public-access/" class="dropdown-item">Public Access</a>
+                  
+<a href="../components/replication/" class="dropdown-item">Replication</a>
+                  
+<a href="../components/expiry/" class="dropdown-item">Expiry</a>
+                </div>
+              </li>
+              <li class="nav-item dropdown active">
+                <a href="#" role="button" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="nav-dropdown-Migration">Migration <b class="caret"></b></a>
+                <div class="dropdown-menu" aria-labelledby="nav-dropdown-Migration">
+                  
+<a href="./" class="dropdown-item active">Migrating from pyazo</a>
+                </div>
+              </li>
+            </ul>
+          </nav>
+
+          <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
+            <li class="nav-item">
+              <a class="nav-link" href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+		<i class="fa fa-search"></i> Search
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://git.beryju.org/BeryJu.org/p2">Git</a>
+            </li>
+          </ul>
+	</div>
+	</div>
+      </nav><div id="content" class="container">
+        
+      <div class="row">
+        <div class="col-md-9" role="main">
+
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    
+    
+    <li class="breadcrumb-item">Migration</li>
+    
+    
+    <li class="breadcrumb-item active" aria-current="page">Migrating from pyazo</li>
+  </ol>
+</nav>
+
+
+<h1 id="migrating-from-pyazo">Migrating from pyazo</h1>
+<p>To migrate from pyazo to p2, we're going to use the S3-API to mass-import Blobs and copy a matching tier0 Policy.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>A pyazo install (any version)</li>
+<li>A full-configured p2 install (0.1.16+)</li>
+<li>Enough free Space to store all of pyazo's Blobs<ul>
+<li>Check with the following command on the Server pyazo is running on<ul>
+<li><code>du -sh /usr/share/pyazo/media</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Administrative shell access on the pyazo Server</li>
+<li>An API Key in p2</li>
+</ul>
+<p>Recommended, but not required:</p>
+<ul>
+<li>A dedicated volume to import these Blobs into</li>
+</ul>
+<h2 id="preparation">Preparation</h2>
+<p>To migrate the data, we need the the AWS-CLI Client (<a href="https://aws.amazon.com/cli/">https://aws.amazon.com/cli/</a>), so install it on the pyazo host as follows:</p>
+<p><code>sudo pip install awscli</code></p>
+<p>If that doesn't work for some reason, try the bundled installer: <a href="https://docs.aws.amazon.com/cli/latest/userguide/install-bundle.html">https://docs.aws.amazon.com/cli/latest/userguide/install-bundle.html</a></p>
+<p>To make sure it is working correctly, execute the following command to configure your account.</p>
+<p><code>aws configure</code></p>
+<p>In the prompt asking you for an AWS Access Key, input your p2 Access Key. Same goes for the Secret Access Key. When asked for a region, you can input anything, since p2 doesn't use this field currently.</p>
+<p>Now that your AWS-CLI is setup correctly, let's make sure it can interact with p2 correctly. Execute the following command, substituting p2-URL with the URL to your install.</p>
+<p><code>aws --endpoint-url https://&lt;p2-URL&gt; s3 ls</code></p>
+<p>The result should look something like this:</p>
+<p>2006-02-03 16:45:09 pyazo-import-test
+2006-02-03 16:45:09 some-other-volume</p>
+<h2 id="migrating-the-data">Migrating the data</h2>
+<p>To actually migrate the data, we use AWS-CLI's <code>cp</code> Command, which recursively copies all files.</p>
+<p>Run the following in <code>/usr/share/pyazo/media</code> to start the copy process:</p>
+<p><code>aws --endpoint-url https://&lt;p2-URL&gt; s3 cp . s3://&lt;volume-name&gt; --recursive --exclude thumbnails/</code></p>
+<p>This will import all of your data into p2. You can run this command multiple times without creating duplicate objects. </p>
+<h2 id="migrating-the-urls">Migrating the URLs</h2>
+<p>p2 uses a new System to allow you to use URLs of pretty much any format. By default, files will be accessible by their absolute path, e.g.</p>
+<p><code>https://&lt;p2 URL&gt;/&lt;volume&gt;/&lt;blob path&gt;</code></p>
+<p>This will obviously only return the file if the current user has Permissions to read the Blob.</p>
+<p>To preserve the old URLs, which match based on File Hash, you need to create one or more tier0 Policies. A tier0 Policy consists of two parts:</p>
+<ul>
+<li>Tags, which are used to match against the current Request, and determine when the tier0 Policy is triggered.</li>
+<li>A Blob Query, which is used to lookup a Blob from the Database based on the Request.</li>
+</ul>
+<p>Depending on which setting you used for <code>default_return_view</code>, you can create a tier0 Policy based on the table below.</p>
+<table>
+<thead>
+<tr>
+<th>Setting in pyazo</th>
+<th>Tags</th>
+<th>Blob Query</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>view_md5</code></td>
+<td><code>serve.p2.io/match/path/relative: ([A-Fa-f0-9]{32})(\.?[a-zA-Z0-9]*)</code></td>
+<td><code>attributes__blob.p2.io/hash/md5={path_relative}&amp;volume__name=images</code></td>
+</tr>
+<tr>
+<td><code>view_sha512_short</code></td>
+<td><code>serve.p2.io/match/path/relative: ([A-Fa-f0-9]{16})(\.?[a-zA-Z0-9]*)</code></td>
+<td><code>attributes__blob.p2.io/hash/sha512__startswith={path_relative}&amp;volume__name=images</code></td>
+</tr>
+<tr>
+<td><code>view_sha256</code></td>
+<td><code>serve.p2.io/match/path/relative: ([A-Fa-f0-9]{64})(\.?[a-zA-Z0-9]*)</code></td>
+<td><code>attributes__blob.p2.io/hash/sha256={path_relative}&amp;volume__name=images</code></td>
+</tr>
+<tr>
+<td><code>view_sha512</code></td>
+<td><code>serve.p2.io/match/path/relative: ([A-Fa-f0-9]{128})(\.?[a-zA-Z0-9]*)</code></td>
+<td><code>attributes__blob.p2.io/hash/sha512={path_relative}&amp;volume__name=images</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="final-steps">Final Steps</h2>
+<p>To finalise the migration to p2, you should take a look at the following optional components:</p>
+<ul>
+<li><a href="../components/public-access/">Public Access</a></li>
+<li><a href="../components/image-attribute-scanning/">Image-attribute Scanning</a></li>
+</ul>
+
+<ul class="metadata page-metadata" data-bi-name="page info" lang="en-us" dir="ltr">
+  <li class="last-updated-holder displayDate loading">
+    <span class="last-updated-text">Last updated:</span>
+    <time role="presentation" datetime="2018-10-25T00:00:00.000Z" data-article-date-source="ms.date"></time>
+  </li>
+<!--
+  <li class="readingTime">
+    2 minutes to read
+  </li>
+-->
+  <li class="contributors-holder">
+    <span class="contributors-text">Contributors</span>
+    <ul class="contributors" data-bi-name="contributors"></ul>
+  </li>
+</ul>
+</div>
+        <div class="col-md-3"><div class="navbar-light navbar-expand-md hidden-print sticky-top sticky-offset" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    <div id="toc-collapse" class="navbar-collapse collapse card">
+        <ul class="nav flex-column bs-sidenav">
+            <li class="nav-item main"><a class="nav-link" href="#migrating-from-pyazo">Migrating from pyazo</a></li>
+                <li class="nav-item">
+                    <a href="#prerequisites" class="nav-link">Prerequisites</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#preparation" class="nav-link">Preparation</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#migrating-the-data" class="nav-link">Migrating the data</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#migrating-the-urls" class="nav-link">Migrating the URLs</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#final-steps" class="nav-link">Final Steps</a>
+                </li>
+        </ul>
+    </div>
+</div></div>
+      </div>
+      </div>
+
+      <footer class="col-md-12">
+	<hr>
+	<div class="container">
+	</div>
+      </footer>
+      <script>
+	var base_url = "..",
+            shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+      </script>
+      <script src="../js/base.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+      <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
